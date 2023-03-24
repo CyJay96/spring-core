@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.OffsetDateTime;
+
 @Getter
 @Builder
 public class ApiResponse<T> {
 
-//    private final OffsetDateTime timestamp = OffsetDateTime.now();
+    private final String timestamp = OffsetDateTime.now().toString();
 
     private final int status;
 

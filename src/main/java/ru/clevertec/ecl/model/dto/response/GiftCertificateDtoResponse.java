@@ -5,11 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.clevertec.ecl.model.dto.TagDto;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
@@ -33,13 +31,11 @@ public class GiftCertificateDtoResponse {
     @JsonProperty("duration")
     private Long duration;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonProperty("createDate")
-    private OffsetDateTime createDate;
+    private String createDate;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonProperty("lastUpdateDate")
-    private OffsetDateTime lastUpdateDate;
+    private String lastUpdateDate;
 
     @JsonProperty("tags")
     private List<TagDto> tags;
