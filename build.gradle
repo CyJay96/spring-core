@@ -14,12 +14,19 @@ dependencies {
     // Spring
     implementation 'org.springframework:spring-webmvc:6.0.7'
 
+    // Jakarta
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
     // JSON
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
 
-    // Lombok
+    // Lombok and MapStruct
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.1.0'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 
     // Testing
     testCompileOnly 'org.projectlombok:lombok:1.18.26'
