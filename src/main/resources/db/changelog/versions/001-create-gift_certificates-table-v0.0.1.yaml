@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: postgres
+
+  - changeSet:
+      id: 001v0.0.1
+      author: github.com/CyJay96
+      comment: Create GIFT_CERTIFICATES table
+      changes:
+        - createTable:
+            tableName: gift_certificates
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: price
+                  type: numeric(38,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: duration
+                  type: numeric(21,0)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: create_date
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_update_date
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: postgres
+
+  - changeSet:
+      id: 000v0.0.1
+      author: github.com/CyJay96
+      comment: Create SEQUENCE
+      changes:
+        - createSequence:
+            sequenceName: hibernate_sequence
+            incrementBy: 1

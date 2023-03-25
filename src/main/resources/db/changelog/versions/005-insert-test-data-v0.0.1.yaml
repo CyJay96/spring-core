@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005v0.0.1
+      author: github.com/CyJay96
+      context: test
+      changes:
+        - sql:
+            INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
+            VALUES ('gc_name', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+
+            INSERT INTO tags(name)
+            VALUES ('tag_name');
+
+            INSERT INTO gift_certificates_tags(gift_certificate_id,tag_id)
+            VALUES (1, 1);

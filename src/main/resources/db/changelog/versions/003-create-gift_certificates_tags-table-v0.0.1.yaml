@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: postgres
+
+  - changeSet:
+      id: 003v0.0.1
+      author: github.com/CyJay96
+      comment: Create GIFT_CERTIFICATES_TAGS table
+      changes:
+        - createTable:
+            tableName: gift_certificates_tags
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tag_id
+                  type: bigint
+                  constraints:
+                    nullable: false

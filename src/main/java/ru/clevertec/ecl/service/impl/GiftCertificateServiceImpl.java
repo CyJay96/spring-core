@@ -13,6 +13,7 @@ import ru.clevertec.ecl.model.entity.GiftCertificate;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +71,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     Optional.ofNullable(giftCertificateDtoRequest.getName()).ifPresent(giftCertificate::setName);
                     Optional.ofNullable(giftCertificateDtoRequest.getDescription()).ifPresent(giftCertificate::setDescription);
                     Optional.ofNullable(giftCertificateDtoRequest.getPrice()).ifPresent(giftCertificate::setPrice);
-                    Optional.ofNullable(giftCertificateDtoRequest.getDuration()).ifPresent(giftCertificate::setDuration);
+                    Optional.ofNullable(giftCertificateDtoRequest.getDuration()).ifPresent(duration -> giftCertificate.setDuration(Duration.ofDays(duration)));
                     Optional.ofNullable(giftCertificateDtoRequest.getTags())
                             .ifPresent(tagDtoList -> giftCertificate.setTags(tagListMapper.toEntity(tagDtoList)));
 
