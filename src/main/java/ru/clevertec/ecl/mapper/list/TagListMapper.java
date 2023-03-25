@@ -2,7 +2,8 @@ package ru.clevertec.ecl.mapper.list;
 
 import org.mapstruct.Mapper;
 import ru.clevertec.ecl.mapper.TagMapper;
-import ru.clevertec.ecl.model.dto.TagDto;
+import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.model.entity.Tag;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = TagMapper.class)
 public interface TagListMapper {
 
-    List<Tag> toEntity(List<TagDto> tagDtoList);
+    List<Tag> toEntity(List<TagDtoRequest> tagDtoRequestList);
 
-    List<TagDto> toDto(List<Tag> tagList);
+    List<TagDtoResponse> toDto(List<Tag> tagList);
 }

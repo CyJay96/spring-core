@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.clevertec.ecl.model.dto.TagDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -41,5 +40,5 @@ public class GiftCertificateDtoRequest {
     private Long duration;
 
     @JsonProperty("tags")
-    private List<TagDto> tags;
+    private List<TagDtoRequest> tags;
 }

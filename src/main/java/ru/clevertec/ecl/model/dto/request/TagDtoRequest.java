@@ -1,4 +1,4 @@
-package ru.clevertec.ecl.model.dto;
+package ru.clevertec.ecl.model.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -12,10 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagDto {
-
-    @JsonProperty("id")
-    private Long id;
+public class TagDtoRequest {
 
     @NotNull(message = "Name cannot be null")
     @NotBlank(message = "Name cannot be empty")

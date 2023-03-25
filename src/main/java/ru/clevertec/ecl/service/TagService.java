@@ -1,20 +1,21 @@
 package ru.clevertec.ecl.service;
 
-import ru.clevertec.ecl.model.dto.TagDto;
+import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 
 import java.util.List;
 
 public interface TagService {
 
-    TagDto createTag(TagDto tagDto);
+    TagDtoResponse createTag(TagDtoRequest tagDtoRequest);
 
-    List<TagDto> getAllTags();
+    List<TagDtoResponse> getAllTags();
 
-    TagDto getTagById(Long id);
+    TagDtoResponse getTagById(Long id);
 
-    TagDto updateTagById(Long id, TagDto tagDto);
+    TagDtoResponse updateTagById(Long id, TagDtoRequest tagDtoRequest);
 
-    TagDto updateTagByIdPartially(Long id, TagDto tagDto);
+    TagDtoResponse updateTagByIdPartially(Long id, TagDtoRequest tagDtoRequest);
 
     void deleteTagById(Long id);
 }

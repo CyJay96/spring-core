@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
-import ru.clevertec.ecl.model.dto.TagDto;
+import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.TagService;
@@ -23,27 +24,27 @@ public class TagServiceImpl implements TagService {
     private final TagListMapper tagListMapper;
 
     @Override
-    public TagDto createTag(TagDto tagDto) {
-        Tag savedTag = tagRepository.save(tagMapper.toEntity(tagDto));
+    public TagDtoResponse createTag(TagDtoRequest tagDtoRequest) {
+        Tag savedTag = tagRepository.save(tagMapper.toEntity(tagDtoRequest));
         return tagMapper.toDto(savedTag);
     }
 
     @Override
-    public List<TagDto> getAllTags() {
+    public List<TagDtoResponse> getAllTags() {
         List<Tag> tags = tagRepository.findAll();
         return tagListMapper.toDto(tags);
     }
 
     @Override
-    public TagDto getTagById(Long id) {
+    public TagDtoResponse getTagById(Long id) {
         return tagRepository.findById(id)
                 .map(tagMapper::toDto)
                 .orElseThrow(() -> new TagNotFoundException(id));
     }
 
     @Override
-    public TagDto updateTagById(Long id, TagDto tagDto) {
-        Tag tag = tagMapper.toEntity(tagDto);
+    public TagDtoResponse updateTagById(Long id, TagDtoRequest tagDtoRequest) {
+        Tag tag = tagMapper.toEntity(tagDtoRequest);
         tag.setId(id);
 
         Tag savedTag = tagRepository.save(tag);
@@ -51,10 +52,10 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public TagDto updateTagByIdPartially(Long id, TagDto tagDto) {
+    public TagDtoResponse updateTagByIdPartially(Long id, TagDtoRequest tagDtoRequest) {
         Tag updatedTag = tagRepository.findById(id)
                 .map(tag -> {
-                    Optional.ofNullable(tagDto.getName()).ifPresent(tag::setName);
+                    Optional.ofNullable(tagDtoRequest.getName()).ifPresent(tag::setName);
                     return tag;
                 })
                 .orElseThrow(() -> new TagNotFoundException(id));

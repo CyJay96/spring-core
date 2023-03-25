@@ -1,13 +1,14 @@
 package ru.clevertec.ecl.mapper;
 
 import org.mapstruct.Mapper;
-import ru.clevertec.ecl.model.dto.TagDto;
+import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.model.entity.Tag;
 
 @Mapper(componentModel = "spring")
 public interface TagMapper {
 
-    Tag toEntity(TagDto tagDto);
+    Tag toEntity(TagDtoRequest tagDtoRequest);
 
-    TagDto toDto(Tag tag);
+    TagDtoResponse toDto(Tag tag);
 }

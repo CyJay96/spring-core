@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.clevertec.ecl.model.dto.TagDto;
+import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
+import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.service.TagService;
 
 import java.util.List;
@@ -36,10 +37,10 @@ public class TagController {
     public static final String TAG_API_PATH = "/api/v0/tags";
 
     @PostMapping
-    public ResponseEntity<ApiResponse<TagDto>> createTag(
-            @RequestBody @Valid TagDto tagDto
+    public ResponseEntity<ApiResponse<TagDtoResponse>> createTag(
+            @RequestBody @Valid TagDtoRequest tagDtoRequest
     ) {
-        TagDto tag = tagService.createTag(tagDto);
+        TagDtoResponse tag = tagService.createTag(tagDtoRequest);
 
         return apiResponseEntity(
                 "Tag with ID " + tag.getId() + " was created",
@@ -51,8 +52,8 @@ public class TagController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TagDto>>> findAllTags() {
-        List<TagDto> tags = tagService.getAllTags();
+    public ResponseEntity<ApiResponse<List<TagDtoResponse>>> findAllTags() {
+        List<TagDtoResponse> tags = tagService.getAllTags();
 
         return apiResponseEntity(
                 "All Tags",
@@ -64,8 +65,8 @@ public class TagController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TagDto>> findTagById(@PathVariable @Valid @NotNull Long id) {
-        TagDto tag = tagService.getTagById(id);
+    public ResponseEntity<ApiResponse<TagDtoResponse>> findTagById(@PathVariable @Valid @NotNull Long id) {
+        TagDtoResponse tag = tagService.getTagById(id);
 
         return apiResponseEntity(
                 "Tag with ID " + tag.getId() + " was found",
@@ -77,11 +78,11 @@ public class TagController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<TagDto>> updateTagById(
+    public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagById(
             @PathVariable @Valid @NotNull Long id,
-            @RequestBody @Valid TagDto tagDto
+            @RequestBody @Valid TagDtoRequest tagDtoRequest
     ) {
-        TagDto tag = tagService.updateTagById(id, tagDto);
+        TagDtoResponse tag = tagService.updateTagById(id, tagDtoRequest);
 
         return apiResponseEntity(
                 "Changes were applied to the Tag with ID " + id,
@@ -93,11 +94,11 @@ public class TagController {
     }
 
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<TagDto>> updateGiftCertificateByIdPartially(
+    public ResponseEntity<ApiResponse<TagDtoResponse>> updateGiftCertificateByIdPartially(
             @PathVariable @Valid @NotNull Long id,
-            @RequestBody TagDto tagDto
+            @RequestBody TagDtoRequest tagDtoRequest
     ) {
-        TagDto tag = tagService.updateTagByIdPartially(id, tagDto);
+        TagDtoResponse tag = tagService.updateTagByIdPartially(id, tagDtoRequest);
 
         return apiResponseEntity(
                 "Partial changes were applied to the Tag with ID " + id,
