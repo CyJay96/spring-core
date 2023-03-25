@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
 import ru.clevertec.ecl.mapper.list.GiftCertificateListMapper;
-import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
@@ -25,7 +24,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateRepository giftCertificateRepository;
     private final GiftCertificateMapper giftCertificateMapper;
     private final GiftCertificateListMapper giftCertificateListMapper;
-    private final TagListMapper tagListMapper;
 
     @Override
     public GiftCertificateDtoResponse createGiftCertificate(GiftCertificateDtoRequest giftCertificateDtoRequest) {
@@ -56,10 +54,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setId(id);
         giftCertificate.setLastUpdateDate(OffsetDateTime.now());
 
-        if (giftCertificate.getCreateDate() == null) {
-            giftCertificate.setCreateDate(OffsetDateTime.now());
-        }
-
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
         return giftCertificateMapper.toDtoResponse(savedGiftCertificate);
     }
@@ -72,9 +66,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     Optional.ofNullable(giftCertificateDtoRequest.getDescription()).ifPresent(giftCertificate::setDescription);
                     Optional.ofNullable(giftCertificateDtoRequest.getPrice()).ifPresent(giftCertificate::setPrice);
                     Optional.ofNullable(giftCertificateDtoRequest.getDuration()).ifPresent(duration -> giftCertificate.setDuration(Duration.ofDays(duration)));
-                    Optional.ofNullable(giftCertificateDtoRequest.getTags())
-                            .ifPresent(tagDtoList -> giftCertificate.setTags(tagListMapper.toEntity(tagDtoList)));
-
                     giftCertificate.setLastUpdateDate(OffsetDateTime.now());
 
                     return giftCertificate;

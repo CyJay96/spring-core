@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @Builder
@@ -38,7 +37,4 @@ public class GiftCertificateDtoRequest {
     @Positive(message = "Duration must be positive")
     @JsonProperty("duration")
     private Long duration;
-
-    @JsonProperty("tags")
-    private List<TagDtoRequest> tags;
 }

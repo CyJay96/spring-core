@@ -19,34 +19,38 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public Tag save(Tag tag) {
         if (tag.getId() == null) {
-            jdbcTemplate.update("insert into tags(name) values(?)", tag.getName());
-            List<Tag> tags = jdbcTemplate.query("select * from tags", new BeanPropertyRowMapper<>(Tag.class));
-            return tags.stream()
-                    .skip(tags.size() - 1)
-                    .findFirst()
-                    .get();
+            String updateSQL = "insert into tags(name) values(?)";
+            jdbcTemplate.update(updateSQL, tag.getName());
+
+            String selectSQL = "select last_value from tags_id_seq";
+            Long id = jdbcTemplate.queryForObject(selectSQL, Long.class);
+
+            return findById(id).get();
         }
-        jdbcTemplate.update("update tags set name = ? where id = ?", tag.getName(), tag.getId());
-        return jdbcTemplate.query("select * from tags where id = ?", new Object[] {tag.getId()}, new BeanPropertyRowMapper<>(Tag.class))
-                .stream()
-                .findAny()
-                .get();
+
+        String updateSQL = "update tags set name = ? where id = ?";
+        jdbcTemplate.update(updateSQL, tag.getName(), tag.getId());
+
+        return findById(tag.getId()).get();
     }
 
     @Override
     public List<Tag> findAll() {
-        return jdbcTemplate.query("select * from tags", new BeanPropertyRowMapper<>(Tag.class));
+        String SQL = "select * from tags";
+        return jdbcTemplate.query(SQL, new BeanPropertyRowMapper<>(Tag.class));
     }
 
     @Override
     public Optional<Tag> findById(Long id) {
-        return jdbcTemplate.query("select * from tags where id = ?", new Object[] {id}, new BeanPropertyRowMapper<>(Tag.class))
+        String SQL = "select * from tags where id = ?";
+        return jdbcTemplate.query(SQL, new Object[] {id}, new BeanPropertyRowMapper<>(Tag.class))
                 .stream()
                 .findAny();
     }
 
     @Override
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from tags where id = ?", id);
+        String SQL = "delete from tags where id = ?";
+        jdbcTemplate.update(SQL, id);
     }
 }

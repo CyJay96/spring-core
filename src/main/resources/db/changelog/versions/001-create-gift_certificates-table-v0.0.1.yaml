@@ -39,7 +39,7 @@ databaseChangeLog:
 
               - column:
                   name: duration
-                  type: numeric(21,0)
+                  type: bigint
                   constraints:
                     nullable: false
 
