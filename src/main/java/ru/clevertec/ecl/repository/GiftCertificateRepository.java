@@ -13,5 +13,7 @@ public interface GiftCertificateRepository {
 
     Optional<GiftCertificate> findById(Long id);
 
+    List<GiftCertificate> findAllById(Iterable<Long> ids);
+
     void deleteById(Long id);
 }

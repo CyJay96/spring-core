@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
 import ru.clevertec.ecl.mapper.list.GiftCertificateListMapper;
+import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
+import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
 import java.time.Duration;
@@ -22,16 +24,18 @@ import java.util.Optional;
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final GiftCertificateRepository giftCertificateRepository;
+    private final TagRepository tagRepository;
     private final GiftCertificateMapper giftCertificateMapper;
     private final GiftCertificateListMapper giftCertificateListMapper;
+    private final TagListMapper tagListMapper;
 
     @Override
     public GiftCertificateDtoResponse createGiftCertificate(GiftCertificateDtoRequest giftCertificateDtoRequest) {
         GiftCertificate giftCertificate = giftCertificateMapper.toEntity(giftCertificateDtoRequest);
         giftCertificate.setCreateDate(OffsetDateTime.now());
         giftCertificate.setLastUpdateDate(OffsetDateTime.now());
-        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
 
+        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
         return giftCertificateMapper.toDtoResponse(savedGiftCertificate);
     }
 
@@ -54,6 +58,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setId(id);
         giftCertificate.setLastUpdateDate(OffsetDateTime.now());
 
+        if (giftCertificate.getCreateDate() == null) {
+            giftCertificate.setCreateDate(OffsetDateTime.now());
+        }
+
+        tagRepository.deleteAllByGiftCertificateId(id);
+
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
         return giftCertificateMapper.toDtoResponse(savedGiftCertificate);
     }
@@ -67,6 +77,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     Optional.ofNullable(giftCertificateDtoRequest.getPrice()).ifPresent(giftCertificate::setPrice);
                     Optional.ofNullable(giftCertificateDtoRequest.getDuration()).ifPresent(duration -> giftCertificate.setDuration(Duration.ofDays(duration)));
                     giftCertificate.setLastUpdateDate(OffsetDateTime.now());
+
+                    tagRepository.deleteAllByGiftCertificateId(id);
+                    giftCertificate.getTags().clear();
+
+                    Optional.ofNullable(giftCertificateDtoRequest.getTags())
+                            .ifPresent(tagDtoList -> giftCertificate.setTags(tagListMapper.toEntity(tagDtoList)));
 
                     return giftCertificate;
                 })

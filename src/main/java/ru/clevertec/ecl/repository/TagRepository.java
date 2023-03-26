@@ -13,5 +13,11 @@ public interface TagRepository {
 
     Optional<Tag> findById(Long id);
 
+    Optional<Tag> findByName(String name);
+
+    List<Tag> findAllById(Iterable<Long> ids);
+
     void deleteById(Long id);
+
+    void deleteAllByGiftCertificateId(Long id);
 }

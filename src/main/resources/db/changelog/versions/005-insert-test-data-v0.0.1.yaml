@@ -6,10 +6,48 @@ databaseChangeLog:
       changes:
         - sql:
             INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
-            VALUES ('gc_name', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+            VALUES ('gc_name1', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+              
+            INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
+            VALUES ('gc_name2', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+              
+            INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
+            VALUES ('gc_name3', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+              
+            INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
+            VALUES ('gc_name4', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+
 
             INSERT INTO tags(name)
-            VALUES ('tag_name');
+            VALUES ('tag_name1');
+              
+            INSERT INTO tags(name)
+            VALUES ('tag_name2');
+              
+            INSERT INTO tags(name)
+            VALUES ('tag_name3');
+              
+            INSERT INTO tags(name)
+            VALUES ('tag_name4');
 
-            INSERT INTO gift_certificates_tags(gift_certificate_id,tag_id)
+
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
             VALUES (1, 1);
+              
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
+            VALUES (1, 2);
+              
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
+            VALUES (1, 3);
+              
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
+            VALUES (2, 3);
+              
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
+            VALUES (2, 4);
+              
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
+            VALUES (3, 2);
+              
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
+            VALUES (4, 3);
