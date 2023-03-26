@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
@@ -26,6 +27,11 @@ import java.util.List;
 import static ru.clevertec.ecl.controller.TagController.TAG_API_PATH;
 import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 
+/**
+ * Tag API
+ *
+ * @author Konstantin Voytko
+ */
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +42,11 @@ public class TagController {
 
     public static final String TAG_API_PATH = "/api/v0/tags";
 
+    /**
+     * POST /api/v0/tags : Create a new Tag
+     *
+     * @param tagDtoRequest Tag object to create (required)
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<TagDtoResponse>> createTag(
             @RequestBody @Valid TagDtoRequest tagDtoRequest
@@ -51,6 +62,9 @@ public class TagController {
         );
     }
 
+    /**
+     * GET /api/v0/tags : Find Tags info
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<List<TagDtoResponse>>> findAllTags() {
         List<TagDtoResponse> tags = tagService.getAllTags();
@@ -64,6 +78,12 @@ public class TagController {
         );
     }
 
+    /**
+     * GET /api/v0/tags/{id} : Find Tag info
+     *
+     * @param id Tag id to return (required)
+     * @throws TagNotFoundException if the Tag with id doesn't exist
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TagDtoResponse>> findTagById(@PathVariable @Valid @NotNull Long id) {
         TagDtoResponse tag = tagService.getTagById(id);
@@ -77,6 +97,13 @@ public class TagController {
         );
     }
 
+    /**
+     * PUT /api/v0/tags/{id} : Update an existing Tag info
+     *
+     * @param id Tag id to return (required)
+     * @param tagDtoRequest Tag object to update (required)
+     * @throws TagNotFoundException if the Tag with id doesn't exist
+     */
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagById(
             @PathVariable @Valid @NotNull Long id,
@@ -93,6 +120,13 @@ public class TagController {
         );
     }
 
+    /**
+     * PATCH /api/v0/tags/{id} : Partial Update an existing Tag info
+     *
+     * @param id Tag id to return (required)
+     * @param tagDtoRequest Tag object to update (required)
+     * @throws TagNotFoundException if Tag with id doesn't exist
+     */
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<TagDtoResponse>> updateGiftCertificateByIdPartially(
             @PathVariable @Valid @NotNull Long id,
@@ -109,6 +143,12 @@ public class TagController {
         );
     }
 
+    /**
+     * DELETE /api/v0/tags/{id} : Delete a Tag
+     *
+     * @param id Tag id to return (required)
+     * @throws TagNotFoundException if the Tag with id doesn't exist
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteGiftCertificateById(@PathVariable @Valid @NotNull Long id) {
         tagService.deleteTagById(id);

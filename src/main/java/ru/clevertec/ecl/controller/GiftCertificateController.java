@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
@@ -28,6 +29,11 @@ import java.util.List;
 import static ru.clevertec.ecl.controller.GiftCertificateController.GIFT_CERTIFICATE_API_PATH;
 import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 
+/**
+ * Gift Certificate API
+ *
+ * @author Konstantin Voytko
+ */
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +44,11 @@ public class GiftCertificateController {
 
     public static final String GIFT_CERTIFICATE_API_PATH = "/api/v0/giftCertificates";
 
+    /**
+     * POST /api/v0/giftCertificates : Create a new Gift Certificate
+     *
+     * @param giftCertificateDtoRequest Gift Certificate object to create (required)
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> createGiftCertificate(
             @RequestBody @Valid GiftCertificateDtoRequest giftCertificateDtoRequest
@@ -53,6 +64,9 @@ public class GiftCertificateController {
         );
     }
 
+    /**
+     * GET /api/v0/giftCertificates : Find Gift Certificates info
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<List<GiftCertificateDtoResponse>>> findAllGiftCertificates() {
         List<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificates();
@@ -66,6 +80,14 @@ public class GiftCertificateController {
         );
     }
 
+    /**
+     * GET /api/v0/giftCertificates : Find Gift Certificates info by criteria
+     *
+     * @param tagName Gift Certificate tagName to return (not required)
+     * @param description Gift Certificate description to return (not required)
+     * @param sortTypeName Gift Certificate sortTypeName to return (not required)
+     * @param sortTypeDate Gift Certificate sortTypeDate to return (not required)
+     */
     @GetMapping("/criteria")
     public ResponseEntity<ApiResponse<List<GiftCertificateDtoResponse>>> findAllGiftCertificatesByCriteria(
             @RequestParam(value = "tagName", required = false) String tagName,
@@ -92,6 +114,12 @@ public class GiftCertificateController {
         );
     }
 
+    /**
+     * GET /api/v0/giftCertificates/{id} : Find Gift Certificate info
+     *
+     * @param id Gift Certificate id to return (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> findGiftCertificateById(@PathVariable @Valid @NotNull Long id) {
         GiftCertificateDtoResponse giftCertificate = giftCertificateService.getGiftCertificateById(id);
@@ -105,6 +133,13 @@ public class GiftCertificateController {
         );
     }
 
+    /**
+     * PUT /api/v0/giftCertificates/{id} : Update an existing Gift Certificate info
+     *
+     * @param id Gift Certificate id to return (required)
+     * @param giftCertificateDtoRequest Gift Certificate object to update (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> updateGiftCertificateById(
             @PathVariable @Valid @NotNull Long id,
@@ -121,6 +156,13 @@ public class GiftCertificateController {
         );
     }
 
+    /**
+     * PATCH /api/v0/giftCertificates/{id} : Partial Update an existing Gift Certificate info
+     *
+     * @param id Gift Certificate id to return (required)
+     * @param giftCertificateDtoRequest Gift Certificate object to update (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> updateGiftCertificateByIdPartially(
             @PathVariable @Valid @NotNull Long id,
@@ -137,6 +179,12 @@ public class GiftCertificateController {
         );
     }
 
+    /**
+     * DELETE /api/v0/giftCertificates/{id} : Delete a Gift Certificate
+     *
+     * @param id Gift Certificate id to return (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteGiftCertificateById(@PathVariable @Valid @NotNull Long id) {
         giftCertificateService.deleteGiftCertificateById(id);
