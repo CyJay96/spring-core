@@ -1,4 +1,6 @@
 package ru.clevertec.ecl.builder;
 
-public interface TestBuilder {
+public interface TestBuilder<T> {
+
+    T build();
 }
