@@ -128,7 +128,7 @@ public class TagController {
      * @throws TagNotFoundException if Tag with id doesn't exist
      */
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<TagDtoResponse>> updateGiftCertificateByIdPartially(
+    public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagByIdPartially(
             @PathVariable @Valid @NotNull Long id,
             @RequestBody TagDtoRequest tagDtoRequest
     ) {
@@ -150,7 +150,7 @@ public class TagController {
      * @throws TagNotFoundException if the Tag with id doesn't exist
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteGiftCertificateById(@PathVariable @Valid @NotNull Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTagById(@PathVariable @Valid @NotNull Long id) {
         tagService.deleteTagById(id);
 
         return apiResponseEntity(
