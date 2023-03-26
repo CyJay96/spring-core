@@ -39,25 +39,25 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setLastUpdateDate(OffsetDateTime.now());
 
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
-        return giftCertificateMapper.toDtoResponse(savedGiftCertificate);
+        return giftCertificateMapper.toDto(savedGiftCertificate);
     }
 
     @Override
     public List<GiftCertificateDtoResponse> getAllGiftCertificates() {
         List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll();
-        return giftCertificateListMapper.toDtoResponse(giftCertificates);
+        return giftCertificateListMapper.toDto(giftCertificates);
     }
 
     @Override
     public List<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {
         List<GiftCertificate> giftCertificates = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria);
-        return giftCertificateListMapper.toDtoResponse(giftCertificates);
+        return giftCertificateListMapper.toDto(giftCertificates);
     }
 
     @Override
     public GiftCertificateDtoResponse getGiftCertificateById(Long id) {
         return giftCertificateRepository.findById(id)
-                .map(giftCertificateMapper::toDtoResponse)
+                .map(giftCertificateMapper::toDto)
                 .orElseThrow(() -> new GiftCertificateNotFoundException(id));
     }
 
@@ -74,7 +74,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         tagRepository.deleteAllByGiftCertificateId(id);
 
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
-        return giftCertificateMapper.toDtoResponse(savedGiftCertificate);
+        return giftCertificateMapper.toDto(savedGiftCertificate);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .orElseThrow(() -> new GiftCertificateNotFoundException(id));
 
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
-        return giftCertificateMapper.toDtoResponse(savedGiftCertificate);
+        return giftCertificateMapper.toDto(savedGiftCertificate);
     }
 
     @Override

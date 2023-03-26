@@ -19,7 +19,7 @@ import static ru.clevertec.ecl.util.TestConstants.TEST_STRING;
 
 @With
 @AllArgsConstructor
-@NoArgsConstructor(staticName = "aGiftCertificateDtoRequest")
+@NoArgsConstructor(staticName = "aGiftCertificateDtoResponse")
 public class GiftCertificateDtoResponseTestBuilder implements TestBuilder<GiftCertificateDtoResponse> {
 
     private Long id = TEST_ID;
