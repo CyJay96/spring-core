@@ -1,5 +1,6 @@
 package ru.clevertec.ecl.service;
 
+import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 
@@ -10,6 +11,8 @@ public interface GiftCertificateService {
     GiftCertificateDtoResponse createGiftCertificate(GiftCertificateDtoRequest giftCertificateDtoRequest);
 
     List<GiftCertificateDtoResponse> getAllGiftCertificates();
+
+    List<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria);
 
     GiftCertificateDtoResponse getGiftCertificateById(Long id);
 

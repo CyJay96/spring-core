@@ -7,12 +7,14 @@ import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
 import ru.clevertec.ecl.mapper.list.GiftCertificateListMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
+import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
+import ru.clevertec.ecl.service.searcher.GiftCertificateSearcher;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
+    private final GiftCertificateSearcher giftCertificateSearcher;
     private final GiftCertificateRepository giftCertificateRepository;
     private final TagRepository tagRepository;
     private final GiftCertificateMapper giftCertificateMapper;
@@ -42,6 +45,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public List<GiftCertificateDtoResponse> getAllGiftCertificates() {
         List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll();
+        return giftCertificateListMapper.toDtoResponse(giftCertificates);
+    }
+
+    @Override
+    public List<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {
+        List<GiftCertificate> giftCertificates = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria);
         return giftCertificateListMapper.toDtoResponse(giftCertificates);
     }
 

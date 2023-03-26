@@ -74,12 +74,38 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
         String SQL = "select * from gift_certificates";
         List<GiftCertificate> giftCertificates = jdbcTemplate.query(SQL, new GiftCertificateJdbcMapper());
 
-        giftCertificates.forEach(giftCertificate -> {
-            String relationSQL = "select tag_id from gift_certificates_tags where gift_certificate_id = ?";
-            List<Long> tagsIds = jdbcTemplate.queryForList(relationSQL, Long.class, giftCertificate.getId());
-            List<Tag> tags = tagRepository.findAllById(tagsIds);
-            giftCertificate.setTags(tags);
-        });
+        giftCertificates.forEach(giftCertificate -> giftCertificate.setTags(tagRepository.findAllByGiftCertificateId(giftCertificate.getId())));
+
+        return giftCertificates;
+    }
+
+    @Override
+    public List<GiftCertificate> findAllByTagName(String tagName) {
+        List<GiftCertificate> giftCertificates = new ArrayList<>();
+
+        Optional<Tag> tagOptional = tagRepository.findByName(tagName);
+
+        if (tagOptional.isEmpty()) {
+            return giftCertificates;
+        }
+
+        String relationSQL = "select gift_certificate_id from gift_certificates_tags where tag_id = ?";
+        List<Long> ids = jdbcTemplate.queryForList(relationSQL, Long.class, tagOptional.get().getId());
+
+        String selectSQL = "select * from gift_certificates where id = ?";
+        ids.forEach(id -> giftCertificates.addAll(jdbcTemplate.query(selectSQL, new Object[] {id}, new GiftCertificateJdbcMapper())));
+
+        giftCertificates.forEach(giftCertificate -> giftCertificate.setTags(tagRepository.findAllByGiftCertificateId(giftCertificate.getId())));
+
+        return giftCertificates;
+    }
+
+    @Override
+    public List<GiftCertificate> findAllLikeDescription(String description) {
+        String SQL = "select * from gift_certificates where lower(description) like lower(?)";
+        List<GiftCertificate> giftCertificates = jdbcTemplate.query(SQL, new Object[] {"%" + description + "%"}, new GiftCertificateJdbcMapper());
+
+        giftCertificates.forEach(giftCertificate -> giftCertificate.setTags(tagRepository.findAllByGiftCertificateId(giftCertificate.getId())));
 
         return giftCertificates;
     }
@@ -91,24 +117,9 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 .stream()
                 .findAny();
 
-        if (giftCertificate.isPresent()) {
-            String relationSQL = "select tag_id from gift_certificates_tags where gift_certificate_id = ?";
-            List<Long> tagsIds = jdbcTemplate.queryForList(relationSQL, Long.class, id);
-            List<Tag> tags = tagRepository.findAllById(tagsIds);
-            giftCertificate.get().setTags(tags);
-        }
+        giftCertificate.ifPresent(certificate -> certificate.setTags(tagRepository.findAllByGiftCertificateId(id)));
 
         return giftCertificate;
-    }
-
-    @Override
-    public List<GiftCertificate> findAllById(Iterable<Long> ids) {
-        List<GiftCertificate> giftCertificates = new ArrayList<>();
-
-        String SQL = "select * from gift_certificates where id = ?";
-        ids.forEach(id -> giftCertificates.addAll(jdbcTemplate.query(SQL, new Object[] {id}, new GiftCertificateJdbcMapper())));
-
-        return giftCertificates;
     }
 
     @Override

@@ -11,9 +11,11 @@ public interface GiftCertificateRepository {
 
     List<GiftCertificate> findAll();
 
-    Optional<GiftCertificate> findById(Long id);
+    List<GiftCertificate> findAllByTagName(String tagName);
 
-    List<GiftCertificate> findAllById(Iterable<Long> ids);
+    List<GiftCertificate> findAllLikeDescription(String description);
+
+    Optional<GiftCertificate> findById(Long id);
 
     void deleteById(Long id);
 }

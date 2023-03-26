@@ -20,8 +20,6 @@ public class GiftCertificateJdbcMapper implements RowMapper<GiftCertificate> {
         giftCertificate.setDuration(Duration.ofNanos(rs.getLong("duration")));
         giftCertificate.setCreateDate(rs.getObject("create_date", OffsetDateTime.class));
         giftCertificate.setLastUpdateDate(rs.getObject("last_update_date", OffsetDateTime.class));
-        giftCertificate.setCreateDate(OffsetDateTime.now());
-        giftCertificate.setLastUpdateDate(OffsetDateTime.now());
         return giftCertificate;
     }
 }

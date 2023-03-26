@@ -6,29 +6,29 @@ databaseChangeLog:
       changes:
         - sql:
             INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
-            VALUES ('gc_name1', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+            VALUES ('Java course', 'Course about Spring Framework and Spring Boot', '450', 1036800000000000, '2023-03-16 16:25:21.867392', '2023-03-25 16:25:21.867392');
               
             INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
-            VALUES ('gc_name2', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+            VALUES ('C# course', 'Course about .NET Framework', '400', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
               
             INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
-            VALUES ('gc_name3', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+            VALUES ('Python course', 'Course about machine learning and data science', '320', 1036800000000000, '2023-03-19 16:25:21.867392', '2023-03-25 16:25:21.867392');
               
             INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
-            VALUES ('gc_name4', 'gc_description', '4.5', 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392');
+            VALUES ('JavaScript course', 'Course about React JS, Angular JS and View JS', '380', 1036800000000000, '2023-03-07 16:25:21.867392', '2023-03-25 16:25:21.867392');
 
 
             INSERT INTO tags(name)
-            VALUES ('tag_name1');
+            VALUES ('Java');
               
             INSERT INTO tags(name)
-            VALUES ('tag_name2');
+            VALUES ('C Sharp');
               
             INSERT INTO tags(name)
-            VALUES ('tag_name3');
+            VALUES ('Python');
               
             INSERT INTO tags(name)
-            VALUES ('tag_name4');
+            VALUES ('JavaScript');
 
 
             INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)

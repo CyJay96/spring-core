@@ -20,6 +20,11 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public Tag save(Tag tag) {
         if (tag.getId() == null) {
+            Optional<Tag> tagOptional = findByName(tag.getName());
+            if (tagOptional.isPresent()) {
+                return findByName(tagOptional.get().getName()).get();
+            }
+
             String updateSQL = "insert into tags(name) values(?)";
             jdbcTemplate.update(updateSQL, tag.getName());
 
@@ -42,6 +47,23 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    public List<Tag> findAllById(Iterable<Long> ids) {
+        List<Tag> tags = new ArrayList<>();
+
+        String SQL = "select * from tags where id = ?";
+        ids.forEach(id -> tags.addAll(jdbcTemplate.query(SQL, new Object[] {id}, new BeanPropertyRowMapper<>(Tag.class))));
+
+        return tags;
+    }
+
+    @Override
+    public List<Tag> findAllByGiftCertificateId(Long id) {
+        String relationSQL = "select tag_id from gift_certificates_tags where gift_certificate_id = ?";
+        List<Long> tagsIds = jdbcTemplate.queryForList(relationSQL, Long.class, id);
+        return findAllById(tagsIds);
+    }
+
+    @Override
     public Optional<Tag> findById(Long id) {
         String SQL = "select * from tags where id = ?";
         return jdbcTemplate.query(SQL, new Object[] {id}, new BeanPropertyRowMapper<>(Tag.class))
@@ -51,20 +73,10 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Optional<Tag> findByName(String name) {
-        String SQL = "select * from tags where name = ?";
+        String SQL = "select * from tags where lower(name) = lower(?)";
         return jdbcTemplate.query(SQL, new Object[] {name}, new BeanPropertyRowMapper<>(Tag.class))
                 .stream()
                 .findAny();
-    }
-
-    @Override
-    public List<Tag> findAllById(Iterable<Long> ids) {
-        List<Tag> tags = new ArrayList<>();
-
-        String SQL = "select * from tags where id = ?";
-        ids.forEach(id -> tags.addAll(jdbcTemplate.query(SQL, new Object[] {id}, new BeanPropertyRowMapper<>(Tag.class))));
-
-        return tags;
     }
 
     @Override
