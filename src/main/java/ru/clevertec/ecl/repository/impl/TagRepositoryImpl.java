@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.TagRepository;
 
@@ -18,6 +19,7 @@ public class TagRepositoryImpl implements TagRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
+    @Transactional
     public Tag save(Tag tag) {
         if (tag.getId() == null) {
             Optional<Tag> tagOptional = findByName(tag.getName());
@@ -41,12 +43,14 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Transactional
     public List<Tag> findAll() {
         String SQL = "select * from tags";
         return jdbcTemplate.query(SQL, new BeanPropertyRowMapper<>(Tag.class));
     }
 
     @Override
+    @Transactional
     public List<Tag> findAllById(Iterable<Long> ids) {
         List<Tag> tags = new ArrayList<>();
 
@@ -57,6 +61,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Transactional
     public List<Tag> findAllByGiftCertificateId(Long id) {
         String relationSQL = "select tag_id from gift_certificates_tags where gift_certificate_id = ?";
         List<Long> tagsIds = jdbcTemplate.queryForList(relationSQL, Long.class, id);
@@ -64,6 +69,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Transactional
     public Optional<Tag> findById(Long id) {
         String SQL = "select * from tags where id = ?";
         return jdbcTemplate.query(SQL, new Object[] {id}, new BeanPropertyRowMapper<>(Tag.class))
@@ -72,6 +78,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Transactional
     public Optional<Tag> findByName(String name) {
         String SQL = "select * from tags where lower(name) = lower(?)";
         return jdbcTemplate.query(SQL, new Object[] {name}, new BeanPropertyRowMapper<>(Tag.class))
@@ -80,6 +87,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         String deleteSQL1 = "delete from gift_certificates_tags where tag_id = ?";
         jdbcTemplate.update(deleteSQL1, id);
@@ -89,6 +97,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Transactional
     public void deleteAllByGiftCertificateId(Long id) {
         String relationSQL = "select tag_id from gift_certificates_tags where gift_certificate_id = ?";
         List<Long> tagsIds = jdbcTemplate.queryForList(relationSQL, Long.class, id);
@@ -97,8 +106,11 @@ public class TagRepositoryImpl implements TagRepository {
         jdbcTemplate.update(deleteSQL1, id);
 
         tagsIds.forEach(tagId -> {
-            String deleteSQL2 = "delete from tags where id = ?";
+            String deleteSQL2 = "delete from gift_certificates_tags where tag_id = ?";
             jdbcTemplate.update(deleteSQL2, tagId);
+
+            String deleteSQL3 = "delete from tags where id = ?";
+            jdbcTemplate.update(deleteSQL3, tagId);
         });
     }
 }

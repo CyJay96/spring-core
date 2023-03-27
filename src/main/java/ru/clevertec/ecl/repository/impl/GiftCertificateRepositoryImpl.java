@@ -3,6 +3,7 @@ package ru.clevertec.ecl.repository.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.mapper.jdbc.GiftCertificateJdbcMapper;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
 import ru.clevertec.ecl.model.entity.Tag;
@@ -21,6 +22,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private final TagRepository tagRepository;
 
     @Override
+    @Transactional
     public GiftCertificate save(GiftCertificate giftCertificate) {
         if (giftCertificate.getId() != null) {
             return update(giftCertificate);
@@ -70,6 +72,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
+    @Transactional
     public List<GiftCertificate> findAll() {
         String SQL = "select * from gift_certificates";
         List<GiftCertificate> giftCertificates = jdbcTemplate.query(SQL, new GiftCertificateJdbcMapper());
@@ -80,6 +83,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
+    @Transactional
     public List<GiftCertificate> findAllByTagName(String tagName) {
         List<GiftCertificate> giftCertificates = new ArrayList<>();
 
@@ -101,6 +105,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
+    @Transactional
     public List<GiftCertificate> findAllLikeDescription(String description) {
         String SQL = "select * from gift_certificates where lower(description) like lower(?)";
         List<GiftCertificate> giftCertificates = jdbcTemplate.query(SQL, new Object[] {"%" + description + "%"}, new GiftCertificateJdbcMapper());
@@ -111,6 +116,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
+    @Transactional
     public Optional<GiftCertificate> findById(Long id) {
         String SQL = "select * from gift_certificates where id = ?";
         Optional<GiftCertificate> giftCertificate = jdbcTemplate.query(SQL, new Object[]{id}, new GiftCertificateJdbcMapper())
@@ -123,7 +129,11 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
+        String deleteSQL1 = "delete from gift_certificates_tags where gift_certificate_id = ?";
+        jdbcTemplate.update(deleteSQL1, id);
+
         tagRepository.deleteAllByGiftCertificateId(id);
 
         String SQL = "delete from gift_certificates where id = ?";

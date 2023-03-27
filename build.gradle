@@ -24,6 +24,7 @@ dependencies {
 
     // DataBase
     implementation 'org.postgresql:postgresql:42.6.0'
+    testImplementation 'com.h2database:h2:2.1.214'
     implementation 'org.liquibase:liquibase-core:4.20.0'
 
     // Lombok and MapStruct
@@ -36,6 +37,7 @@ dependencies {
     // Testing
     testCompileOnly 'org.projectlombok:lombok:1.18.26'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testImplementation 'org.springframework:spring-test:6.0.7'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.24.2'

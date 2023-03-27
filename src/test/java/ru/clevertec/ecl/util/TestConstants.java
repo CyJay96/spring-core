@@ -5,6 +5,9 @@ import java.time.OffsetDateTime;
 
 public class TestConstants {
 
+    public static final String CREATE_DB = "create-db.sql";
+    public static final String INIT_DB = "init-db.sql";
+
     public static final Long TEST_ID = 1L;
     public static final Long TEST_NUMBER = 1L;
     public static final String TEST_STRING = "test_string";
