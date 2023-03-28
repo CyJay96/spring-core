@@ -1,18 +1,27 @@
 package ru.clevertec.ecl.model.criteria;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.clevertec.ecl.model.enums.SortType;
 
-@Getter
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GiftCertificateCriteria {
 
-    private final String tagName;
+    @JsonProperty("tagName")
+    private String tagName;
 
-    private final String description;
+    @JsonProperty("description")
+    private String description;
 
-    private final SortType sortTypeName;
+    @JsonProperty("sortTypeName")
+    private SortType sortTypeName;
 
-    private final SortType sortTypeDate;
+    @JsonProperty("sortTypeDate")
+    private SortType sortTypeDate;
 }

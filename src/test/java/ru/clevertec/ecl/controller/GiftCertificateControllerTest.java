@@ -15,9 +15,9 @@ import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
-import ru.clevertec.ecl.model.enums.SortType;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
 import java.util.List;
@@ -33,7 +33,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
-import static ru.clevertec.ecl.util.TestConstants.TEST_STRING;
 
 @ExtendWith(MockitoExtension.class)
 class GiftCertificateControllerTest {
@@ -92,9 +91,11 @@ class GiftCertificateControllerTest {
     void checkFindAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponseList() {
         GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
 
-        when(giftCertificateService.getAllGiftCertificatesByCriteria(any())).thenReturn(List.of(giftCertificateDtoResponse));
+        GiftCertificateCriteria searchCriteria = GiftCertificateCriteria.builder().build();
 
-        var giftCertificateDtoList = giftCertificateController.findAllGiftCertificatesByCriteria(TEST_STRING, TEST_STRING, SortType.ASC, SortType.DESC);
+        when(giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria)).thenReturn(List.of(giftCertificateDtoResponse));
+
+        var giftCertificateDtoList = giftCertificateController.findAllGiftCertificatesByCriteria(searchCriteria);
 
         verify(giftCertificateService).getAllGiftCertificatesByCriteria(any());
 

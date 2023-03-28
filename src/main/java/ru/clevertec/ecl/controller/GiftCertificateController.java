@@ -14,14 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
-import ru.clevertec.ecl.model.enums.SortType;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
 import java.util.List;
@@ -83,30 +81,23 @@ public class GiftCertificateController {
     /**
      * GET /api/v0/giftCertificates : Find Gift Certificates info by criteria
      *
-     * @param tagName Gift Certificate tagName to return (not required)
-     * @param description Gift Certificate description to return (not required)
-     * @param sortTypeName Gift Certificate sortTypeName to return (not required)
-     * @param sortTypeDate Gift Certificate sortTypeDate to return (not required)
+     * @param searchCriteria Gift Certificate searchCriteria to return (not required)
      */
     @GetMapping("/criteria")
     public ResponseEntity<ApiResponse<List<GiftCertificateDtoResponse>>> findAllGiftCertificatesByCriteria(
-            @RequestParam(value = "tagName", required = false) String tagName,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "sortTypeName", required = false) SortType sortTypeName,
-            @RequestParam(value = "sortTypeDate", required = false) SortType sortTypeDate
+            @RequestBody(required = false) GiftCertificateCriteria searchCriteria
     ) {
-        GiftCertificateCriteria searchCriteria = GiftCertificateCriteria.builder()
-                .tagName(tagName)
-                .description(description)
-                .sortTypeName(sortTypeName)
-                .sortTypeDate(sortTypeDate)
-                .build();
+        if (searchCriteria == null) {
+            searchCriteria = GiftCertificateCriteria.builder().build();
+        }
 
         List<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
 
         return apiResponseEntity(
-                "Gift Certificates by criteria: tag_name: " + tagName + "; description: " + description +
-                        "; sort_type_name: " + sortTypeName + "; sort_type_date: " + sortTypeDate,
+                "Gift Certificates by criteria: tag_name: " + searchCriteria.getTagName() +
+                        "; description: " + searchCriteria.getDescription() +
+                        "; sort_type_name: " + searchCriteria.getSortTypeName() +
+                        "; sort_type_date: " + searchCriteria.getSortTypeDate(),
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
