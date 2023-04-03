@@ -9,11 +9,9 @@ public interface GiftCertificateRepository {
 
     GiftCertificate save(GiftCertificate giftCertificate);
 
+    GiftCertificate update(GiftCertificate giftCertificate);
+
     List<GiftCertificate> findAll();
-
-    List<GiftCertificate> findAllByTagName(String tagName);
-
-    List<GiftCertificate> findAllLikeDescription(String description);
 
     Optional<GiftCertificate> findById(Long id);
 
