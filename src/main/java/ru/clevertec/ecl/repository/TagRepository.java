@@ -9,17 +9,13 @@ public interface TagRepository {
 
     Tag save(Tag tag);
 
+    Tag update(Tag tag);
+
     List<Tag> findAll();
-
-    List<Tag> findAllById(Iterable<Long> ids);
-
-    List<Tag> findAllByGiftCertificateId(Long id);
 
     Optional<Tag> findById(Long id);
 
     Optional<Tag> findByName(String name);
 
     void deleteById(Long id);
-
-    void deleteAllByGiftCertificateId(Long id);
 }

@@ -47,7 +47,7 @@ public class TagServiceImpl implements TagService {
         Tag tag = tagMapper.toEntity(tagDtoRequest);
         tag.setId(id);
 
-        Tag savedTag = tagRepository.save(tag);
+        Tag savedTag = tagRepository.update(tag);
         return tagMapper.toDto(savedTag);
     }
 
@@ -60,7 +60,7 @@ public class TagServiceImpl implements TagService {
                 })
                 .orElseThrow(() -> new TagNotFoundException(id));
 
-        Tag savedTag = tagRepository.save(updatedTag);
+        Tag savedTag = tagRepository.update(updatedTag);
         return tagMapper.toDto(savedTag);
     }
 
