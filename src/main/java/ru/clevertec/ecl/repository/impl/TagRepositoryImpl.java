@@ -1,6 +1,7 @@
 package ru.clevertec.ecl.repository.impl;
 
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.model.entity.Tag;
@@ -26,10 +27,13 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public List<Tag> findAll() {
+    public List<Tag> findAll(Integer page, Integer pageSize) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-            String query = "select t from Tag t";
-            return session.createQuery(query, Tag.class).list();
+            String SQL = "select t from Tag t";
+            Query<Tag> query = session.createQuery(SQL, Tag.class);
+            query.setFirstResult(page * pageSize);
+            query.setMaxResults((page + 1) * pageSize);
+            return query.list();
         }
     }
 
@@ -40,15 +44,6 @@ public class TagRepositoryImpl implements TagRepository {
             return Optional.of(tag);
         } catch (NullPointerException e) {
             return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<Tag> findByName(String name) {
-        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-            String query = "select t from Tag t where lower(t.name) = lower(:name)";
-            List<Tag> tags = session.createQuery(query, Tag.class).setParameter("name", name).list();
-            return tags.stream().findAny();
         }
     }
 

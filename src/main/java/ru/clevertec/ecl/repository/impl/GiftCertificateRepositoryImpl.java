@@ -1,6 +1,7 @@
 package ru.clevertec.ecl.repository.impl;
 
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
@@ -26,10 +27,13 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public List<GiftCertificate> findAll() {
+    public List<GiftCertificate> findAll(Integer page, Integer pageSize) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-            String query = "select gc from GiftCertificate gc";
-            return session.createQuery(query, GiftCertificate.class).list();
+            String SQL = "select gc from GiftCertificate gc";
+            Query<GiftCertificate> query = session.createQuery(SQL, GiftCertificate.class);
+            query.setFirstResult(page * pageSize);
+            query.setMaxResults((page + 1) * pageSize);
+            return query.list();
         }
     }
 

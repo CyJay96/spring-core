@@ -11,7 +11,7 @@ public interface GiftCertificateRepository {
 
     GiftCertificate update(GiftCertificate giftCertificate);
 
-    List<GiftCertificate> findAll();
+    List<GiftCertificate> findAll(Integer page, Integer pageSize);
 
     Optional<GiftCertificate> findById(Long id);
 

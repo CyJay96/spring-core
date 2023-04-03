@@ -1,15 +1,14 @@
 package ru.clevertec.ecl.service;
 
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
-
-import java.util.List;
 
 public interface TagService {
 
     TagDtoResponse createTag(TagDtoRequest tagDtoRequest);
 
-    List<TagDtoResponse> getAllTags();
+    PageResponse<TagDtoResponse> getAllTags(Integer page, Integer pageSize);
 
     TagDtoResponse getTagById(Long id);
 

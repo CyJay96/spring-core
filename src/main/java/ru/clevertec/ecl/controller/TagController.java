@@ -13,16 +13,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.service.TagService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.TagController.TAG_API_PATH;
 import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
@@ -39,6 +42,7 @@ import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 public class TagController {
 
     private final TagService tagService;
+    private final PaginationProperties paginationProperties;
 
     public static final String TAG_API_PATH = "/api/v0/tags";
 
@@ -64,10 +68,19 @@ public class TagController {
 
     /**
      * GET /api/v0/tags : Find Tags info
+     *
+     * @param page page value to return (not required)
+     * @param pageSize page size to return (not required)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TagDtoResponse>>> findAllTags() {
-        List<TagDtoResponse> tags = tagService.getAllTags();
+    public ResponseEntity<ApiResponse<PageResponse<TagDtoResponse>>> findAllTags(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize
+    ) {
+        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
+        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
+
+        PageResponse<TagDtoResponse> tags = tagService.getAllTags(page, pageSize);
 
         return apiResponseEntity(
                 "All Tags",

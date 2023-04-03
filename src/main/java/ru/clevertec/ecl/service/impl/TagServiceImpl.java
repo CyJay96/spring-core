@@ -7,6 +7,7 @@ import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.TagRepository;
@@ -30,9 +31,15 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDtoResponse> getAllTags() {
-        List<Tag> tags = tagRepository.findAll();
-        return tagListMapper.toDto(tags);
+    public PageResponse<TagDtoResponse> getAllTags(Integer page, Integer pageSize) {
+        List<Tag> tags = tagRepository.findAll(page, pageSize);
+        List<TagDtoResponse> tagDtoResponses = tagListMapper.toDto(tags);
+        return PageResponse.<TagDtoResponse>builder()
+                .content(tagDtoResponses)
+                .number(page)
+                .size(pageSize)
+                .numberOfElements(tagDtoResponses.size())
+                .build();
     }
 
     @Override

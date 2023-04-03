@@ -10,6 +10,7 @@ import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
@@ -41,15 +42,31 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDtoResponse> getAllGiftCertificates() {
-        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll();
-        return giftCertificateListMapper.toDto(giftCertificates);
+    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize) {
+        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(page, pageSize);
+        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificateListMapper.toDto(giftCertificates);
+        return PageResponse.<GiftCertificateDtoResponse>builder()
+                .content(giftCertificateDtoResponses)
+                .number(page)
+                .size(pageSize)
+                .numberOfElements(giftCertificateDtoResponses.size())
+                .build();
     }
 
     @Override
-    public List<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {
-        List<GiftCertificate> giftCertificates = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria);
-        return giftCertificateListMapper.toDto(giftCertificates);
+    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(
+            GiftCertificateCriteria searchCriteria,
+            Integer page,
+            Integer pageSize
+    ) {
+        List<GiftCertificate> giftCertificates = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria, page, pageSize);
+        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificateListMapper.toDto(giftCertificates);
+        return PageResponse.<GiftCertificateDtoResponse>builder()
+                .content(giftCertificateDtoResponses)
+                .number(page)
+                .size(pageSize)
+                .numberOfElements(giftCertificateDtoResponses.size())
+                .build();
     }
 
     @Override

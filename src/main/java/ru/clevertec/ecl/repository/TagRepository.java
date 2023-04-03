@@ -11,11 +11,9 @@ public interface TagRepository {
 
     Tag update(Tag tag);
 
-    List<Tag> findAll();
+    List<Tag> findAll(Integer page, Integer pageSize);
 
     Optional<Tag> findById(Long id);
-
-    Optional<Tag> findByName(String name);
 
     void deleteById(Long id);
 }

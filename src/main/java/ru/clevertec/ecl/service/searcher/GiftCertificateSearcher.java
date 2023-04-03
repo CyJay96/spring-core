@@ -9,6 +9,7 @@ import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.model.enums.SortType;
 import ru.clevertec.ecl.util.HibernateUtil;
 
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -22,7 +23,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GiftCertificateSearcher {
 
-    public List<GiftCertificate> getGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {
+    public List<GiftCertificate> getGiftCertificatesByCriteria(
+            GiftCertificateCriteria searchCriteria,
+            Integer page,
+            Integer pageSize
+    ) {
         List<GiftCertificate> giftCertificates = new ArrayList<>();
 
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -53,7 +58,13 @@ public class GiftCertificateSearcher {
                         "%" + searchCriteria.getDescription().toUpperCase() + "%"));
             }
 
-            criteriaQuery.select(root).where(predicates.toArray(new Predicate[predicates.size()]));
+            // pagination
+            CriteriaQuery<GiftCertificate> select = criteriaQuery
+                    .select(root)
+                    .where(predicates.toArray(new Predicate[predicates.size()]));
+            TypedQuery<GiftCertificate> typedQuery = session.createQuery(select);
+            typedQuery.setFirstResult(page * pageSize);
+            typedQuery.setMaxResults((page + 1) * pageSize);
 
             // sort name field
             if (searchCriteria.getSortTypeName() != null) {
@@ -73,7 +84,7 @@ public class GiftCertificateSearcher {
                 }
             }
 
-            giftCertificates.addAll(session.createQuery(criteriaQuery).getResultList());
+            giftCertificates.addAll(typedQuery.getResultList());
         }
 
         return giftCertificates;
