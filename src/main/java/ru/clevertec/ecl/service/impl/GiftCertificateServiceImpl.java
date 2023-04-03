@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
@@ -117,7 +116,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void deleteGiftCertificateById(Long id) {
         try {
             giftCertificateRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (Exception e) {
             throw new GiftCertificateNotFoundException(id);
         }
     }

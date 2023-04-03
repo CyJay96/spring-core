@@ -40,7 +40,8 @@ public class Tag implements BaseEntity<Long> {
     private String name;
 
     @ToString.Exclude
-    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<GiftCertificate> giftCertificates = new ArrayList<>();
 
     public void addGiftCertificate(GiftCertificate giftCertificate) {

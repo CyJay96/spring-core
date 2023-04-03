@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
@@ -75,7 +74,7 @@ public class TagServiceImpl implements TagService {
     public void deleteTagById(Long id) {
         try {
             tagRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (Exception e) {
             throw new TagNotFoundException(id);
         }
     }
