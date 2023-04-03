@@ -1,7 +1,5 @@
 package ru.clevertec.ecl.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +20,8 @@ import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.service.TagService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static ru.clevertec.ecl.controller.TagController.TAG_API_PATH;
