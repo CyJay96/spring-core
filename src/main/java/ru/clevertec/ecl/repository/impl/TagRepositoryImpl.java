@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public class TagRepositoryImpl implements TagRepository {
 
     @Override
-    @Transactional
     public Tag save(Tag tag) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();
@@ -26,7 +26,6 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    @Transactional
     public List<Tag> findAll() {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             String query = "select t from Tag t";
@@ -35,7 +34,6 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    @Transactional
     public Optional<Tag> findById(Long id) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             Tag tag = session.find(Tag.class, id);
@@ -46,7 +44,6 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    @Transactional
     public Optional<Tag> findByName(String name) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             String query = "select t from Tag t where lower(t.name) = lower(:name)";
@@ -66,7 +63,6 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    @Transactional
     public void deleteById(Long id) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();

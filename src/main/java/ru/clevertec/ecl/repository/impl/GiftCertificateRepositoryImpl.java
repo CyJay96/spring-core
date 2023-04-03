@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
     @Override
-    @Transactional
     public GiftCertificate save(GiftCertificate giftCertificate) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();
@@ -26,7 +26,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    @Transactional
     public List<GiftCertificate> findAll() {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             String query = "select gc from GiftCertificate gc";
@@ -35,7 +34,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    @Transactional
     public Optional<GiftCertificate> findById(Long id) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             GiftCertificate giftCertificate = session.find(GiftCertificate.class, id);
@@ -46,7 +44,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    @Transactional
     public GiftCertificate update(GiftCertificate giftCertificate) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();
@@ -57,7 +54,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    @Transactional
     public void deleteById(Long id) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();
