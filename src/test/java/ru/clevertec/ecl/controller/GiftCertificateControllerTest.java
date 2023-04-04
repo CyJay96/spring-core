@@ -14,10 +14,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
+import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
 import java.util.List;
@@ -27,11 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static ru.clevertec.ecl.util.TestConstants.PAGE;
+import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,12 +47,15 @@ class GiftCertificateControllerTest {
     @Mock
     private GiftCertificateService giftCertificateService;
 
+    @Mock
+    private PaginationProperties paginationProperties;
+
     @Captor
     ArgumentCaptor<GiftCertificateDtoRequest> giftCertificateDtoRequestCaptor;
 
     @BeforeEach
     void setUp() {
-        giftCertificateController = new GiftCertificateController(giftCertificateService);
+        giftCertificateController = new GiftCertificateController(giftCertificateService, paginationProperties);
     }
 
     @Test
@@ -71,37 +79,51 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("Find all Gift Certificates")
-    void checkFindAllGiftCertificatesShouldReturnGiftCertificateDtoResponseList() {
+    void checkFindAllGiftCertificatesShouldReturnGiftCertificateDtoResponsePage() {
         GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
 
-        when(giftCertificateService.getAllGiftCertificates()).thenReturn(List.of(giftCertificateDtoResponse));
+        PageResponse<GiftCertificateDtoResponse> pageResponse = PageResponse.<GiftCertificateDtoResponse>builder()
+                .content(List.of(giftCertificateDtoResponse))
+                .number(PAGE)
+                .size(PAGE_SIZE)
+                .numberOfElements(1)
+                .build();
 
-        var giftCertificateDtoList = giftCertificateController.findAllGiftCertificates();
+        when(giftCertificateService.getAllGiftCertificates(PAGE, PAGE_SIZE)).thenReturn(pageResponse);
 
-        verify(giftCertificateService).getAllGiftCertificates();
+        var giftCertificateDtoList = giftCertificateController.findAllGiftCertificates(PAGE, PAGE_SIZE);
+
+        verify(giftCertificateService).getAllGiftCertificates(anyInt(), anyInt());
 
         assertAll(
                 () -> assertThat(giftCertificateDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().get(0)).isEqualTo(giftCertificateDtoResponse)
+                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().getContent().get(0)).isEqualTo(giftCertificateDtoResponse)
         );
     }
 
     @Test
     @DisplayName("Find all Gift Certificates by criteria")
-    void checkFindAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponseList() {
+    void checkFindAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponsePage() {
         GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
 
         GiftCertificateCriteria searchCriteria = GiftCertificateCriteria.builder().build();
 
-        when(giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria)).thenReturn(List.of(giftCertificateDtoResponse));
+        PageResponse<GiftCertificateDtoResponse> pageResponse = PageResponse.<GiftCertificateDtoResponse>builder()
+                .content(List.of(giftCertificateDtoResponse))
+                .number(PAGE)
+                .size(PAGE_SIZE)
+                .numberOfElements(1)
+                .build();
 
-        var giftCertificateDtoList = giftCertificateController.findAllGiftCertificatesByCriteria(searchCriteria);
+        when(giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE)).thenReturn(pageResponse);
 
-        verify(giftCertificateService).getAllGiftCertificatesByCriteria(any());
+        var giftCertificateDtoList = giftCertificateController.findAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE);
+
+        verify(giftCertificateService).getAllGiftCertificatesByCriteria(any(), anyInt(), anyInt());
 
         assertAll(
                 () -> assertThat(giftCertificateDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().get(0)).isEqualTo(giftCertificateDtoResponse)
+                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().getContent().get(0)).isEqualTo(giftCertificateDtoResponse)
         );
     }
 
