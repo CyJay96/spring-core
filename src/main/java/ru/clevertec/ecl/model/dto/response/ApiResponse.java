@@ -1,5 +1,6 @@
 package ru.clevertec.ecl.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,16 +13,22 @@ import java.time.OffsetDateTime;
 @Builder
 public class ApiResponse<T> {
 
+    @JsonProperty("timestamp")
     private final String timestamp = OffsetDateTime.now().toString();
 
+    @JsonProperty("status")
     private final int status;
 
+    @JsonProperty("message")
     private final String message;
 
+    @JsonProperty("path")
     private final String path;
 
+    @JsonProperty("color")
     private final String color;
 
+    @JsonProperty("data")
     private final T data;
 
     @Getter
