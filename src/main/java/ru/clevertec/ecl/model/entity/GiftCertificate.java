@@ -63,11 +63,10 @@ public class GiftCertificate implements BaseEntity<Long> {
     private OffsetDateTime lastUpdateDate;
 
     @ToString.Exclude
-    @ManyToMany(fetch = FetchType.EAGER,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "gift_certificates_tags",
-            joinColumns = {@JoinColumn(name = "gift_certificate_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "tag_id", referencedColumnName = "id")})
+            joinColumns = {@JoinColumn(name = "gift_certificate_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
     private List<Tag> tags = new ArrayList<>();
 
     public void addTag(Tag tag) {

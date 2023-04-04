@@ -8,7 +8,6 @@ import ru.clevertec.ecl.model.entity.GiftCertificate;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.util.HibernateUtil;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,9 +19,9 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     public GiftCertificate save(GiftCertificate giftCertificate) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();
-            Serializable id = session.save(giftCertificate);
+            session.persist(giftCertificate);
             session.getTransaction().commit();
-            return session.find(GiftCertificate.class, id);
+            return giftCertificate;
         }
     }
 
@@ -51,9 +50,10 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     public GiftCertificate update(GiftCertificate giftCertificate) {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();
-            session.update(giftCertificate);
+            session.delete(giftCertificate);
+            session.persist(giftCertificate);
             session.getTransaction().commit();
-            return session.find(GiftCertificate.class, giftCertificate.getId());
+            return giftCertificate;
         }
     }
 
