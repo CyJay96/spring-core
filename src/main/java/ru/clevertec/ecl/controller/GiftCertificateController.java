@@ -83,7 +83,9 @@ public class GiftCertificateController {
         PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificates(page, pageSize);
 
         return apiResponseEntity(
-                "All Gift Certificates",
+                "All Gift Certificates: " +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
@@ -111,13 +113,18 @@ public class GiftCertificateController {
             searchCriteria = GiftCertificateCriteria.builder().build();
         }
 
-        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, page, pageSize);
+        searchCriteria.setOffset(page);
+        searchCriteria.setLimit(pageSize);
+
+        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
 
         return apiResponseEntity(
                 "Gift Certificates by criteria: tag_name: " + searchCriteria.getTagName() +
                         "; description: " + searchCriteria.getDescription() +
-                        "; sort_type_name: " + searchCriteria.getSortTypeName() +
-                        "; sort_type_date: " + searchCriteria.getSortTypeDate(),
+                        "; sort_direction_name: " + searchCriteria.getSortDirectionName() +
+                        "; sort_direction_date: " + searchCriteria.getSortDirectionDate() +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,

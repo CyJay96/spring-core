@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
-import ru.clevertec.ecl.mapper.list.GiftCertificateListMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
@@ -30,7 +29,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateSearcher giftCertificateSearcher;
     private final GiftCertificateRepository giftCertificateRepository;
     private final GiftCertificateMapper giftCertificateMapper;
-    private final GiftCertificateListMapper giftCertificateListMapper;
     private final TagListMapper tagListMapper;
 
     @Override
@@ -60,17 +58,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(
-            GiftCertificateCriteria searchCriteria,
-            Integer page,
-            Integer pageSize
-    ) {
-        List<GiftCertificate> giftCertificates = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria, page, pageSize);
-        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificateListMapper.toDto(giftCertificates);
+    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {
+        Page<GiftCertificate> giftCertificatePage = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria);
+
+        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificatePage.stream()
+                .map(giftCertificateMapper::toDto)
+                .toList();
+
         return PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(giftCertificateDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(searchCriteria.getLimit())
+                .size(searchCriteria.getOffset())
                 .numberOfElements(giftCertificateDtoResponses.size())
                 .build();
     }

@@ -83,7 +83,9 @@ public class TagController {
         PageResponse<TagDtoResponse> tags = tagService.getAllTags(page, pageSize);
 
         return apiResponseEntity(
-                "All Tags",
+                "All Tags: " +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
                 TAG_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,

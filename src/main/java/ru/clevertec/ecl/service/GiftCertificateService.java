@@ -11,7 +11,7 @@ public interface GiftCertificateService {
 
     PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize);
 
-    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria, Integer page, Integer pageSize);
+    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria);
 
     GiftCertificateDtoResponse getGiftCertificateById(Long id);
 
