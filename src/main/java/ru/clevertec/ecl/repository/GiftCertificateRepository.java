@@ -1,19 +1,9 @@
 package ru.clevertec.ecl.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface GiftCertificateRepository {
-
-    GiftCertificate save(GiftCertificate giftCertificate);
-
-    GiftCertificate update(GiftCertificate giftCertificate);
-
-    List<GiftCertificate> findAll(Integer page, Integer pageSize);
-
-    Optional<GiftCertificate> findById(Long id);
-
-    void deleteById(Long id);
+@Repository
+public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long> {
 }

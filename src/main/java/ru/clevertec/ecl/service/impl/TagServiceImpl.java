@@ -1,10 +1,12 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
-import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
@@ -21,7 +23,6 @@ public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final TagMapper tagMapper;
-    private final TagListMapper tagListMapper;
 
     @Override
     public TagDtoResponse createTag(TagDtoRequest tagDtoRequest) {
@@ -31,8 +32,12 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public PageResponse<TagDtoResponse> getAllTags(Integer page, Integer pageSize) {
-        List<Tag> tags = tagRepository.findAll(page, pageSize);
-        List<TagDtoResponse> tagDtoResponses = tagListMapper.toDto(tags);
+        Page<Tag> tagPage = tagRepository.findAll(PageRequest.of(page, pageSize));
+
+        List<TagDtoResponse> tagDtoResponses = tagPage.stream()
+                .map(tagMapper::toDto)
+                .toList();
+
         return PageResponse.<TagDtoResponse>builder()
                 .content(tagDtoResponses)
                 .number(page)
@@ -53,7 +58,7 @@ public class TagServiceImpl implements TagService {
         Tag tag = tagMapper.toEntity(tagDtoRequest);
         tag.setId(id);
 
-        Tag savedTag = tagRepository.update(tag);
+        Tag savedTag = tagRepository.save(tag);
         return tagMapper.toDto(savedTag);
     }
 
@@ -66,7 +71,7 @@ public class TagServiceImpl implements TagService {
                 })
                 .orElseThrow(() -> new TagNotFoundException(id));
 
-        Tag savedTag = tagRepository.update(updatedTag);
+        Tag savedTag = tagRepository.save(updatedTag);
         return tagMapper.toDto(savedTag);
     }
 
@@ -74,7 +79,7 @@ public class TagServiceImpl implements TagService {
     public void deleteTagById(Long id) {
         try {
             tagRepository.deleteById(id);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new TagNotFoundException(id);
         }
     }

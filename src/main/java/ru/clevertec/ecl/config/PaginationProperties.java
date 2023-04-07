@@ -1,13 +1,20 @@
 package ru.clevertec.ecl.config;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
 @Data
+@Validated
 @Configuration
+@ConfigurationProperties(prefix = "app.pagination")
 public class PaginationProperties {
 
-    private final Integer defaultPageValue = 0;
+    @NotNull
+    private Integer defaultPageValue;
 
-    private final Integer defaultPageSize = 18;
+    @NotNull
+    private Integer defaultPageSize;
 }

@@ -1,6 +1,9 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
@@ -42,8 +45,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize) {
-        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(page, pageSize);
-        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificateListMapper.toDto(giftCertificates);
+        Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(PageRequest.of(page, pageSize));
+
+        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificatePage.stream()
+                .map(giftCertificateMapper::toDto)
+                .toList();
+
         return PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(giftCertificateDtoResponses)
                 .number(page)
@@ -85,7 +92,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             giftCertificate.setCreateDate(OffsetDateTime.now());
         }
 
-        GiftCertificate savedGiftCertificate = giftCertificateRepository.update(giftCertificate);
+        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
         return giftCertificateMapper.toDto(savedGiftCertificate);
     }
 
@@ -108,7 +115,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 })
                 .orElseThrow(() -> new GiftCertificateNotFoundException(id));
 
-        GiftCertificate savedGiftCertificate = giftCertificateRepository.update(updatedGiftCertificate);
+        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
         return giftCertificateMapper.toDto(savedGiftCertificate);
     }
 
@@ -116,7 +123,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void deleteGiftCertificateById(Long id) {
         try {
             giftCertificateRepository.deleteById(id);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new GiftCertificateNotFoundException(id);
         }
     }
