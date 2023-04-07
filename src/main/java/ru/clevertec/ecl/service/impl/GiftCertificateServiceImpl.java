@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
@@ -13,7 +14,9 @@ import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
+import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
+import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 import ru.clevertec.ecl.service.searcher.GiftCertificateSearcher;
 
@@ -28,6 +31,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final GiftCertificateSearcher giftCertificateSearcher;
     private final GiftCertificateRepository giftCertificateRepository;
+    private final TagRepository tagRepository;
     private final GiftCertificateMapper giftCertificateMapper;
     private final TagListMapper tagListMapper;
 
@@ -115,6 +119,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
         return giftCertificateMapper.toDto(savedGiftCertificate);
+    }
+
+    @Override
+    public GiftCertificateDtoResponse addTagToGiftCertificate(Long giftCertificateId, Long tagId) {
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateId)
+                .orElseThrow(() -> new GiftCertificateNotFoundException(giftCertificateId));
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new TagNotFoundException(tagId));
+
+        giftCertificate.getTags().add(tag);
+
+        return giftCertificateMapper.toDto(giftCertificateRepository.save(giftCertificate));
     }
 
     @Override

@@ -5,8 +5,8 @@ import java.time.OffsetDateTime;
 
 public class TestConstants {
 
-    public static final String CREATE_DB = "create-db.sql";
-    public static final String INIT_DB = "init-db.sql";
+    public static final String CREATE_DB = "schema.sql";
+    public static final String INIT_DB = "data.sql";
 
     public static final Integer PAGE = 1;
     public static final Integer PAGE_SIZE = 18;

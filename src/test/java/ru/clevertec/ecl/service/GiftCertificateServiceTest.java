@@ -11,12 +11,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateTestBuilder;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
-import ru.clevertec.ecl.mapper.list.GiftCertificateListMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
@@ -34,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -60,9 +60,6 @@ class GiftCertificateServiceTest {
     private GiftCertificateMapper giftCertificateMapper;
 
     @Mock
-    private GiftCertificateListMapper giftCertificateListMapper;
-
-    @Mock
     private TagListMapper tagListMapper;
 
     @Captor
@@ -71,7 +68,7 @@ class GiftCertificateServiceTest {
     @BeforeEach
     void setUp() {
         giftCertificateService = new GiftCertificateServiceImpl(giftCertificateSearcher, giftCertificateRepository,
-                giftCertificateMapper, giftCertificateListMapper, tagListMapper);
+                giftCertificateMapper, tagListMapper);
     }
 
     @Test
@@ -103,13 +100,13 @@ class GiftCertificateServiceTest {
         GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
         GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
 
-        when(giftCertificateRepository.findAll(PAGE, PAGE_SIZE)).thenReturn(List.of(giftCertificate));
-        when(giftCertificateListMapper.toDto(List.of(giftCertificate))).thenReturn(List.of(giftCertificateDtoResponse));
+        when(giftCertificateRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(giftCertificate)));
+        when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
 
         PageResponse<GiftCertificateDtoResponse> response = giftCertificateService.getAllGiftCertificates(PAGE, PAGE_SIZE);
 
-        verify(giftCertificateRepository).findAll(anyInt(), anyInt());
-        verify(giftCertificateListMapper).toDto(any());
+        verify(giftCertificateRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        verify(giftCertificateMapper).toDto(any());
 
         assertThat(response.getContent().get(0)).isEqualTo(giftCertificateDtoResponse);
     }
@@ -124,13 +121,13 @@ class GiftCertificateServiceTest {
                 .tagName(TEST_STRING)
                 .build();
 
-        when(giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE)).thenReturn(List.of(giftCertificate));
-        when(giftCertificateListMapper.toDto(List.of(giftCertificate))).thenReturn(List.of(giftCertificateDtoResponse));
+        when(giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria)).thenReturn(new PageImpl<>(List.of(giftCertificate)));
+        when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
 
-        PageResponse<GiftCertificateDtoResponse> response = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE);
+        PageResponse<GiftCertificateDtoResponse> response = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
 
-        verify(giftCertificateSearcher).getGiftCertificatesByCriteria(any(), anyInt(), anyInt());
-        verify(giftCertificateListMapper).toDto(any());
+        verify(giftCertificateSearcher).getGiftCertificatesByCriteria(any());
+        verify(giftCertificateMapper).toDto(any());
 
         assertThat(response.getContent().get(0)).isEqualTo(giftCertificateDtoResponse);
     }
@@ -176,13 +173,13 @@ class GiftCertificateServiceTest {
             GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
             GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
 
-            when(giftCertificateRepository.update(giftCertificate)).thenReturn(giftCertificate);
+            when(giftCertificateRepository.save(giftCertificate)).thenReturn(giftCertificate);
             when(giftCertificateMapper.toEntity(giftCertificateDtoRequest)).thenReturn(giftCertificate);
             when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
 
             GiftCertificateDtoResponse response = giftCertificateService.updateGiftCertificateById(id, giftCertificateDtoRequest);
 
-            verify(giftCertificateRepository).update(giftCertificateCaptor.capture());
+            verify(giftCertificateRepository).save(giftCertificateCaptor.capture());
             verify(giftCertificateMapper).toEntity(any());
             verify(giftCertificateMapper).toDto(any());
 
@@ -201,13 +198,13 @@ class GiftCertificateServiceTest {
             GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
 
             when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(giftCertificate));
-            when(giftCertificateRepository.update(giftCertificate)).thenReturn(giftCertificate);
+            when(giftCertificateRepository.save(giftCertificate)).thenReturn(giftCertificate);
             when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
 
             GiftCertificateDtoResponse response = giftCertificateService.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
 
             verify(giftCertificateRepository).findById(anyLong());
-            verify(giftCertificateRepository).update(giftCertificateCaptor.capture());
+            verify(giftCertificateRepository).save(giftCertificateCaptor.capture());
             verify(giftCertificateMapper).toDto(any());
 
             assertAll(
