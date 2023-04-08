@@ -3,13 +3,12 @@ package ru.clevertec.ecl.model.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,15 +20,13 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.clevertec.ecl.model.enums.Status;
 
-import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "gift_certificates")
+@Table(name = "users")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,24 +34,28 @@ import java.util.List;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class GiftCertificate implements BaseEntity<Long> {
+public class User implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "username")
+    private String username;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(name = "price")
-    private BigDecimal price;
+    @Column(name = "last_name")
+    private String lastName;
 
-    @Column(name = "duration")
-    private Duration duration;
+    @Column(name = "email")
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
 
     @CreatedDate
     @Column(name = "create_date")
@@ -67,9 +68,6 @@ public class GiftCertificate implements BaseEntity<Long> {
     private OffsetDateTime lastUpdateDate;
 
     @ToString.Exclude
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinTable(name = "gift_certificates_tags",
-            joinColumns = {@JoinColumn(name = "gift_certificate_id")},
-            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-    private List<Tag> tags = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> orders;
 }

@@ -3,13 +3,11 @@ package ru.clevertec.ecl.model.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,13 +21,10 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "gift_certificates")
+@Table(name = "orders")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,24 +32,21 @@ import java.util.List;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class GiftCertificate implements BaseEntity<Long> {
+public class Order implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    private User user;
 
-    @Column(name = "description")
-    private String description;
+    @OneToOne
+    private GiftCertificate giftCertificate;
 
-    @Column(name = "price")
-    private BigDecimal price;
-
-    @Column(name = "duration")
-    private Duration duration;
+    @Column(name = "final_price")
+    private BigDecimal finalPrice;
 
     @CreatedDate
     @Column(name = "create_date")
@@ -65,11 +57,4 @@ public class GiftCertificate implements BaseEntity<Long> {
     @Column(name = "last_update_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private OffsetDateTime lastUpdateDate;
-
-    @ToString.Exclude
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinTable(name = "gift_certificates_tags",
-            joinColumns = {@JoinColumn(name = "gift_certificate_id")},
-            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-    private List<Tag> tags = new ArrayList<>();
 }
