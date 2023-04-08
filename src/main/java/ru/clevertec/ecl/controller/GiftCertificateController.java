@@ -120,7 +120,7 @@ public class GiftCertificateController {
         PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
 
         return apiResponseEntity(
-                "Gift Certificates by criteria: tag_name: " + searchCriteria.getTagName() +
+                "Gift Certificates by criteria: tag_name: " + searchCriteria.getTagNames() +
                         "; description: " + searchCriteria.getDescription() +
                         "; sort_direction_name: " + searchCriteria.getSortDirectionName() +
                         "; sort_direction_date: " + searchCriteria.getSortDirectionDate() +
@@ -199,7 +199,7 @@ public class GiftCertificateController {
     }
 
     /**
-     * PATCH /api/v0/giftCertificates/{giftCertificateId}/{tagId} : Add Tag existing Gift Certificate
+     * PATCH /api/v0/giftCertificates/{giftCertificateId}/{tagId} : Add Tag to Gift Certificate
      *
      * @param giftCertificateId Gift Certificate ID to return (required)
      * @param tagId Tag ID to return (required)
