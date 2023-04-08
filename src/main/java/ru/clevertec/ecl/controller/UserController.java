@@ -69,8 +69,8 @@ public class UserController {
     /**
      * GET /api/v0/users/{id} : Find User info
      *
-     * @param id User id to return (required)
-     * @throws UserNotFoundException if the User with id doesn't exist
+     * @param id User ID to return (required)
+     * @throws UserNotFoundException if the User with ID doesn't exist
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDtoResponse>> findUserById(@PathVariable @Valid @NotNull Long id) {
@@ -79,6 +79,24 @@ public class UserController {
         return apiResponseEntity(
                 "User with ID " + user.getId() + " was found",
                 USER_API_PATH + "/" + id,
+                HttpStatus.OK,
+                ApiResponse.Color.SUCCESS,
+                user
+        );
+    }
+
+    /**
+     * GET /api/v0/users/highestOrderCost : Find User info with highest order cost
+     *
+     * @throws UserNotFoundException if the User with doesn't exist
+     */
+    @GetMapping("/highestOrderCost")
+    public ResponseEntity<ApiResponse<UserDtoResponse>> findUserByHighestOrderCost() {
+        UserDtoResponse user = userService.getUserByHighestOrderCost();
+
+        return apiResponseEntity(
+                "User with highest order cost was found. ID: " + user.getId(),
+                USER_API_PATH + "/highestOrderCost",
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
                 user

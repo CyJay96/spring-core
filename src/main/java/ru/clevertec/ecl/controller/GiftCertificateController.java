@@ -136,8 +136,8 @@ public class GiftCertificateController {
     /**
      * GET /api/v0/giftCertificates/{id} : Find Gift Certificate info
      *
-     * @param id Gift Certificate id to return (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     * @param id Gift Certificate ID to return (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> findGiftCertificateById(@PathVariable @Valid @NotNull Long id) {
@@ -155,9 +155,9 @@ public class GiftCertificateController {
     /**
      * PUT /api/v0/giftCertificates/{id} : Update an existing Gift Certificate info
      *
-     * @param id Gift Certificate id to return (required)
+     * @param id Gift Certificate ID to return (required)
      * @param giftCertificateDtoRequest Gift Certificate object to update (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> updateGiftCertificateById(
@@ -178,9 +178,9 @@ public class GiftCertificateController {
     /**
      * PATCH /api/v0/giftCertificates/{id} : Partial Update an existing Gift Certificate info
      *
-     * @param id Gift Certificate id to return (required)
+     * @param id Gift Certificate ID to return (required)
      * @param giftCertificateDtoRequest Gift Certificate object to update (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> updateGiftCertificateByIdPartially(
@@ -201,10 +201,10 @@ public class GiftCertificateController {
     /**
      * PATCH /api/v0/giftCertificates/{giftCertificateId}/{tagId} : Add Tag existing Gift Certificate
      *
-     * @param giftCertificateId Gift Certificate id to return (required)
-     * @param tagId Tag id to return (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
-     * @throws TagNotFoundException if the Tag with id doesn't exist
+     * @param giftCertificateId Gift Certificate ID to return (required)
+     * @param tagId Tag ID to return (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
     @PatchMapping("/{giftCertificateId}/{tagId}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> addTagToGiftCertificate(
@@ -225,8 +225,8 @@ public class GiftCertificateController {
     /**
      * DELETE /api/v0/giftCertificates/{id} : Delete a Gift Certificate
      *
-     * @param id Gift Certificate id to return (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     * @param id Gift Certificate ID to return (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteGiftCertificateById(@PathVariable @Valid @NotNull Long id) {

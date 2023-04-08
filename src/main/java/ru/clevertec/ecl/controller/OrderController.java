@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.OrderNotFoundException;
+import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -67,18 +68,72 @@ public class OrderController {
     }
 
     /**
+     * GET /api/v0/orders/{userId} : Find Orders info by User ID
+     *
+     * @param userId User ID to return Order (required)
+     * @param page page value to return (not required)
+     * @param pageSize page size to return (not required)
+     */
+    @GetMapping("/byUserId/{userId}")
+    public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAllOrdersByUserId(
+            @PathVariable @Valid @NotNull Long userId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize
+    ) {
+        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
+        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
+
+        PageResponse<OrderDtoResponse> orders = orderService.getAllOrdersByUserId(userId, page, pageSize);
+
+        return apiResponseEntity(
+                "All Orders by User ID: " +
+                        "; user_id: " + userId +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
+                ORDER_API_PATH,
+                HttpStatus.OK,
+                ApiResponse.Color.SUCCESS,
+                orders
+        );
+    }
+
+    /**
      * GET /api/v0/Orders/{id} : Find Order info
      *
-     * @param id Order id to return (required)
-     * @throws OrderNotFoundException if the Order with id doesn't exist
+     * @param id Order ID to return (required)
+     * @throws OrderNotFoundException if the Order with ID doesn't exist
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrderDtoResponse>> findUserById(@PathVariable @Valid @NotNull Long id) {
+    public ResponseEntity<ApiResponse<OrderDtoResponse>> findOrderById(@PathVariable @Valid @NotNull Long id) {
         OrderDtoResponse user = orderService.getOrderById(id);
 
         return apiResponseEntity(
                 "Order with ID " + user.getId() + " was found",
                 ORDER_API_PATH + "/" + id,
+                HttpStatus.OK,
+                ApiResponse.Color.SUCCESS,
+                user
+        );
+    }
+
+    /**
+     * GET /api/v0/Orders/{orderId}/{userId} : Find Order info
+     *
+     * @param orderId Order ID to return (required)
+     * @param userId User ID to return (required)
+     * @throws OrderNotFoundException if the Order with ID doesn't exist
+     * @throws UserNotFoundException if the User with ID doesn't exist
+     */
+    @GetMapping("/{orderId}/{userId}")
+    public ResponseEntity<ApiResponse<OrderDtoResponse>> findOrderByIdAndUserId(
+            @PathVariable @Valid @NotNull Long orderId,
+            @PathVariable @Valid @NotNull Long userId
+    ) {
+        OrderDtoResponse user = orderService.getOrderByIdAndUserId(orderId, userId);
+
+        return apiResponseEntity(
+                "Order with ID " + user.getId() + " and User ID " + userId + " was found",
+                ORDER_API_PATH + "/" + orderId + "/" + userId,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
                 user

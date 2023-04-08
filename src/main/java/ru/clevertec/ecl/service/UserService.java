@@ -8,4 +8,6 @@ public interface UserService {
     PageResponse<UserDtoResponse> getAllUsers(Integer page, Integer pageSize);
 
     UserDtoResponse getUserById(Long id);
+
+    UserDtoResponse getUserByHighestOrderCost();
 }

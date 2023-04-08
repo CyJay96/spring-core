@@ -43,4 +43,11 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
+
+    @Override
+    public UserDtoResponse getUserByHighestOrderCost() {
+        return userRepository.findUserByHighestOrderCost()
+                .map(userMapper::toDto)
+                .orElseThrow(UserNotFoundException::new);
+    }
 }
