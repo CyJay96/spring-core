@@ -1,17 +1,22 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
-import ru.clevertec.ecl.mapper.list.GiftCertificateListMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
+import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
+import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 import ru.clevertec.ecl.service.searcher.GiftCertificateSearcher;
 
@@ -26,8 +31,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final GiftCertificateSearcher giftCertificateSearcher;
     private final GiftCertificateRepository giftCertificateRepository;
+    private final TagRepository tagRepository;
     private final GiftCertificateMapper giftCertificateMapper;
-    private final GiftCertificateListMapper giftCertificateListMapper;
     private final TagListMapper tagListMapper;
 
     @Override
@@ -42,8 +47,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize) {
-        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(page, pageSize);
-        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificateListMapper.toDto(giftCertificates);
+        Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(PageRequest.of(page, pageSize));
+
+        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificatePage.stream()
+                .map(giftCertificateMapper::toDto)
+                .toList();
+
         return PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(giftCertificateDtoResponses)
                 .number(page)
@@ -53,17 +62,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(
-            GiftCertificateCriteria searchCriteria,
-            Integer page,
-            Integer pageSize
-    ) {
-        List<GiftCertificate> giftCertificates = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria, page, pageSize);
-        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificateListMapper.toDto(giftCertificates);
+    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {
+        Page<GiftCertificate> giftCertificatePage = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria);
+
+        List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificatePage.stream()
+                .map(giftCertificateMapper::toDto)
+                .toList();
+
         return PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(giftCertificateDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(searchCriteria.getLimit())
+                .size(searchCriteria.getOffset())
                 .numberOfElements(giftCertificateDtoResponses.size())
                 .build();
     }
@@ -85,7 +94,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             giftCertificate.setCreateDate(OffsetDateTime.now());
         }
 
-        GiftCertificate savedGiftCertificate = giftCertificateRepository.update(giftCertificate);
+        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
         return giftCertificateMapper.toDto(savedGiftCertificate);
     }
 
@@ -108,15 +117,27 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 })
                 .orElseThrow(() -> new GiftCertificateNotFoundException(id));
 
-        GiftCertificate savedGiftCertificate = giftCertificateRepository.update(updatedGiftCertificate);
+        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
         return giftCertificateMapper.toDto(savedGiftCertificate);
+    }
+
+    @Override
+    public GiftCertificateDtoResponse addTagToGiftCertificate(Long giftCertificateId, Long tagId) {
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateId)
+                .orElseThrow(() -> new GiftCertificateNotFoundException(giftCertificateId));
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new TagNotFoundException(tagId));
+
+        giftCertificate.getTags().add(tag);
+
+        return giftCertificateMapper.toDto(giftCertificateRepository.save(giftCertificate));
     }
 
     @Override
     public void deleteGiftCertificateById(Long id) {
         try {
             giftCertificateRepository.deleteById(id);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new GiftCertificateNotFoundException(id);
         }
     }

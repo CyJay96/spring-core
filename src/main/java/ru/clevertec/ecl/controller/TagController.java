@@ -1,5 +1,7 @@
 package ru.clevertec.ecl.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,8 +25,6 @@ import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.service.TagService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.TagController.TAG_API_PATH;
@@ -83,7 +83,9 @@ public class TagController {
         PageResponse<TagDtoResponse> tags = tagService.getAllTags(page, pageSize);
 
         return apiResponseEntity(
-                "All Tags",
+                "All Tags: " +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
                 TAG_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,

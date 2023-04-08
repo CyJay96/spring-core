@@ -115,11 +115,11 @@ class GiftCertificateControllerTest {
                 .numberOfElements(1)
                 .build();
 
-        when(giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE)).thenReturn(pageResponse);
+        when(giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria)).thenReturn(pageResponse);
 
         var giftCertificateDtoList = giftCertificateController.findAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE);
 
-        verify(giftCertificateService).getAllGiftCertificatesByCriteria(any(), anyInt(), anyInt());
+        verify(giftCertificateService).getAllGiftCertificatesByCriteria(any());
 
         assertAll(
                 () -> assertThat(giftCertificateDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),

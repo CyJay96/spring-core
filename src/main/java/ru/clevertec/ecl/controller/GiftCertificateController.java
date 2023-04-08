@@ -1,5 +1,7 @@
 package ru.clevertec.ecl.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
@@ -23,8 +26,6 @@ import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.GiftCertificateController.GIFT_CERTIFICATE_API_PATH;
@@ -83,7 +84,9 @@ public class GiftCertificateController {
         PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificates(page, pageSize);
 
         return apiResponseEntity(
-                "All Gift Certificates",
+                "All Gift Certificates: " +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
@@ -111,13 +114,18 @@ public class GiftCertificateController {
             searchCriteria = GiftCertificateCriteria.builder().build();
         }
 
-        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, page, pageSize);
+        searchCriteria.setOffset(page);
+        searchCriteria.setLimit(pageSize);
+
+        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
 
         return apiResponseEntity(
                 "Gift Certificates by criteria: tag_name: " + searchCriteria.getTagName() +
                         "; description: " + searchCriteria.getDescription() +
-                        "; sort_type_name: " + searchCriteria.getSortTypeName() +
-                        "; sort_type_date: " + searchCriteria.getSortTypeDate(),
+                        "; sort_direction_name: " + searchCriteria.getSortDirectionName() +
+                        "; sort_direction_date: " + searchCriteria.getSortDirectionDate() +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
@@ -184,6 +192,30 @@ public class GiftCertificateController {
         return apiResponseEntity(
                 "Partial changes were applied to the Gift Certificate with ID " + id,
                 GIFT_CERTIFICATE_API_PATH + "/" + id,
+                HttpStatus.OK,
+                ApiResponse.Color.SUCCESS,
+                giftCertificate
+        );
+    }
+
+    /**
+     * PATCH /api/v0/giftCertificates/{giftCertificateId}/{tagId} : Add Tag existing Gift Certificate
+     *
+     * @param giftCertificateId Gift Certificate id to return (required)
+     * @param tagId Tag id to return (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with id doesn't exist
+     * @throws TagNotFoundException if the Tag with id doesn't exist
+     */
+    @PatchMapping("/{giftCertificateId}/{tagId}")
+    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> addTagToGiftCertificate(
+            @PathVariable @Valid @NotNull Long giftCertificateId,
+            @PathVariable @Valid @NotNull Long tagId
+    ) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService.addTagToGiftCertificate(giftCertificateId, tagId);
+
+        return apiResponseEntity(
+                "Gift Certificate by ID " + giftCertificateId + "with added Tag by ID " + tagId,
+                GIFT_CERTIFICATE_API_PATH + "/" + giftCertificateId + "/" + tagId,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
                 giftCertificate
