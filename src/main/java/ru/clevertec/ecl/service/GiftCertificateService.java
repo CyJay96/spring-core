@@ -3,16 +3,15 @@ package ru.clevertec.ecl.service;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
-
-import java.util.List;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 
 public interface GiftCertificateService {
 
     GiftCertificateDtoResponse createGiftCertificate(GiftCertificateDtoRequest giftCertificateDtoRequest);
 
-    List<GiftCertificateDtoResponse> getAllGiftCertificates();
+    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize);
 
-    List<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria);
+    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria, Integer page, Integer pageSize);
 
     GiftCertificateDtoResponse getGiftCertificateById(Long id);
 

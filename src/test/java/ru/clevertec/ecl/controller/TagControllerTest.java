@@ -14,8 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagDtoResponseTestBuilder;
+import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.service.TagService;
 
@@ -26,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -41,12 +44,15 @@ class TagControllerTest {
     @Mock
     private TagService tagService;
 
+    @Mock
+    private PaginationProperties paginationProperties;
+
     @Captor
     ArgumentCaptor<TagDtoRequest> tagDtoRequestCaptor;
 
     @BeforeEach
     void setUp() {
-        tagController = new TagController(tagService);
+        tagController = new TagController(tagService, paginationProperties);
     }
 
     @Test
@@ -70,18 +76,28 @@ class TagControllerTest {
 
     @Test
     @DisplayName("Find all Tags")
-    void checkFindAllTagsShouldReturnTagList() {
+    void checkFindAllTagsShouldReturnTagPage() {
+        Integer page = 0;
+        Integer pageSize = 18;
+
         TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
 
-        when(tagService.getAllTags()).thenReturn(List.of(tagDtoResponse));
+        PageResponse<TagDtoResponse> pageResponse = PageResponse.<TagDtoResponse>builder()
+                .content(List.of(tagDtoResponse))
+                .number(page)
+                .size(pageSize)
+                .numberOfElements(1)
+                .build();
 
-        var tagDtoList = tagController.findAllTags();
+        when(tagService.getAllTags(page, pageSize)).thenReturn(pageResponse);
 
-        verify(tagService).getAllTags();
+        var tagDtoList = tagController.findAllTags(page, pageSize);
+
+        verify(tagService).getAllTags(anyInt(), anyInt());
 
         assertAll(
                 () -> assertThat(tagDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(tagDtoList.getBody()).getData().get(0)).isEqualTo(tagDtoResponse)
+                () -> assertThat(Objects.requireNonNull(tagDtoList.getBody()).getData().getContent().get(0)).isEqualTo(tagDtoResponse)
         );
     }
 

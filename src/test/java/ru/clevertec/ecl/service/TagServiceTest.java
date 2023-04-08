@@ -18,6 +18,7 @@ import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.TagRepository;
@@ -30,11 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static ru.clevertec.ecl.util.TestConstants.PAGE;
+import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,19 +88,19 @@ class TagServiceTest {
 
     @Test
     @DisplayName("Get all Tags")
-    void checkGetAllTagsShouldReturnTagDtoResponseList() {
+    void checkGetAllTagsShouldReturnTagDtoResponsePage() {
         TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
         Tag tag = TagTestBuilder.aTag().build();
 
-        when(tagRepository.findAll()).thenReturn(List.of(tag));
+        when(tagRepository.findAll(PAGE, PAGE_SIZE)).thenReturn(List.of(tag));
         when(tagListMapper.toDto(List.of(tag))).thenReturn(List.of(tagDtoResponse));
 
-        List<TagDtoResponse> response = tagService.getAllTags();
+        PageResponse<TagDtoResponse> response = tagService.getAllTags(PAGE, PAGE_SIZE);
 
-        verify(tagRepository).findAll();
+        verify(tagRepository).findAll(anyInt(), anyInt());
         verify(tagListMapper).toDto(any());
 
-        assertThat(response.get(0)).isEqualTo(tagDtoResponse);
+        assertThat(response.getContent().get(0)).isEqualTo(tagDtoResponse);
     }
 
     @Nested
@@ -140,13 +144,13 @@ class TagServiceTest {
             TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
             Tag tag = TagTestBuilder.aTag().build();
 
-            when(tagRepository.save(tag)).thenReturn(tag);
+            when(tagRepository.update(tag)).thenReturn(tag);
             when(tagMapper.toEntity(tagDtoRequest)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
             TagDtoResponse response = tagService.updateTagById(id, tagDtoRequest);
 
-            verify(tagRepository).save(tagCaptor.capture());
+            verify(tagRepository).update(tagCaptor.capture());
             verify(tagMapper).toEntity(any());
             verify(tagMapper).toDto(any());
 
@@ -165,13 +169,13 @@ class TagServiceTest {
             Tag tag = TagTestBuilder.aTag().build();
 
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
-            when(tagRepository.save(tag)).thenReturn(tag);
+            when(tagRepository.update(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
             TagDtoResponse response = tagService.updateTagByIdPartially(id, tagDtoRequest);
 
             verify(tagRepository).findById(anyLong());
-            verify(tagRepository).save(tagCaptor.capture());
+            verify(tagRepository).update(tagCaptor.capture());
             verify(tagMapper).toDto(any());
 
             assertAll(

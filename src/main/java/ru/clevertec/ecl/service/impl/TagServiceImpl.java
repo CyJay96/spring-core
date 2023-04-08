@@ -1,12 +1,12 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.TagRepository;
@@ -30,9 +30,15 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDtoResponse> getAllTags() {
-        List<Tag> tags = tagRepository.findAll();
-        return tagListMapper.toDto(tags);
+    public PageResponse<TagDtoResponse> getAllTags(Integer page, Integer pageSize) {
+        List<Tag> tags = tagRepository.findAll(page, pageSize);
+        List<TagDtoResponse> tagDtoResponses = tagListMapper.toDto(tags);
+        return PageResponse.<TagDtoResponse>builder()
+                .content(tagDtoResponses)
+                .number(page)
+                .size(pageSize)
+                .numberOfElements(tagDtoResponses.size())
+                .build();
     }
 
     @Override
@@ -47,7 +53,7 @@ public class TagServiceImpl implements TagService {
         Tag tag = tagMapper.toEntity(tagDtoRequest);
         tag.setId(id);
 
-        Tag savedTag = tagRepository.save(tag);
+        Tag savedTag = tagRepository.update(tag);
         return tagMapper.toDto(savedTag);
     }
 
@@ -60,7 +66,7 @@ public class TagServiceImpl implements TagService {
                 })
                 .orElseThrow(() -> new TagNotFoundException(id));
 
-        Tag savedTag = tagRepository.save(updatedTag);
+        Tag savedTag = tagRepository.update(updatedTag);
         return tagMapper.toDto(savedTag);
     }
 
@@ -68,7 +74,7 @@ public class TagServiceImpl implements TagService {
     public void deleteTagById(Long id) {
         try {
             tagRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (Exception e) {
             throw new TagNotFoundException(id);
         }
     }

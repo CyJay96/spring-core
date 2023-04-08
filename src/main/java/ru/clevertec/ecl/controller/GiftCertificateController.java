@@ -1,7 +1,5 @@
 package ru.clevertec.ecl.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +12,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
+import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
-import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.GiftCertificateController.GIFT_CERTIFICATE_API_PATH;
 import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
@@ -39,6 +42,7 @@ import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
+    private final PaginationProperties paginationProperties;
 
     public static final String GIFT_CERTIFICATE_API_PATH = "/api/v0/giftCertificates";
 
@@ -64,10 +68,19 @@ public class GiftCertificateController {
 
     /**
      * GET /api/v0/giftCertificates : Find Gift Certificates info
+     *
+     * @param page page value to return (not required)
+     * @param pageSize page size to return (not required)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<GiftCertificateDtoResponse>>> findAllGiftCertificates() {
-        List<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificates();
+    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAllGiftCertificates(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize
+    ) {
+        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
+        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
+
+        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificates(page, pageSize);
 
         return apiResponseEntity(
                 "All Gift Certificates",
@@ -82,16 +95,23 @@ public class GiftCertificateController {
      * GET /api/v0/giftCertificates : Find Gift Certificates info by criteria
      *
      * @param searchCriteria Gift Certificate searchCriteria to return (not required)
+     * @param page page value to return (not required)
+     * @param pageSize page size to return (not required)
      */
     @GetMapping("/criteria")
-    public ResponseEntity<ApiResponse<List<GiftCertificateDtoResponse>>> findAllGiftCertificatesByCriteria(
-            @RequestBody(required = false) GiftCertificateCriteria searchCriteria
+    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAllGiftCertificatesByCriteria(
+            @RequestBody(required = false) GiftCertificateCriteria searchCriteria,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize
     ) {
+        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
+        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
+
         if (searchCriteria == null) {
             searchCriteria = GiftCertificateCriteria.builder().build();
         }
 
-        List<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
+        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, page, pageSize);
 
         return apiResponseEntity(
                 "Gift Certificates by criteria: tag_name: " + searchCriteria.getTagName() +
