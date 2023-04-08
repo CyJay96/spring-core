@@ -54,22 +54,22 @@ databaseChangeLog:
 
 
             INSERT INTO users(username, first_name, last_name, email, status, create_date, last_update_date)
-            VALUES ('Kjoscelyn', 'Kristin', 'Joscelyn', 'kjoscelyn3@cyberchimps.com', 'active', '2023-04-08 14:04:28.547638', '2023-04-08 14:04:28.547638');
+            VALUES ('Kjoscelyn', 'Kristin', 'Joscelyn', 'kjoscelyn3@cyberchimps.com', 'ACTIVE', '2023-04-08 14:04:28.547638', '2023-04-08 14:04:28.547638');
 
             INSERT INTO users(username, first_name, last_name, email, status, create_date, last_update_date)
-            VALUES ('Hbatchelourd', 'Harland', 'Batchelour', 'hbatchelourd@wikispaces.com', 'active', '2023-03-29 11:54:12.249537', '2023-03-29 11:54:12.249537');
+            VALUES ('Hbatchelourd', 'Harland', 'Batchelour', 'hbatchelourd@wikispaces.com', 'ACTIVE', '2023-03-29 11:54:12.249537', '2023-03-29 11:54:12.249537');
 
             INSERT INTO users(username, first_name, last_name, email, status, create_date, last_update_date)
-            VALUES ('Kandreia', 'Kerry', 'Andreia', 'kandreia0@comsenz.com', 'active', '2023-04-02 14:04:28.198542', '2023-04-02 14:04:28.198542');
+            VALUES ('Kandreia', 'Kerry', 'Andreia', 'kandreia0@comsenz.com', 'ACTIVE', '2023-04-02 14:04:28.198542', '2023-04-02 14:04:28.198542');
 
             INSERT INTO users(username, first_name, last_name, email, status, create_date, last_update_date)
-            VALUES ('Apinchin', 'Alexina', 'Pinchin', 'apinchino@yale.edu', 'active', '2023-04-08 09:37:43.782436', '2023-04-08 09:37:43.782436');
+            VALUES ('Apinchin', 'Alexina', 'Pinchin', 'apinchino@yale.edu', 'ACTIVE', '2023-04-08 09:37:43.782436', '2023-04-08 09:37:43.782436');
 
             INSERT INTO users(username, first_name, last_name, email, status, create_date, last_update_date)
-            VALUES ('Dskurm', 'Dalis', 'Skurm', 'dskurm1f@ft.com', 'active', '2023-04-05 19:25:41.954237', '2023-04-05 19:25:41.954237');
+            VALUES ('Dskurm', 'Dalis', 'Skurm', 'dskurm1f@ft.com', 'ACTIVE', '2023-04-05 19:25:41.954237', '2023-04-05 19:25:41.954237');
 
             INSERT INTO users(username, first_name, last_name, email, status, create_date, last_update_date)
-            VALUES ('Jtipple', 'Jayme', 'Tipple', 'jtipple1u@aol.com', 'active', '2023-04-08 14:04:28.172483', '2023-04-08 14:04:28.172483');
+            VALUES ('Jtipple', 'Jayme', 'Tipple', 'jtipple1u@aol.com', 'ACTIVE', '2023-04-08 14:04:28.172483', '2023-04-08 14:04:28.172483');
 
 
             INSERT INTO orders(user_id, gift_certificate_id, final_price, create_date, last_update_date)
