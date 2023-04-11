@@ -11,6 +11,6 @@ public interface TagMapper {
 
     Tag toEntity(TagDtoRequest tagDtoRequest);
 
-    @Mapping(target = "giftCertificatesIds", expression = "java(tag.getGiftCertificates().stream().map(giftCertificate -> giftCertificate.getId()).toList())")
+    @Mapping(target = "giftCertificatesIds", expression = "java(tag.getGiftCertificates() != null ? tag.getGiftCertificates().stream().map(giftCertificate -> giftCertificate.getId()).toList() : null)")
     TagDtoResponse toDto(Tag tag);
 }

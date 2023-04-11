@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.order.OrderDtoResponseTestBuilder;
 import ru.clevertec.ecl.config.PaginationProperties;
+import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
 import ru.clevertec.ecl.exception.OrderNotFoundException;
 import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
@@ -49,21 +50,44 @@ class OrderControllerTest {
         orderController = new OrderController(orderService, paginationProperties);
     }
 
-    @Test
-    @DisplayName("Create Order")
-    void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
-        OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+    @Nested
+    public class CreateOrderTest {
+        @Test
+        @DisplayName("Create Order")
+        void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
+            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
 
-        when(orderService.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID)).thenReturn(orderDtoResponse);
+            when(orderService.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID)).thenReturn(orderDtoResponse);
 
-        var orderDto = orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID);
+            var orderDto = orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID);
 
-        verify(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+            verify(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
 
-        assertAll(
-                () -> assertThat(orderDto.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-                () -> assertThat(Objects.requireNonNull(orderDto.getBody()).getData()).isEqualTo(orderDtoResponse)
-        );
+            assertAll(
+                    () -> assertThat(orderDto.getStatusCode()).isEqualTo(HttpStatus.CREATED),
+                    () -> assertThat(Objects.requireNonNull(orderDto.getBody()).getData()).isEqualTo(orderDtoResponse)
+            );
+        }
+
+        @Test
+        @DisplayName("Create Order; User not found")
+        void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowUserNotFoundException() {
+            doThrow(UserNotFoundException.class).when(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+
+            assertThrows(UserNotFoundException.class, () -> orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID));
+
+            verify(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+        }
+
+        @Test
+        @DisplayName("Create Order; Gift Certificate not found")
+        void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowOrderNotFoundException() {
+            doThrow(GiftCertificateNotFoundException.class).when(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+
+            assertThrows(GiftCertificateNotFoundException.class, () -> orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID));
+
+            verify(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+        }
     }
 
     @Test

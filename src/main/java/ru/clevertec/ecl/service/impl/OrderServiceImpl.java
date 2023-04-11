@@ -25,8 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
     private final GiftCertificateRepository giftCertificateRepository;
     private final OrderMapper orderMapper;
 

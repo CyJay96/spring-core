@@ -191,7 +191,7 @@ class TagControllerTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {4L, 5L, 6L})
-        void checkDeleteTagByIdShouldReturnTagDtoResponse(Long id) {
+        void checkDeleteTagByIdShouldReturnVoid(Long id) {
             doNothing().when(tagService).deleteTagById(id);
 
             var voidResponse = tagController.deleteTagById(id);

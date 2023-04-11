@@ -30,16 +30,17 @@
 
 **Gift Certificate**
 
-| **HTTP METHOD** |                      **ENDPOINT**                       |            **DESCRIPTION**            |
-|:---------------:|:-------------------------------------------------------:|:-------------------------------------:|
-|    **POST**     |               `/api/v0/giftCertificates`                |      Create new Gift Certificate      |
-|     **GET**     |               `/api/v0/giftCertificates`                |       Get all Gift Certificates       |
-|     **GET**     |           `/api/v0/giftCertificates/criteria`           | Get all Gift Certificates by criteria |
-|     **GET**     |             `/api/v0/giftCertificates/{id}`             |      Get Gift Certificate by ID       |
-|     **PUT**     |             `/api/v0/giftCertificates/{id}`             |     Update Gift Certificate by ID     |
-|    **PATCH**    |             `/api/v0/giftCertificates/{id}`             | Partial Update Gift Certificate by ID |
-|    **PATCH**    | `/api/v0/giftCertificates//{giftCertificateId}/{tagId}` |      Add Tag to Gift Certificate      |
-|   **DELETE**    |             `/api/v0/giftCertificates/{id}`             |     Delete Gift Certificate by ID     |
+| **HTTP METHOD** |                         **ENDPOINT**                          |            **DESCRIPTION**            |
+|:---------------:|:-------------------------------------------------------------:|:-------------------------------------:|
+|    **POST**     |                  `/api/v0/giftCertificates`                   |      Create new Gift Certificate      |
+|     **GET**     |                  `/api/v0/giftCertificates`                   |       Get all Gift Certificates       |
+|     **GET**     |              `/api/v0/giftCertificates/criteria`              | Get all Gift Certificates by criteria |
+|     **GET**     |                `/api/v0/giftCertificates/{id}`                |      Get Gift Certificate by ID       |
+|     **PUT**     |                `/api/v0/giftCertificates/{id}`                |     Update Gift Certificate by ID     |
+|    **PATCH**    |                `/api/v0/giftCertificates/{id}`                | Partial Update Gift Certificate by ID |
+|    **PATCH**    |  `/api/v0/giftCertificates/add/{giftCertificateId}/{tagId}`   |      Add Tag to Gift Certificate      |
+|    **PATCH**    | `/api/v0/giftCertificates/delete/{giftCertificateId}/{tagId}` |   Delete Tag from Gift Certificate    |
+|   **DELETE**    |                `/api/v0/giftCertificates/{id}`                |     Delete Gift Certificate by ID     |
 
 **Tag**
 

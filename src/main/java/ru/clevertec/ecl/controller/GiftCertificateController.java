@@ -199,14 +199,14 @@ public class GiftCertificateController {
     }
 
     /**
-     * PATCH /api/v0/giftCertificates/{giftCertificateId}/{tagId} : Add Tag to Gift Certificate
+     * PATCH /api/v0/giftCertificates/add/{giftCertificateId}/{tagId} : Add Tag to Gift Certificate
      *
      * @param giftCertificateId Gift Certificate ID to return (required)
      * @param tagId Tag ID to return (required)
      * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
      * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
-    @PatchMapping("/{giftCertificateId}/{tagId}")
+    @PatchMapping("/add/{giftCertificateId}/{tagId}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> addTagToGiftCertificate(
             @PathVariable @Valid @NotNull Long giftCertificateId,
             @PathVariable @Valid @NotNull Long tagId
@@ -215,6 +215,30 @@ public class GiftCertificateController {
 
         return apiResponseEntity(
                 "Gift Certificate by ID " + giftCertificateId + "with added Tag by ID " + tagId,
+                GIFT_CERTIFICATE_API_PATH + "/" + giftCertificateId + "/" + tagId,
+                HttpStatus.OK,
+                ApiResponse.Color.SUCCESS,
+                giftCertificate
+        );
+    }
+
+    /**
+     * PATCH /api/v0/giftCertificates/delete/{giftCertificateId}/{tagId} : Delete Tag to Gift Certificate
+     *
+     * @param giftCertificateId Gift Certificate ID to return (required)
+     * @param tagId Tag ID to return (required)
+     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
+     */
+    @PatchMapping("/delete/{giftCertificateId}/{tagId}")
+    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> deleteTagFromGiftCertificate(
+            @PathVariable @Valid @NotNull Long giftCertificateId,
+            @PathVariable @Valid @NotNull Long tagId
+    ) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService.deleteTagFromGiftCertificate(giftCertificateId, tagId);
+
+        return apiResponseEntity(
+                "Gift Certificate by ID " + giftCertificateId + "with deleted Tag by ID " + tagId,
                 GIFT_CERTIFICATE_API_PATH + "/" + giftCertificateId + "/" + tagId,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,

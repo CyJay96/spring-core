@@ -108,10 +108,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     Optional.ofNullable(giftCertificateDtoRequest.getDuration()).ifPresent(duration -> giftCertificate.setDuration(Duration.ofDays(duration)));
                     giftCertificate.setLastUpdateDate(OffsetDateTime.now());
 
-                    giftCertificate.getTags().clear();
-
                     Optional.ofNullable(giftCertificateDtoRequest.getTags())
-                            .ifPresent(tagDtoList -> giftCertificate.setTags(tagListMapper.toEntity(tagDtoList)));
+                            .ifPresent(tagDtoList -> {
+                                giftCertificate.getTags().clear();
+                                giftCertificate.setTags(tagListMapper.toEntity(tagDtoList));
+                            });
 
                     return giftCertificate;
                 })
@@ -129,6 +130,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .orElseThrow(() -> new TagNotFoundException(tagId));
 
         giftCertificate.getTags().add(tag);
+
+        return giftCertificateMapper.toDto(giftCertificateRepository.save(giftCertificate));
+    }
+
+    @Override
+    public GiftCertificateDtoResponse deleteTagFromGiftCertificate(Long giftCertificateId, Long tagId) {
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateId)
+                .orElseThrow(() -> new GiftCertificateNotFoundException(giftCertificateId));
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new TagNotFoundException(tagId));
+
+        giftCertificate.getTags().remove(tag);
 
         return giftCertificateMapper.toDto(giftCertificateRepository.save(giftCertificate));
     }
