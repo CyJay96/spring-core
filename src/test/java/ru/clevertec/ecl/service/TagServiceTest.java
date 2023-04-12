@@ -141,14 +141,14 @@ class TagServiceTest {
             TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
             Tag tag = TagTestBuilder.aTag().build();
 
+            when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagRepository.save(tag)).thenReturn(tag);
-            when(tagMapper.toEntity(tagDtoRequest)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
             TagDtoResponse response = tagService.updateTagById(id, tagDtoRequest);
 
+            verify(tagRepository).findById(anyLong());
             verify(tagRepository).save(tagCaptor.capture());
-            verify(tagMapper).toEntity(any());
             verify(tagMapper).toDto(any());
 
             assertAll(
@@ -199,7 +199,7 @@ class TagServiceTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {4L, 5L, 6L})
-        void checkDeleteTagByIdShouldReturnTagDtoResponse(Long id) {
+        void checkDeleteTagByIdShouldReturnVoid(Long id) {
             doNothing().when(tagRepository).deleteById(id);
 
             tagService.deleteTagById(id);

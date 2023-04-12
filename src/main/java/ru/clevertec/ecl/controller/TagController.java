@@ -96,8 +96,8 @@ public class TagController {
     /**
      * GET /api/v0/tags/{id} : Find Tag info
      *
-     * @param id Tag id to return (required)
-     * @throws TagNotFoundException if the Tag with id doesn't exist
+     * @param id Tag ID to return (required)
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TagDtoResponse>> findTagById(@PathVariable @Valid @NotNull Long id) {
@@ -115,9 +115,9 @@ public class TagController {
     /**
      * PUT /api/v0/tags/{id} : Update an existing Tag info
      *
-     * @param id Tag id to return (required)
+     * @param id Tag ID to return (required)
      * @param tagDtoRequest Tag object to update (required)
-     * @throws TagNotFoundException if the Tag with id doesn't exist
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagById(
@@ -138,9 +138,9 @@ public class TagController {
     /**
      * PATCH /api/v0/tags/{id} : Partial Update an existing Tag info
      *
-     * @param id Tag id to return (required)
+     * @param id Tag ID to return (required)
      * @param tagDtoRequest Tag object to update (required)
-     * @throws TagNotFoundException if Tag with id doesn't exist
+     * @throws TagNotFoundException if Tag with ID doesn't exist
      */
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagByIdPartially(
@@ -161,8 +161,8 @@ public class TagController {
     /**
      * DELETE /api/v0/tags/{id} : Delete a Tag
      *
-     * @param id Tag id to return (required)
-     * @throws TagNotFoundException if the Tag with id doesn't exist
+     * @param id Tag ID to return (required)
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteTagById(@PathVariable @Valid @NotNull Long id) {

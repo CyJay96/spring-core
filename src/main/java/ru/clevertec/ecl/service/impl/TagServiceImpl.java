@@ -55,10 +55,14 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDtoResponse updateTagById(Long id, TagDtoRequest tagDtoRequest) {
-        Tag tag = tagMapper.toEntity(tagDtoRequest);
-        tag.setId(id);
+        Tag updatedTag = tagRepository.findById(id)
+                .map(tag -> {
+                    tag.setName(tagDtoRequest.getName());
+                    return tag;
+                })
+                .orElseThrow(() -> new TagNotFoundException(id));
 
-        Tag savedTag = tagRepository.save(tag);
+        Tag savedTag = tagRepository.save(updatedTag);
         return tagMapper.toDto(savedTag);
     }
 

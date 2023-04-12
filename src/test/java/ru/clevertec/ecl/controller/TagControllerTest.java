@@ -34,6 +34,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static ru.clevertec.ecl.util.TestConstants.PAGE;
+import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,21 +79,18 @@ class TagControllerTest {
     @Test
     @DisplayName("Find all Tags")
     void checkFindAllTagsShouldReturnTagPage() {
-        Integer page = 0;
-        Integer pageSize = 18;
-
         TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
 
         PageResponse<TagDtoResponse> pageResponse = PageResponse.<TagDtoResponse>builder()
                 .content(List.of(tagDtoResponse))
-                .number(page)
-                .size(pageSize)
+                .number(PAGE)
+                .size(PAGE_SIZE)
                 .numberOfElements(1)
                 .build();
 
-        when(tagService.getAllTags(page, pageSize)).thenReturn(pageResponse);
+        when(tagService.getAllTags(PAGE, PAGE_SIZE)).thenReturn(pageResponse);
 
-        var tagDtoList = tagController.findAllTags(page, pageSize);
+        var tagDtoList = tagController.findAllTags(PAGE, PAGE_SIZE);
 
         verify(tagService).getAllTags(anyInt(), anyInt());
 
@@ -192,7 +191,7 @@ class TagControllerTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {4L, 5L, 6L})
-        void checkDeleteTagByIdShouldReturnTagDtoResponse(Long id) {
+        void checkDeleteTagByIdShouldReturnVoid(Long id) {
             doNothing().when(tagService).deleteTagById(id);
 
             var voidResponse = tagController.deleteTagById(id);

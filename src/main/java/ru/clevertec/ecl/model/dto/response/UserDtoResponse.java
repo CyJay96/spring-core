@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -14,22 +13,25 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GiftCertificateDtoResponse {
+public class UserDtoResponse {
 
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("username")
+    private String username;
 
-    @JsonProperty("description")
-    private String description;
+    @JsonProperty("firstName")
+    private String firstName;
 
-    @JsonProperty("price")
-    private BigDecimal price;
+    @JsonProperty("lastName")
+    private String lastName;
 
-    @JsonProperty("duration")
-    private Long duration;
+    @JsonProperty("email")
+    private String email;
+
+    @JsonProperty("status")
+    private String status;
 
     @JsonProperty("createDate")
     private OffsetDateTime createDate;
@@ -37,6 +39,6 @@ public class GiftCertificateDtoResponse {
     @JsonProperty("lastUpdateDate")
     private OffsetDateTime lastUpdateDate;
 
-    @JsonProperty("tags")
-    private List<TagDtoResponse> tags;
+    @JsonProperty("ordersIds")
+    private List<Long> ordersIds;
 }

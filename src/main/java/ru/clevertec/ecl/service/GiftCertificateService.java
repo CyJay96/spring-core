@@ -21,5 +21,7 @@ public interface GiftCertificateService {
 
     GiftCertificateDtoResponse addTagToGiftCertificate(Long giftCertificateId, Long tagId);
 
+    GiftCertificateDtoResponse deleteTagFromGiftCertificate(Long giftCertificateId, Long tagId);
+
     void deleteGiftCertificateById(Long id);
 }

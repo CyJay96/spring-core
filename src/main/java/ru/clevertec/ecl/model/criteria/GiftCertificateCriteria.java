@@ -7,14 +7,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GiftCertificateCriteria {
 
-    @JsonProperty("tagName")
-    private String tagName;
+    @JsonProperty("tagNames")
+    private List<String> tagNames;
 
     @JsonProperty("description")
     private String description;

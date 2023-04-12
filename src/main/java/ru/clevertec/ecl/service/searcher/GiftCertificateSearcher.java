@@ -11,6 +11,7 @@ import ru.clevertec.ecl.model.entity.GiftCertificate;
 import ru.clevertec.ecl.model.specification.GiftCertificateSpecification;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 @Service
@@ -21,18 +22,20 @@ public class GiftCertificateSearcher {
 
     private final Function<GiftCertificateCriteria, Specification<GiftCertificate>> toSpecification =
             searchCriteria -> {
-                Specification<GiftCertificate> specification = null;
+                AtomicReference<Specification<GiftCertificate>> specification = new AtomicReference<>();
 
-                if (searchCriteria.getTagName() != null) {
-                    specification = append(specification, GiftCertificateSpecification
-                            .matchTagName(searchCriteria.getTagName()));
+                if (searchCriteria.getTagNames() != null) {
+                    searchCriteria.getTagNames().forEach(tagName -> {
+                        specification.set(append(specification.get(), GiftCertificateSpecification
+                                .matchTagName(tagName)));
+                    });
                 }
                 if (searchCriteria.getDescription() != null) {
-                    specification = append(specification, GiftCertificateSpecification
-                            .matchDescription(searchCriteria.getDescription()));
+                    specification.set(append(specification.get(), GiftCertificateSpecification
+                            .matchDescription(searchCriteria.getDescription())));
                 }
 
-                return specification;
+                return specification.get();
             };
 
     public Page<GiftCertificate> getGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {

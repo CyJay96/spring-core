@@ -14,7 +14,7 @@ import java.time.OffsetDateTime;
 public class ApiResponse<T> {
 
     @JsonProperty("timestamp")
-    private final String timestamp = OffsetDateTime.now().toString();
+    private final OffsetDateTime timestamp = OffsetDateTime.now();
 
     @JsonProperty("status")
     private final int status;
