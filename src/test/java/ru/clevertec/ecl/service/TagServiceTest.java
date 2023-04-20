@@ -55,6 +55,10 @@ class TagServiceTest {
     @Captor
     ArgumentCaptor<Tag> tagCaptor;
 
+    private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+    private final TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
+    private final Tag tag = TagTestBuilder.aTag().build();
+
     @BeforeEach
     void setUp() {
         tagService = new TagServiceImpl(tagRepository, tagMapper);
@@ -63,10 +67,6 @@ class TagServiceTest {
     @Test
     @DisplayName("Create Tag")
     void checkCreateTagShouldReturnTagDtoResponse() {
-        TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-        TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-        Tag tag = TagTestBuilder.aTag().build();
-
         when(tagRepository.save(tag)).thenReturn(tag);
         when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
         when(tagMapper.toEntity(tagDtoRequest)).thenReturn(tag);
@@ -86,9 +86,6 @@ class TagServiceTest {
     @Test
     @DisplayName("Get all Tags")
     void checkGetAllTagsShouldReturnTagDtoResponsePage() {
-        TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-        Tag tag = TagTestBuilder.aTag().build();
-
         when(tagRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(tag)));
         when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
@@ -97,7 +94,9 @@ class TagServiceTest {
         verify(tagRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
         verify(tagMapper).toDto(any());
 
-        assertThat(response.getContent().get(0)).isEqualTo(tagDtoResponse);
+        assertThat(response.getContent().stream()
+                .anyMatch(tagDto -> tagDto.equals(tagDtoResponse))
+        ).isTrue();
     }
 
     @Nested
@@ -106,9 +105,6 @@ class TagServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkGetTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-            Tag tag = TagTestBuilder.aTag().build();
-
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
@@ -137,10 +133,6 @@ class TagServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-            Tag tag = TagTestBuilder.aTag().build();
-
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagRepository.save(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
@@ -161,10 +153,6 @@ class TagServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkPartialUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-            Tag tag = TagTestBuilder.aTag().build();
-
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagRepository.save(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
@@ -184,8 +172,6 @@ class TagServiceTest {
         @Test
         @DisplayName("Partial Update Tag by ID; not found")
         void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-
             doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
 
             assertThrows(TagNotFoundException.class, () -> tagService.updateTagByIdPartially(TEST_ID, tagDtoRequest));

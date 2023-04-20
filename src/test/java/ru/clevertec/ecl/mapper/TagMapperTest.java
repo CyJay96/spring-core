@@ -20,6 +20,9 @@ class TagMapperTest {
 
     private TagMapper tagMapper;
 
+    private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+    private final Tag tag = TagTestBuilder.aTag().build();
+
     @BeforeEach
     void setUp() {
         tagMapper = new TagMapperImpl();
@@ -28,8 +31,6 @@ class TagMapperTest {
     @Test
     @DisplayName("Map Tag DTO to Entity")
     void checkToEntityShouldReturnTag() {
-        TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-
         Tag tag = tagMapper.toEntity(tagDtoRequest);
 
         assertAll(
@@ -41,8 +42,6 @@ class TagMapperTest {
     @Test
     @DisplayName("Map Tag Entity to DTO")
     void checkToDtoShouldReturnTagDtoResponse() {
-        Tag tag = TagTestBuilder.aTag().build();
-
         TagDtoResponse tagDtoResponse = tagMapper.toDto(tag);
 
         assertAll(

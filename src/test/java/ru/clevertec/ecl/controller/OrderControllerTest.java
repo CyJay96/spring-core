@@ -45,6 +45,8 @@ class OrderControllerTest {
     @Mock
     private PaginationProperties paginationProperties;
 
+    private final OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         orderController = new OrderController(orderService, paginationProperties);
@@ -55,8 +57,6 @@ class OrderControllerTest {
         @Test
         @DisplayName("Create Order")
         void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
             when(orderService.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID)).thenReturn(orderDtoResponse);
 
             var orderDto = orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID);
@@ -93,8 +93,6 @@ class OrderControllerTest {
     @Test
     @DisplayName("Find all Orders")
     void checkFindAllOrdersShouldReturnOrderDtoResponseList() {
-        OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
         PageResponse<OrderDtoResponse> pageResponse = PageResponse.<OrderDtoResponse>builder()
                 .content(List.of(orderDtoResponse))
                 .number(PAGE)
@@ -110,7 +108,9 @@ class OrderControllerTest {
 
         assertAll(
                 () -> assertThat(orderDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(orderDtoList.getBody()).getData().getContent().get(0)).isEqualTo(orderDtoResponse)
+                () -> assertThat(Objects.requireNonNull(orderDtoList.getBody()).getData().getContent().stream()
+                        .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+                ).isTrue()
         );
     }
 
@@ -119,8 +119,6 @@ class OrderControllerTest {
         @Test
         @DisplayName("Find all Orders by User ID")
         void checkFindAllOrdersByUserIdShouldReturnOrderDtoResponseList() {
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
             PageResponse<OrderDtoResponse> pageResponse = PageResponse.<OrderDtoResponse>builder()
                     .content(List.of(orderDtoResponse))
                     .number(PAGE)
@@ -136,7 +134,9 @@ class OrderControllerTest {
 
             assertAll(
                     () -> assertThat(orderDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(Objects.requireNonNull(orderDtoList.getBody()).getData().getContent().get(0)).isEqualTo(orderDtoResponse)
+                    () -> assertThat(Objects.requireNonNull(orderDtoList.getBody()).getData().getContent().stream()
+                            .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+                    ).isTrue()
             );
         }
 
@@ -157,10 +157,6 @@ class OrderControllerTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkFindOrderByIdShouldReturnOrderDtoResponse(Long id) {
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse()
-                    .withId(id)
-                    .build();
-
             when(orderService.getOrderById(id)).thenReturn(orderDtoResponse);
 
             var orderDto = orderController.findOrderById(id);
@@ -190,10 +186,6 @@ class OrderControllerTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkFindOrderByIdAndUserIdShouldReturnOrderDtoResponse(Long id) {
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse()
-                    .withId(id)
-                    .build();
-
             when(orderService.getOrderByIdAndUserId(id, TEST_ID)).thenReturn(orderDtoResponse);
 
             var orderDto = orderController.findOrderByIdAndUserId(id, TEST_ID);

@@ -1,6 +1,4 @@
 databaseChangeLog:
-  - include: # Create SEQUENCE
-      file: db/changelog/versions/000-create-sequence-v0.0.1.yaml
   - include: # Create GIFT_CERTIFICATES table
       file: db/changelog/versions/001-create-gift_certificates-table-v0.0.1.yaml
   - include: # Create TAGS table

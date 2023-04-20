@@ -61,6 +61,11 @@ class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
 
+    private final User user = UserTestBuilder.aUser().build();
+    private final GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
+    private final Order order = OrderTestBuilder.aOrder().build();
+    private final OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         orderService = new OrderServiceImpl(orderRepository, userRepository, giftCertificateRepository, orderMapper);
@@ -71,11 +76,6 @@ class OrderServiceTest {
         @Test
         @DisplayName("Create Order")
         void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
-            User user = UserTestBuilder.aUser().build();
-            GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
             when(userRepository.findById(TEST_ID)).thenReturn(Optional.of(user));
             when(giftCertificateRepository.findById(TEST_ID)).thenReturn(Optional.of(giftCertificate));
             when(orderRepository.save(any())).thenReturn(order);
@@ -104,8 +104,6 @@ class OrderServiceTest {
         @Test
         @DisplayName("Create Order; Gift Certificate not found")
         void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowOrderNotFoundException() {
-            User user = UserTestBuilder.aUser().build();
-
             when(userRepository.findById(TEST_ID)).thenReturn(Optional.of(user));
             doThrow(GiftCertificateNotFoundException.class).when(giftCertificateRepository).findById(anyLong());
 
@@ -119,9 +117,6 @@ class OrderServiceTest {
     @Test
     @DisplayName("Get all Orders")
     void checkGetAllOrdersShouldReturnOrderDtoResponseList() {
-        Order order = OrderTestBuilder.aOrder().build();
-        OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
         when(orderRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(order)));
         when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);
 
@@ -130,7 +125,9 @@ class OrderServiceTest {
         verify(orderRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
         verify(orderMapper).toDto(order);
 
-        assertThat(Objects.requireNonNull(orderDtoList).getContent().get(0)).isEqualTo(orderDtoResponse);
+        assertThat(Objects.requireNonNull(orderDtoList).getContent().stream()
+                .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+        ).isTrue();
     }
 
     @Nested
@@ -138,9 +135,6 @@ class OrderServiceTest {
         @Test
         @DisplayName("Get all Orders by User ID")
         void checkGetAllOrdersByUserIdShouldReturnOrderDtoResponseList() {
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
             when(userRepository.existsById(TEST_ID)).thenReturn(TEST_BOOLEAN);
             when(orderRepository.findAllByUserId(TEST_ID, PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(order)));
             when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);
@@ -151,7 +145,9 @@ class OrderServiceTest {
             verify(orderRepository).findAllByUserId(TEST_ID, PageRequest.of(PAGE, PAGE_SIZE));
             verify(orderMapper).toDto(any());
 
-            assertThat(Objects.requireNonNull(orderDtoList).getContent().get(0)).isEqualTo(orderDtoResponse);
+            assertThat(Objects.requireNonNull(orderDtoList).getContent().stream()
+                    .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+            ).isTrue();
         }
 
         @Test
@@ -171,11 +167,6 @@ class OrderServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkGetOrderByIdShouldReturnOrderDtoResponse(Long id) {
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse()
-                    .withId(id)
-                    .build();
-
             when(orderRepository.findById(id)).thenReturn(Optional.of(order));
             when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);
 
@@ -204,11 +195,6 @@ class OrderServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkGetOrderByIdAndUserIdShouldReturnOrderDtoResponse(Long id) {
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse()
-                    .withId(id)
-                    .build();
-
             when(userRepository.existsById(TEST_ID)).thenReturn(TEST_BOOLEAN);
             when(orderRepository.findByIdAndUserId(id, TEST_ID)).thenReturn(Optional.of(order));
             when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);

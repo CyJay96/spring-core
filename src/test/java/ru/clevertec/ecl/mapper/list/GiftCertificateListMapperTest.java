@@ -39,6 +39,10 @@ class GiftCertificateListMapperTest {
     @Captor
     ArgumentCaptor<GiftCertificate> giftCertificateCaptor;
 
+    private final GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
+    private final GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
+    private final GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         giftCertificateListMapper = new GiftCertificateListMapperImpl(giftCertificateMapper);
@@ -47,9 +51,6 @@ class GiftCertificateListMapperTest {
     @Test
     @DisplayName("Map Gift Certificate List DTO to Entity")
     void checkToEntityShouldReturnGiftCertificateList() {
-        GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
-        GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
-
         when(giftCertificateMapper.toEntity(any())).thenReturn(giftCertificate);
 
         List<GiftCertificate> giftCertificateList = giftCertificateListMapper.toEntity(List.of(giftCertificateDtoRequest));
@@ -58,7 +59,9 @@ class GiftCertificateListMapperTest {
 
         assertAll(
                 () -> assertThat(Objects.requireNonNull(giftCertificateList).size()).isEqualTo(1),
-                () -> assertThat(Objects.requireNonNull(giftCertificateList).get(0)).isEqualTo(giftCertificate),
+                () -> assertThat(Objects.requireNonNull(giftCertificateList).stream()
+                        .anyMatch(giftCertificateDto -> giftCertificateDto.equals(giftCertificate))
+                ).isTrue(),
                 () -> assertThat(Objects.requireNonNull(giftCertificateDtoRequestCaptor).getValue()).isEqualTo(giftCertificateDtoRequest)
         );
     }
@@ -66,9 +69,6 @@ class GiftCertificateListMapperTest {
     @Test
     @DisplayName("Map Gift Certificate List Entity to DTO")
     void checkToDtoShouldReturnGiftCertificateDtoResponseList() {
-        GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
-        GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
         when(giftCertificateMapper.toDto(any())).thenReturn(giftCertificateDtoResponse);
 
         List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificateListMapper.toDto(List.of(giftCertificate));
@@ -77,7 +77,9 @@ class GiftCertificateListMapperTest {
 
         assertAll(
                 () -> assertThat(Objects.requireNonNull(giftCertificateDtoResponses).size()).isEqualTo(1),
-                () -> assertThat(Objects.requireNonNull(giftCertificateDtoResponses).get(0)).isEqualTo(giftCertificateDtoResponse),
+                () -> assertThat(Objects.requireNonNull(giftCertificateDtoResponses).stream()
+                        .anyMatch(giftCertificateDto -> giftCertificateDto.equals(giftCertificateDtoResponse))
+                ).isTrue(),
                 () -> assertThat(Objects.requireNonNull(giftCertificateCaptor).getValue()).isEqualTo(giftCertificate)
         );
     }

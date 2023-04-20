@@ -34,6 +34,9 @@ class UserListMapperTest {
     @Captor
     ArgumentCaptor<User> userCaptor;
 
+    private final User user = UserTestBuilder.aUser().build();
+    private final UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         userListMapper = new UserListMapperImpl(userMapper);
@@ -42,9 +45,6 @@ class UserListMapperTest {
     @Test
     @DisplayName("Map User List Entity to DTO")
     void checkToDtoShouldReturnUserDtoResponseList() {
-        User user = UserTestBuilder.aUser().build();
-        UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
-
         when(userMapper.toDto(any())).thenReturn(userDtoResponse);
 
         List<UserDtoResponse> userDtoResponseList = userListMapper.toDto(List.of(user));
@@ -53,7 +53,9 @@ class UserListMapperTest {
 
         assertAll(
                 () -> assertThat(Objects.requireNonNull(userDtoResponseList).size()).isEqualTo(1),
-                () -> assertThat(Objects.requireNonNull(userDtoResponseList).get(0)).isEqualTo(userDtoResponse),
+                () -> assertThat(Objects.requireNonNull(userDtoResponseList).stream()
+                        .anyMatch(userDto -> userDto.equals(userDtoResponse))
+                ).isTrue(),
                 () -> assertThat(Objects.requireNonNull(userCaptor).getValue()).isEqualTo(user)
         );
     }
