@@ -13,11 +13,13 @@ import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.order.OrderDtoResponseTestBuilder;
 import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
 import ru.clevertec.ecl.exception.OrderNotFoundException;
 import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.OrderService;
+import ru.clevertec.ecl.util.TestConstants;
 
 import java.util.List;
 import java.util.Objects;
@@ -182,13 +184,12 @@ class OrderControllerTest {
 
     @Nested
     public class FindOrderByIdAndUserIdTest {
+        @Test
         @DisplayName("Find Order by ID & User ID")
-        @ParameterizedTest
-        @ValueSource(longs = {1L, 2L, 3L})
-        void checkFindOrderByIdAndUserIdShouldReturnOrderDtoResponse(Long id) {
-            when(orderService.getOrderByIdAndUserId(id, TEST_ID)).thenReturn(orderDtoResponse);
+        void checkFindOrderByIdAndUserIdShouldReturnOrderDtoResponse() {
+            when(orderService.getOrderByIdAndUserId(TEST_ID, TestConstants.TEST_ID)).thenReturn(orderDtoResponse);
 
-            var orderDto = orderController.findOrderByIdAndUserId(id, TEST_ID);
+            var orderDto = orderController.findOrderByIdAndUserId(TEST_ID, TestConstants.TEST_ID);
 
             verify(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
 
@@ -196,6 +197,16 @@ class OrderControllerTest {
                     () -> assertThat(orderDto.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(Objects.requireNonNull(orderDto.getBody()).getData()).isEqualTo(orderDtoResponse)
             );
+        }
+
+        @Test
+        @DisplayName("Find Order by ID & User ID; Order not found")
+        void checkFindOrderByIdAndUserIdShouldThrowOrderNotFoundException() {
+            doThrow(OrderNotFoundException.class).when(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+
+            assertThrows(OrderNotFoundException.class, () -> orderController.findOrderByIdAndUserId(TEST_ID, TEST_ID));
+
+            verify(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
         }
 
         @Test
@@ -209,11 +220,11 @@ class OrderControllerTest {
         }
 
         @Test
-        @DisplayName("Find Order by ID & User ID; Order not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderNotFoundException() {
-            doThrow(OrderNotFoundException.class).when(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+        @DisplayName("Find Order by ID & User ID; Order by User not found")
+        void checkFindOrderByIdAndUserIdShouldThrowOrderByUserNotFoundException() {
+            doThrow(OrderByUserNotFoundException.class).when(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
 
-            assertThrows(OrderNotFoundException.class, () -> orderController.findOrderByIdAndUserId(TEST_ID, TEST_ID));
+            assertThrows(OrderByUserNotFoundException.class, () -> orderController.findOrderByIdAndUserId(TEST_ID, TEST_ID));
 
             verify(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
         }

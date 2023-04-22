@@ -1,60 +1,60 @@
 databaseChangeLog:
-  - preConditions:
-      - runningAs:
-          username: postgres
+      - preConditions:
+              - runningAs:
+                      username: postgres
 
-  - changeSet:
-      id: 006v0.0.1-1
-      author: github.com/CyJay96
-      comment: Add FK for GIFT_CERTIFICATES_TAGS table
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: tag_id
-            baseTableName: gift_certificates_tags
-            constraintName: fk_gift_certificates_tags_tags
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: tags
+      - changeSet:
+              id: 006v0.0.1-1
+              author: github.com/CyJay96
+              comment: Add FK for GIFT_CERTIFICATES_TAGS table
+              changes:
+                    - addForeignKeyConstraint:
+                            baseColumnNames: tag_id
+                            baseTableName: gift_certificates_tags
+                            constraintName: fk_gift_certificates_tags_tags
+                            deferrable: false
+                            initiallyDeferred: false
+                            referencedColumnNames: id
+                            referencedTableName: tags
 
-  - changeSet:
-      id: 006v0.0.1-2
-      author: github.com/CyJay96
-      comment: Add FK for GIFT_CERTIFICATES_TAGS table
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: gift_certificate_id
-            baseTableName: gift_certificates_tags
-            constraintName: fk_gift_certificates_tags_gift_certificates
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: gift_certificates
+      - changeSet:
+              id: 006v0.0.1-2
+              author: github.com/CyJay96
+              comment: Add FK for GIFT_CERTIFICATES_TAGS table
+              changes:
+                    - addForeignKeyConstraint:
+                            baseColumnNames: gift_certificate_id
+                            baseTableName: gift_certificates_tags
+                            constraintName: fk_gift_certificates_tags_gift_certificates
+                            deferrable: false
+                            initiallyDeferred: false
+                            referencedColumnNames: id
+                            referencedTableName: gift_certificates
 
-  - changeSet:
-      id: 006v0.0.1-3
-      author: github.com/CyJay96
-      comment: Add FK for ORDERS table
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: gift_certificate_id
-            baseTableName: orders
-            constraintName: fk_orders_gift_certificates
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: gift_certificates
+      - changeSet:
+              id: 006v0.0.1-3
+              author: github.com/CyJay96
+              comment: Add FK for ORDERS table
+              changes:
+                    - addForeignKeyConstraint:
+                            baseColumnNames: gift_certificate_id
+                            baseTableName: orders
+                            constraintName: fk_orders_gift_certificates
+                            deferrable: false
+                            initiallyDeferred: false
+                            referencedColumnNames: id
+                            referencedTableName: gift_certificates
 
-  - changeSet:
-      id: 006v0.0.1-4
-      author: github.com/CyJay96
-      comment: Add FK for ORDERS table
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: user_id
-            baseTableName: orders
-            constraintName: fk_orders_user_id
-            deferrable: false
-            initiallyDeferred: false
-            referencedColumnNames: id
-            referencedTableName: users
+      - changeSet:
+              id: 006v0.0.1-4
+              author: github.com/CyJay96
+              comment: Add FK for ORDERS table
+              changes:
+                    - addForeignKeyConstraint:
+                            baseColumnNames: user_id
+                            baseTableName: orders
+                            constraintName: fk_orders_user_id
+                            deferrable: false
+                            initiallyDeferred: false
+                            referencedColumnNames: id
+                            referencedTableName: users

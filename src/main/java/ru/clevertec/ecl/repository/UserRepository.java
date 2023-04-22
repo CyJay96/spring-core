@@ -18,5 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     Optional<User> findUserByHighestOrderCost();
 
-    boolean existsById(Long id);
+    Optional<User> findFirstByOrderByIdAsc();
+
+    Optional<User> findFirstByOrderByIdDesc();
 }

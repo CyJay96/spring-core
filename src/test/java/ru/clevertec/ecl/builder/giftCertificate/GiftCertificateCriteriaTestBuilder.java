@@ -10,7 +10,8 @@ import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import java.util.Collections;
 import java.util.List;
 
-import static ru.clevertec.ecl.util.TestConstants.TEST_NUMBER;
+import static ru.clevertec.ecl.util.TestConstants.PAGE;
+import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 import static ru.clevertec.ecl.util.TestConstants.TEST_STRING;
 
 @With
@@ -26,9 +27,9 @@ public class GiftCertificateCriteriaTestBuilder implements TestBuilder<GiftCerti
 
     private Sort.Direction sortDirectionDate = Sort.Direction.ASC;
 
-    private Integer offset = TEST_NUMBER.intValue();
+    private Integer offset = PAGE;
 
-    private Integer limit = TEST_NUMBER.intValue();
+    private Integer limit = PAGE_SIZE;
 
     @Override
     public GiftCertificateCriteria build() {

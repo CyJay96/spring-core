@@ -287,7 +287,7 @@ class GiftCertificateControllerTest {
     public class DeleteGiftCertificateByIdTest {
         @DisplayName("Delete Gift Certificate by ID")
         @ParameterizedTest
-        @ValueSource(longs = {4L, 5L, 6L})
+        @ValueSource(longs = {1L, 2L, 3L})
         void checkDeleteGiftCertificateByIdShouldReturnVoid(Long id) {
             doNothing().when(giftCertificateService).deleteGiftCertificateById(id);
 

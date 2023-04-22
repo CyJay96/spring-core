@@ -166,6 +166,16 @@ class TagControllerTest {
         }
 
         @Test
+        @DisplayName("Update Tag by ID; not found")
+        void checkUpdateTagByIdShouldThrowTagNotFoundException() {
+            doThrow(TagNotFoundException.class).when(tagService).updateTagById(anyLong(), any());
+
+            assertThrows(TagNotFoundException.class, () -> tagController.updateTagById(TEST_ID, tagDtoRequest));
+
+            verify(tagService).updateTagById(anyLong(), any());
+        }
+
+        @Test
         @DisplayName("Partial Update Tag by ID; not found")
         void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
             doThrow(TagNotFoundException.class).when(tagService).updateTagByIdPartially(anyLong(), any());
@@ -180,7 +190,7 @@ class TagControllerTest {
     public class DeleteTagByIdTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
-        @ValueSource(longs = {4L, 5L, 6L})
+        @ValueSource(longs = {1L, 2L, 3L})
         void checkDeleteTagByIdShouldReturnVoid(Long id) {
             doNothing().when(tagService).deleteTagById(id);
 

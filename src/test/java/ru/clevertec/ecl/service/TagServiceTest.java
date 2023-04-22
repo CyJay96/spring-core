@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static ru.clevertec.ecl.util.TestConstants.PAGE;
 import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
+import static ru.clevertec.ecl.util.TestConstants.TEST_BOOLEAN;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -170,6 +171,16 @@ class TagServiceTest {
         }
 
         @Test
+        @DisplayName("Update Tag by ID; not found")
+        void checkUpdateTagByIdShouldThrowTagNotFoundException() {
+            doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
+
+            assertThrows(TagNotFoundException.class, () -> tagService.updateTagById(TEST_ID, tagDtoRequest));
+
+            verify(tagRepository).findById(anyLong());
+        }
+
+        @Test
         @DisplayName("Partial Update Tag by ID; not found")
         void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
             doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
@@ -184,23 +195,25 @@ class TagServiceTest {
     public class DeleteTagByIdTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
-        @ValueSource(longs = {4L, 5L, 6L})
+        @ValueSource(longs = {1L, 2L, 3L})
         void checkDeleteTagByIdShouldReturnVoid(Long id) {
+            when(tagRepository.existsById(id)).thenReturn(TEST_BOOLEAN);
             doNothing().when(tagRepository).deleteById(id);
 
             tagService.deleteTagById(id);
 
+            verify(tagRepository).existsById(anyLong());
             verify(tagRepository).deleteById(anyLong());
         }
 
         @Test
         @DisplayName("Delete Tag by ID; not found")
         void checkDeleteTagByIdShouldThrowTagNotFoundException() {
-            doThrow(TagNotFoundException.class).when(tagRepository).deleteById(anyLong());
+            when(tagRepository.existsById(anyLong())).thenReturn(false);
 
             assertThrows(TagNotFoundException.class, () -> tagService.deleteTagById(TEST_ID));
 
-            verify(tagRepository).deleteById(anyLong());
+            verify(tagRepository).existsById(anyLong());
         }
     }
 }
