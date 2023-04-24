@@ -41,14 +41,15 @@ public class OrderControllerTest extends BaseIntegrationTest {
         @Test
         @DisplayName("Create Order")
         void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() throws Exception {
-            long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
-            long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
-            long expectedOrderId = orderRepository.findFirstByOrderByIdDesc().get().getId() + 1;
-            mockMvc.perform(post(ORDER_API_PATH + "/{userId}/{giftCertificateId}", existsUserId, existsGiftCertificateId)
+            long expectedUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
+            long expectedGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
+            mockMvc.perform(post(ORDER_API_PATH + "/{userId}/{giftCertificateId}",
+                            expectedUserId, expectedGiftCertificateId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.data").isNotEmpty())
-                    .andExpect(jsonPath("$.data.id").value(expectedOrderId));
+                    .andExpect(jsonPath("$.data.userId").value(expectedUserId))
+                    .andExpect(jsonPath("$.data.giftCertificateId").value(expectedGiftCertificateId));
         }
 
         @Test
@@ -57,7 +58,8 @@ public class OrderControllerTest extends BaseIntegrationTest {
             long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
-            mockMvc.perform(post(ORDER_API_PATH + "/{userId}/{giftCertificateId}", doesntExistUserId, existsGiftCertificateId)
+            mockMvc.perform(post(ORDER_API_PATH + "/{userId}/{giftCertificateId}",
+                            doesntExistUserId, existsGiftCertificateId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound());
         }
@@ -68,7 +70,8 @@ public class OrderControllerTest extends BaseIntegrationTest {
             long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
             long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            mockMvc.perform(post(ORDER_API_PATH + "/{userId}/{giftCertificateId}", existsUserId, doesntExistGiftCertificateId)
+            mockMvc.perform(post(ORDER_API_PATH + "/{userId}/{giftCertificateId}",
+                            existsUserId, doesntExistGiftCertificateId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound());
         }
@@ -93,7 +96,8 @@ public class OrderControllerTest extends BaseIntegrationTest {
         @DisplayName("Find all Orders by User ID")
         void checkFindAllOrdersByUserIdShouldReturnOrderDtoResponseList() throws Exception {
             Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
-            int expectedOrdersSize = orderRepository.findAllByUserId(existsUserId, PageRequest.of(PAGE, PAGE_SIZE)).getNumberOfElements();
+            int expectedOrdersSize = orderRepository
+                    .findAllByUserId(existsUserId, PageRequest.of(PAGE, PAGE_SIZE)).getNumberOfElements();
             mockMvc.perform(get(ORDER_API_PATH + "/byUserId/{userId}", existsUserId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("page", String.valueOf(PAGE))

@@ -49,11 +49,13 @@ public class Order implements BaseEntity<Long> {
     private BigDecimal finalPrice;
 
     @CreatedDate
+    @EqualsAndHashCode.Exclude
     @Column(name = "create_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private OffsetDateTime createDate;
 
     @LastModifiedDate
+    @EqualsAndHashCode.Exclude
     @Column(name = "last_update_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private OffsetDateTime lastUpdateDate;

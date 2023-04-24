@@ -42,13 +42,12 @@ public class TagControllerTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Create Tag")
     void checkCreateTagShouldReturnTagDtoResponse() throws Exception {
-        long expectedTagId = tagRepository.findFirstByOrderByIdDesc().get().getId() + 1;
         mockMvc.perform(post(TAG_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(tagDtoRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data").isNotEmpty())
-                .andExpect(jsonPath("$.data.id").value(expectedTagId));
+                .andExpect(jsonPath("$.data.name").value(tagDtoRequest.getName()));
     }
 
     @Test

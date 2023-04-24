@@ -4,7 +4,7 @@ databaseChangeLog:
           username: postgres
 
   - changeSet:
-      id: 007v0.0.1
+      id: 001v0.0.1
       author: github.com/CyJay96
       context: test
       changes:

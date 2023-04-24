@@ -42,13 +42,16 @@ public class OrderServiceTest extends BaseIntegrationTest {
         @Test
         @DisplayName("Create Order")
         void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
-            Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
-            Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
-            Long expectedOrderId = orderRepository.findFirstByOrderByIdDesc().get().getId() + 1;
+            Long expectedUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
+            Long expectedGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
 
-            OrderDtoResponse actualOrder = orderService.createOrderByUserIdAndGiftCertificateId(existsUserId, existsGiftCertificateId);
+            OrderDtoResponse actualOrder = orderService
+                    .createOrderByUserIdAndGiftCertificateId(expectedUserId, expectedGiftCertificateId);
 
-            assertThat(actualOrder.getId()).isEqualTo(expectedOrderId);
+            assertAll(
+                    () -> assertThat(actualOrder.getUserId()).isEqualTo(expectedUserId),
+                    () -> assertThat(actualOrder.getGiftCertificateId()).isEqualTo(expectedGiftCertificateId)
+            );
         }
 
         @Test
@@ -57,7 +60,9 @@ public class OrderServiceTest extends BaseIntegrationTest {
             Long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
-            assertThrows(UserNotFoundException.class, () -> orderService.createOrderByUserIdAndGiftCertificateId(doesntExistUserId, existsGiftCertificateId));
+            assertThrows(UserNotFoundException.class,
+                    () -> orderService.createOrderByUserIdAndGiftCertificateId(doesntExistUserId, existsGiftCertificateId)
+            );
         }
 
         @Test
@@ -66,7 +71,9 @@ public class OrderServiceTest extends BaseIntegrationTest {
             Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(GiftCertificateNotFoundException.class, () -> orderService.createOrderByUserIdAndGiftCertificateId(existsUserId, doesntExistGiftCertificateId));
+            assertThrows(GiftCertificateNotFoundException.class,
+                    () -> orderService.createOrderByUserIdAndGiftCertificateId(existsUserId, doesntExistGiftCertificateId)
+            );
         }
     }
 
@@ -84,7 +91,8 @@ public class OrderServiceTest extends BaseIntegrationTest {
         @DisplayName("Get all Orders by User ID")
         void checkGetAllOrdersByUserIdShouldReturnOrderDtoResponseList() {
             Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
-            int expectedOrdersSize = orderRepository.findAllByUserId(existsUserId, PageRequest.of(PAGE, PAGE_SIZE)).getNumberOfElements();
+            int expectedOrdersSize = orderRepository
+                    .findAllByUserId(existsUserId, PageRequest.of(PAGE, PAGE_SIZE)).getNumberOfElements();
             PageResponse<OrderDtoResponse> actualOrders = orderService.getAllOrdersByUserId(existsUserId, PAGE, PAGE_SIZE);
             assertAll(
                     () -> assertThat(actualOrders.getContent()).hasSize(expectedOrdersSize),
@@ -100,7 +108,9 @@ public class OrderServiceTest extends BaseIntegrationTest {
         void checkGetAllOrdersByUserIdShouldThrowUserNotFoundException() {
             Long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(UserNotFoundException.class, () -> orderService.getAllOrdersByUserId(doesntExistUserId, PAGE, PAGE_SIZE));
+            assertThrows(UserNotFoundException.class,
+                    () -> orderService.getAllOrdersByUserId(doesntExistUserId, PAGE, PAGE_SIZE)
+            );
         }
     }
 
@@ -146,7 +156,9 @@ public class OrderServiceTest extends BaseIntegrationTest {
             Long existsOrderId = orderRepository.findFirstByOrderByIdAsc().get().getId();
             Long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(UserNotFoundException.class, () -> orderService.getOrderByIdAndUserId(existsOrderId, doesntExistUserId));
+            assertThrows(UserNotFoundException.class,
+                    () -> orderService.getOrderByIdAndUserId(existsOrderId, doesntExistUserId)
+            );
         }
 
         @Test
@@ -155,7 +167,9 @@ public class OrderServiceTest extends BaseIntegrationTest {
             Long doesntExistOrderId = new Random()
                     .nextLong(orderRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
-            assertThrows(OrderNotFoundException.class, () -> orderService.getOrderByIdAndUserId(doesntExistOrderId, existsUserId));
+            assertThrows(OrderNotFoundException.class,
+                    () -> orderService.getOrderByIdAndUserId(doesntExistOrderId, existsUserId)
+            );
         }
 
         @Test
@@ -163,7 +177,9 @@ public class OrderServiceTest extends BaseIntegrationTest {
         void checkGetOrderByIdAndUserIdShouldThrowOrderByUserNotFoundException() {
             Long existsOrderId = orderRepository.findFirstByOrderByIdAsc().get().getId();
             Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId() + 1;
-            assertThrows(OrderByUserNotFoundException.class, () -> orderService.getOrderByIdAndUserId(existsOrderId, existsUserId));
+            assertThrows(OrderByUserNotFoundException.class,
+                    () -> orderService.getOrderByIdAndUserId(existsOrderId, existsUserId)
+            );
         }
     }
 }

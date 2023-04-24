@@ -36,9 +36,8 @@ class TagServiceTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Create Tag")
     void checkCreateTagShouldReturnTagDtoResponse() {
-        Long expectedTagId = tagRepository.findFirstByOrderByIdDesc().get().getId() + 1;
         TagDtoResponse actualTag = tagService.createTag(tagDtoRequest);
-        assertThat(actualTag.getId()).isEqualTo(expectedTagId);
+        assertThat(actualTag.getName()).isEqualTo(tagDtoRequest.getName());
     }
 
     @Test

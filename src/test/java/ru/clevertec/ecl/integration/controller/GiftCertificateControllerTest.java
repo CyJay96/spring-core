@@ -52,13 +52,12 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Create Gift Certificate")
     void checkCreateGiftCertificateShouldReturnGiftCertificateDtoResponse() throws Exception {
-        long expectedGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1;
         mockMvc.perform(post(GIFT_CERTIFICATE_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(giftCertificateDtoRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data").isNotEmpty())
-                .andExpect(jsonPath("$.data.id").value(expectedGiftCertificateId));
+                .andExpect(jsonPath("$.data.name").value(giftCertificateDtoRequest.getName()));
     }
 
     @Test

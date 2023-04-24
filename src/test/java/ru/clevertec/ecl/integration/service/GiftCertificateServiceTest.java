@@ -38,24 +38,28 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
     private final TagRepository tagRepository;
     private final EntityManager entityManager;
 
-    private final GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
-    private final GiftCertificateCriteria searchCriteria = GiftCertificateCriteriaTestBuilder.aGiftCertificateCriteria()
+    private final GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder
+            .aGiftCertificateDtoRequest()
+            .build();
+    private final GiftCertificateCriteria searchCriteria = GiftCertificateCriteriaTestBuilder
+            .aGiftCertificateCriteria()
             .withDescription("frame")
             .build();
 
     @Test
     @DisplayName("Create Gift Certificate")
     void checkCreateGiftCertificateShouldReturnGiftCertificateDtoResponse() {
-        Long expectedGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1;
-        GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.createGiftCertificate(giftCertificateDtoRequest);
-        assertThat(actualGiftCertificate.getId()).isEqualTo(expectedGiftCertificateId);
+        GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
+                .createGiftCertificate(giftCertificateDtoRequest);
+        assertThat(actualGiftCertificate.getName()).isEqualTo(giftCertificateDtoRequest.getName());
     }
 
     @Test
     @DisplayName("Get all Gift Certificates")
     void checkGetAllGiftCertificatesShouldReturnGiftCertificateDtoResponsePage() {
         int expectedGiftCertificatesSize = (int) giftCertificateRepository.count();
-        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService.getAllGiftCertificates(PAGE, PAGE_SIZE);
+        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService
+                .getAllGiftCertificates(PAGE, PAGE_SIZE);
         assertThat(actualGiftCertificates.getContent()).hasSize(expectedGiftCertificatesSize);
     }
 
@@ -63,7 +67,8 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
     @DisplayName("Get all Gift Certificates by criteria")
     void checkGetAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponsePage() {
         int expectedGiftCertificatesSize = 2;
-        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
+        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService
+                .getAllGiftCertificatesByCriteria(searchCriteria);
         assertThat(actualGiftCertificates.getContent()).hasSize(expectedGiftCertificatesSize);
     }
 
@@ -82,7 +87,9 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
         void checkGetGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.getGiftCertificateById(doesntExistGiftCertificateId));
+            assertThrows(GiftCertificateNotFoundException.class,
+                    () -> giftCertificateService.getGiftCertificateById(doesntExistGiftCertificateId)
+            );
         }
     }
 
@@ -92,7 +99,8 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
-            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.updateGiftCertificateById(id, giftCertificateDtoRequest);
+            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
+                    .updateGiftCertificateById(id, giftCertificateDtoRequest);
             assertThat(actualGiftCertificate.getId()).isEqualTo(id);
         }
 
@@ -100,7 +108,8 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkUpdateGiftCertificateByIdPartiallyShouldReturnGiftCertificateDtoResponse(Long id) {
-            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
+            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
+                    .updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
             assertThat(actualGiftCertificate.getId()).isEqualTo(id);
         }
 
@@ -109,7 +118,10 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
         void checkUpdateGiftCertificateByIdPartiallyShouldThrowGiftCertificateNotFoundException() {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.updateGiftCertificateByIdPartially(doesntExistGiftCertificateId, giftCertificateDtoRequest));
+            assertThrows(GiftCertificateNotFoundException.class,
+                    () -> giftCertificateService
+                            .updateGiftCertificateByIdPartially(doesntExistGiftCertificateId, giftCertificateDtoRequest)
+            );
         }
     }
 
@@ -121,7 +133,8 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
             Long existsTagId = tagRepository.findFirstByOrderByIdAsc().get().getId();
 
-            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.addTagToGiftCertificate(existsGiftCertificateId, existsTagId);
+            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
+                    .addTagToGiftCertificate(existsGiftCertificateId, existsTagId);
 
             assertAll(
                     () -> assertThat(actualGiftCertificate.getId()).isEqualTo(existsGiftCertificateId),
@@ -138,15 +151,20 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             Long existsTagId = tagRepository.findFirstByOrderByIdAsc().get().getId();
-            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.addTagToGiftCertificate(doesntExistGiftCertificateId, existsTagId));
+            assertThrows(GiftCertificateNotFoundException.class,
+                    () -> giftCertificateService.addTagToGiftCertificate(doesntExistGiftCertificateId, existsTagId)
+            );
         }
 
         @Test
         @DisplayName("Add Tag to Gift Certificate; Tag not found")
         void checkAddTagToGiftCertificateShouldThrowTagNotFoundException() {
             Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
-            Long doesntExistTagId = new Random().nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class, () -> giftCertificateService.addTagToGiftCertificate(existsGiftCertificateId, doesntExistTagId));
+            Long doesntExistTagId = new Random().nextLong(tagRepository
+                    .findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
+            assertThrows(TagNotFoundException.class,
+                    () -> giftCertificateService.addTagToGiftCertificate(existsGiftCertificateId, doesntExistTagId)
+            );
         }
     }
 
@@ -158,7 +176,8 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
             Long existsTagId = tagRepository.findFirstByOrderByIdAsc().get().getId();
 
-            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.deleteTagFromGiftCertificate(existsGiftCertificateId, existsTagId);
+            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
+                    .deleteTagFromGiftCertificate(existsGiftCertificateId, existsTagId);
 
             assertAll(
                     () -> assertThat(actualGiftCertificate.getId()).isEqualTo(existsGiftCertificateId),
@@ -175,7 +194,9 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             Long existsTagId = tagRepository.findFirstByOrderByIdAsc().get().getId();
-            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.deleteTagFromGiftCertificate(doesntExistGiftCertificateId, existsTagId));
+            assertThrows(GiftCertificateNotFoundException.class,
+                    () -> giftCertificateService.deleteTagFromGiftCertificate(doesntExistGiftCertificateId, existsTagId)
+            );
         }
 
         @Test
@@ -184,7 +205,9 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
             Long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class, () -> giftCertificateService.deleteTagFromGiftCertificate(existsGiftCertificateId, doesntExistTagId));
+            assertThrows(TagNotFoundException.class,
+                    () -> giftCertificateService.deleteTagFromGiftCertificate(existsGiftCertificateId, doesntExistTagId)
+            );
         }
     }
 
