@@ -8,6 +8,7 @@ import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,9 +33,9 @@ public class GiftCertificateDtoResponseTestBuilder implements TestBuilder<GiftCe
 
     private Long duration = TEST_NUMBER;
 
-    private String createDate = TEST_DATE.toString();
+    private OffsetDateTime createDate = TEST_DATE;
 
-    private String lastUpdateDate = TEST_DATE.toString();
+    private OffsetDateTime lastUpdateDate = TEST_DATE;
 
     private List<TagDtoResponse> tags =  Collections.emptyList();
 

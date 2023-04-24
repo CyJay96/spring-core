@@ -1,5 +1,16 @@
 package ru.clevertec.ecl.model.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -8,17 +19,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,14 +47,4 @@ public class Tag implements BaseEntity<Long> {
             joinColumns = {@JoinColumn(name = "tag_id")},
             inverseJoinColumns = {@JoinColumn(name = "gift_certificate_id")})
     private List<GiftCertificate> giftCertificates = new ArrayList<>();
-
-    public void addGiftCertificate(GiftCertificate giftCertificate) {
-        giftCertificate.getTags().add(this);
-        giftCertificates.add(giftCertificate);
-    }
-
-    public void removeGiftCertificate(GiftCertificate giftCertificate) {
-        giftCertificate.getTags().remove(this);
-        giftCertificates.remove(giftCertificate);
-    }
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
@@ -31,10 +32,10 @@ public class GiftCertificateDtoResponse {
     private Long duration;
 
     @JsonProperty("createDate")
-    private String createDate;
+    private OffsetDateTime createDate;
 
     @JsonProperty("lastUpdateDate")
-    private String lastUpdateDate;
+    private OffsetDateTime lastUpdateDate;
 
     @JsonProperty("tags")
     private List<TagDtoResponse> tags;

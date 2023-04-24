@@ -11,12 +11,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagTestBuilder;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
-import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
@@ -31,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -52,15 +52,12 @@ class TagServiceTest {
     @Mock
     private TagMapper tagMapper;
 
-    @Mock
-    private TagListMapper tagListMapper;
-
     @Captor
     ArgumentCaptor<Tag> tagCaptor;
 
     @BeforeEach
     void setUp() {
-        tagService = new TagServiceImpl(tagRepository, tagMapper, tagListMapper);
+        tagService = new TagServiceImpl(tagRepository, tagMapper);
     }
 
     @Test
@@ -92,13 +89,13 @@ class TagServiceTest {
         TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
         Tag tag = TagTestBuilder.aTag().build();
 
-        when(tagRepository.findAll(PAGE, PAGE_SIZE)).thenReturn(List.of(tag));
-        when(tagListMapper.toDto(List.of(tag))).thenReturn(List.of(tagDtoResponse));
+        when(tagRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(tag)));
+        when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
         PageResponse<TagDtoResponse> response = tagService.getAllTags(PAGE, PAGE_SIZE);
 
-        verify(tagRepository).findAll(anyInt(), anyInt());
-        verify(tagListMapper).toDto(any());
+        verify(tagRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        verify(tagMapper).toDto(any());
 
         assertThat(response.getContent().get(0)).isEqualTo(tagDtoResponse);
     }
@@ -144,14 +141,14 @@ class TagServiceTest {
             TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
             Tag tag = TagTestBuilder.aTag().build();
 
-            when(tagRepository.update(tag)).thenReturn(tag);
-            when(tagMapper.toEntity(tagDtoRequest)).thenReturn(tag);
+            when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
+            when(tagRepository.save(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
             TagDtoResponse response = tagService.updateTagById(id, tagDtoRequest);
 
-            verify(tagRepository).update(tagCaptor.capture());
-            verify(tagMapper).toEntity(any());
+            verify(tagRepository).findById(anyLong());
+            verify(tagRepository).save(tagCaptor.capture());
             verify(tagMapper).toDto(any());
 
             assertAll(
@@ -169,13 +166,13 @@ class TagServiceTest {
             Tag tag = TagTestBuilder.aTag().build();
 
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
-            when(tagRepository.update(tag)).thenReturn(tag);
+            when(tagRepository.save(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
             TagDtoResponse response = tagService.updateTagByIdPartially(id, tagDtoRequest);
 
             verify(tagRepository).findById(anyLong());
-            verify(tagRepository).update(tagCaptor.capture());
+            verify(tagRepository).save(tagCaptor.capture());
             verify(tagMapper).toDto(any());
 
             assertAll(
@@ -202,7 +199,7 @@ class TagServiceTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {4L, 5L, 6L})
-        void checkDeleteTagByIdShouldReturnTagDtoResponse(Long id) {
+        void checkDeleteTagByIdShouldReturnVoid(Long id) {
             doNothing().when(tagRepository).deleteById(id);
 
             tagService.deleteTagById(id);

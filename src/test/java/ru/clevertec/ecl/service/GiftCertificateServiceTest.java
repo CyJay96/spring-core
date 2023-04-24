@@ -11,22 +11,30 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateTestBuilder;
+import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
+import ru.clevertec.ecl.builder.tag.TagTestBuilder;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
-import ru.clevertec.ecl.mapper.list.GiftCertificateListMapper;
 import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
+import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.entity.GiftCertificate;
+import ru.clevertec.ecl.model.entity.Tag;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
+import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.impl.GiftCertificateServiceImpl;
 import ru.clevertec.ecl.service.searcher.GiftCertificateSearcher;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -57,10 +64,10 @@ class GiftCertificateServiceTest {
     private GiftCertificateRepository giftCertificateRepository;
 
     @Mock
-    private GiftCertificateMapper giftCertificateMapper;
+    private TagRepository tagRepository;
 
     @Mock
-    private GiftCertificateListMapper giftCertificateListMapper;
+    private GiftCertificateMapper giftCertificateMapper;
 
     @Mock
     private TagListMapper tagListMapper;
@@ -71,7 +78,7 @@ class GiftCertificateServiceTest {
     @BeforeEach
     void setUp() {
         giftCertificateService = new GiftCertificateServiceImpl(giftCertificateSearcher, giftCertificateRepository,
-                giftCertificateMapper, giftCertificateListMapper, tagListMapper);
+                tagRepository, giftCertificateMapper, tagListMapper);
     }
 
     @Test
@@ -103,13 +110,13 @@ class GiftCertificateServiceTest {
         GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
         GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
 
-        when(giftCertificateRepository.findAll(PAGE, PAGE_SIZE)).thenReturn(List.of(giftCertificate));
-        when(giftCertificateListMapper.toDto(List.of(giftCertificate))).thenReturn(List.of(giftCertificateDtoResponse));
+        when(giftCertificateRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(giftCertificate)));
+        when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
 
         PageResponse<GiftCertificateDtoResponse> response = giftCertificateService.getAllGiftCertificates(PAGE, PAGE_SIZE);
 
-        verify(giftCertificateRepository).findAll(anyInt(), anyInt());
-        verify(giftCertificateListMapper).toDto(any());
+        verify(giftCertificateRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        verify(giftCertificateMapper).toDto(any());
 
         assertThat(response.getContent().get(0)).isEqualTo(giftCertificateDtoResponse);
     }
@@ -121,16 +128,16 @@ class GiftCertificateServiceTest {
         GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
 
         GiftCertificateCriteria searchCriteria = GiftCertificateCriteria.builder()
-                .tagName(TEST_STRING)
+                .tagNames(List.of(TEST_STRING))
                 .build();
 
-        when(giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE)).thenReturn(List.of(giftCertificate));
-        when(giftCertificateListMapper.toDto(List.of(giftCertificate))).thenReturn(List.of(giftCertificateDtoResponse));
+        when(giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria)).thenReturn(new PageImpl<>(List.of(giftCertificate)));
+        when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
 
-        PageResponse<GiftCertificateDtoResponse> response = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE);
+        PageResponse<GiftCertificateDtoResponse> response = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
 
-        verify(giftCertificateSearcher).getGiftCertificatesByCriteria(any(), anyInt(), anyInt());
-        verify(giftCertificateListMapper).toDto(any());
+        verify(giftCertificateSearcher).getGiftCertificatesByCriteria(any());
+        verify(giftCertificateMapper).toDto(any());
 
         assertThat(response.getContent().get(0)).isEqualTo(giftCertificateDtoResponse);
     }
@@ -176,13 +183,13 @@ class GiftCertificateServiceTest {
             GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
             GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
 
-            when(giftCertificateRepository.update(giftCertificate)).thenReturn(giftCertificate);
+            when(giftCertificateRepository.save(giftCertificate)).thenReturn(giftCertificate);
             when(giftCertificateMapper.toEntity(giftCertificateDtoRequest)).thenReturn(giftCertificate);
             when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
 
             GiftCertificateDtoResponse response = giftCertificateService.updateGiftCertificateById(id, giftCertificateDtoRequest);
 
-            verify(giftCertificateRepository).update(giftCertificateCaptor.capture());
+            verify(giftCertificateRepository).save(giftCertificateCaptor.capture());
             verify(giftCertificateMapper).toEntity(any());
             verify(giftCertificateMapper).toDto(any());
 
@@ -196,19 +203,26 @@ class GiftCertificateServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkPartialUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
-            GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
+            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+            Tag tag = TagTestBuilder.aTag().build();
+
+            GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest()
+                    .withTags(List.of(tagDtoRequest))
+                    .build();
             GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
             GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
 
             when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(giftCertificate));
-            when(giftCertificateRepository.update(giftCertificate)).thenReturn(giftCertificate);
+            when(giftCertificateRepository.save(giftCertificate)).thenReturn(giftCertificate);
             when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
+            when(tagListMapper.toEntity(List.of(tagDtoRequest))).thenReturn(List.of(tag));
 
             GiftCertificateDtoResponse response = giftCertificateService.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
 
             verify(giftCertificateRepository).findById(anyLong());
-            verify(giftCertificateRepository).update(giftCertificateCaptor.capture());
+            verify(giftCertificateRepository).save(giftCertificateCaptor.capture());
             verify(giftCertificateMapper).toDto(any());
+            verify(tagListMapper).toEntity(any());
 
             assertAll(
                     () -> assertThat(response).isEqualTo(giftCertificateDtoResponse),
@@ -226,6 +240,104 @@ class GiftCertificateServiceTest {
             assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.updateGiftCertificateByIdPartially(TEST_ID, giftCertificateDtoRequest));
 
             verify(giftCertificateRepository).findById(anyLong());
+        }
+    }
+
+    @Nested
+    public class AddTagToGiftCertificateTest {
+        @Test
+        @DisplayName("Add Tag to Gift Certificate")
+        void checkAddTagToGiftCertificateShouldReturnGiftCertificateDtoResponse() {
+            Tag tag = TagTestBuilder.aTag().build();
+            GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate()
+                    .withTags(new ArrayList<>())
+                    .build();
+            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
+
+            when(giftCertificateRepository.findById(TEST_ID)).thenReturn(Optional.of(giftCertificate));
+            when(tagRepository.findById(TEST_ID)).thenReturn(Optional.of(tag));
+            when(giftCertificateRepository.save(any())).thenReturn(giftCertificate);
+            when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
+
+            GiftCertificateDtoResponse response = giftCertificateService.addTagToGiftCertificate(TEST_ID, TEST_ID);
+
+            verify(giftCertificateRepository).findById(anyLong());
+            verify(tagRepository).findById(anyLong());
+            verify(giftCertificateRepository).save(any());
+            verify(giftCertificateMapper).toDto(any());
+
+            assertThat(response).isEqualTo(giftCertificateDtoResponse);
+        }
+
+        @Test
+        @DisplayName("Add Tag to Gift Certificate; Gift Certificate not found")
+        void checkAddTagToGiftCertificateShouldThrowGiftCertificateNotFoundException() {
+            doThrow(GiftCertificateNotFoundException.class).when(giftCertificateRepository).findById(anyLong());
+
+            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.addTagToGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(giftCertificateRepository).findById(anyLong());
+        }
+
+        @Test
+        @DisplayName("Add Tag to Gift Certificate; Tag not found")
+        void checkAddTagToGiftCertificateShouldThrowTagNotFoundException() {
+            GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
+
+            when(giftCertificateRepository.findById(TEST_ID)).thenReturn(Optional.of(giftCertificate));
+            doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
+
+            assertThrows(TagNotFoundException.class, () -> giftCertificateService.addTagToGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(tagRepository).findById(anyLong());
+        }
+    }
+
+    @Nested
+    public class DeleteTagFromGiftCertificateTest {
+        @Test
+        @DisplayName("Delete Tag from Gift Certificate")
+        void checkDeleteTagFromGiftCertificateShouldReturnGiftCertificateDtoResponse() {
+            Tag tag = TagTestBuilder.aTag().build();
+            GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
+            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
+
+            when(giftCertificateRepository.findById(TEST_ID)).thenReturn(Optional.of(giftCertificate));
+            when(tagRepository.findById(TEST_ID)).thenReturn(Optional.of(tag));
+            when(giftCertificateRepository.save(any())).thenReturn(giftCertificate);
+            when(giftCertificateMapper.toDto(giftCertificate)).thenReturn(giftCertificateDtoResponse);
+
+            GiftCertificateDtoResponse response = giftCertificateService.deleteTagFromGiftCertificate(TEST_ID, TEST_ID);
+
+            verify(giftCertificateRepository).findById(anyLong());
+            verify(tagRepository).findById(anyLong());
+            verify(giftCertificateRepository).save(any());
+            verify(giftCertificateMapper).toDto(any());
+
+            assertThat(response).isEqualTo(giftCertificateDtoResponse);
+        }
+
+        @Test
+        @DisplayName("Delete Tag from Gift Certificate; Gift Certificate not found")
+        void checkDeleteTagFromGiftCertificateShouldThrowGiftCertificateNotFoundException() {
+            doThrow(GiftCertificateNotFoundException.class).when(giftCertificateRepository).findById(anyLong());
+
+            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.deleteTagFromGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(giftCertificateRepository).findById(anyLong());
+        }
+
+        @Test
+        @DisplayName("Delete Tag from Gift Certificate; Tag not found")
+        void checkDeleteTagFromGiftCertificateShouldThrowTagNotFoundException() {
+            GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
+
+            when(giftCertificateRepository.findById(TEST_ID)).thenReturn(Optional.of(giftCertificate));
+            doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
+
+            assertThrows(TagNotFoundException.class, () -> giftCertificateService.deleteTagFromGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(tagRepository).findById(anyLong());
         }
     }
 

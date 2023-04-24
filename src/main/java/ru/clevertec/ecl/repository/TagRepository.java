@@ -1,19 +1,9 @@
 package ru.clevertec.ecl.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import ru.clevertec.ecl.model.entity.Tag;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface TagRepository {
-
-    Tag save(Tag tag);
-
-    Tag update(Tag tag);
-
-    List<Tag> findAll(Integer page, Integer pageSize);
-
-    Optional<Tag> findById(Long id);
-
-    void deleteById(Long id);
+@Repository
+public interface TagRepository extends JpaRepository<Tag, Long> {
 }

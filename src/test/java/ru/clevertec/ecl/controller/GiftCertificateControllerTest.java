@@ -16,6 +16,7 @@ import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBui
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
 import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
@@ -115,11 +116,11 @@ class GiftCertificateControllerTest {
                 .numberOfElements(1)
                 .build();
 
-        when(giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE)).thenReturn(pageResponse);
+        when(giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria)).thenReturn(pageResponse);
 
         var giftCertificateDtoList = giftCertificateController.findAllGiftCertificatesByCriteria(searchCriteria, PAGE, PAGE_SIZE);
 
-        verify(giftCertificateService).getAllGiftCertificatesByCriteria(any(), anyInt(), anyInt());
+        verify(giftCertificateService).getAllGiftCertificatesByCriteria(any());
 
         assertAll(
                 () -> assertThat(giftCertificateDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -216,11 +217,91 @@ class GiftCertificateControllerTest {
     }
 
     @Nested
+    public class AddTagToGiftCertificateTest {
+        @Test
+        @DisplayName("Add Tag to Gift Certificate")
+        void checkAddTagToGiftCertificateShouldReturnGiftCertificateDtoResponse() {
+            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
+
+            when(giftCertificateService.addTagToGiftCertificate(TEST_ID, TEST_ID)).thenReturn(giftCertificateDtoResponse);
+
+            var giftCertificateDto = giftCertificateController.addTagToGiftCertificate(TEST_ID, TEST_ID);
+
+            verify(giftCertificateService).addTagToGiftCertificate(anyLong(), anyLong());
+
+            assertAll(
+                    () -> assertThat(giftCertificateDto.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(Objects.requireNonNull(giftCertificateDto.getBody()).getData()).isEqualTo(giftCertificateDtoResponse)
+            );
+        }
+
+        @Test
+        @DisplayName("Add Tag to Gift Certificate; Gift Certificate not found")
+        void checkAddTagToGiftCertificateShouldThrowGiftCertificateNotFoundException() {
+            doThrow(GiftCertificateNotFoundException.class).when(giftCertificateService).addTagToGiftCertificate(anyLong(), anyLong());
+
+            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.addTagToGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(giftCertificateService).addTagToGiftCertificate(anyLong(), anyLong());
+        }
+
+        @Test
+        @DisplayName("Add Tag to Gift Certificate; Tag not found")
+        void checkAddTagToGiftCertificateShouldThrowTagNotFoundException() {
+            doThrow(TagNotFoundException.class).when(giftCertificateService).addTagToGiftCertificate(anyLong(), anyLong());
+
+            assertThrows(TagNotFoundException.class, () -> giftCertificateService.addTagToGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(giftCertificateService).addTagToGiftCertificate(anyLong(), anyLong());
+        }
+    }
+
+    @Nested
+    public class DeleteTagFromGiftCertificateTest {
+        @Test
+        @DisplayName("Delete Tag from Gift Certificate")
+        void checkDeleteTagFromGiftCertificateShouldReturnGiftCertificateDtoResponse() {
+            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
+
+            when(giftCertificateService.deleteTagFromGiftCertificate(TEST_ID, TEST_ID)).thenReturn(giftCertificateDtoResponse);
+
+            var giftCertificateDto = giftCertificateController.deleteTagFromGiftCertificate(TEST_ID, TEST_ID);
+
+            verify(giftCertificateService).deleteTagFromGiftCertificate(anyLong(), anyLong());
+
+            assertAll(
+                    () -> assertThat(giftCertificateDto.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(Objects.requireNonNull(giftCertificateDto.getBody()).getData()).isEqualTo(giftCertificateDtoResponse)
+            );
+        }
+
+        @Test
+        @DisplayName("Delete Tag from Gift Certificate; Gift Certificate not found")
+        void checkDeleteTagFromGiftCertificateShouldThrowGiftCertificateNotFoundException() {
+            doThrow(GiftCertificateNotFoundException.class).when(giftCertificateService).deleteTagFromGiftCertificate(anyLong(), anyLong());
+
+            assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.deleteTagFromGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(giftCertificateService).deleteTagFromGiftCertificate(anyLong(), anyLong());
+        }
+
+        @Test
+        @DisplayName("Delete Tag from Gift Certificate; Tag not found")
+        void checkDeleteTagFromGiftCertificateShouldThrowTagNotFoundException() {
+            doThrow(TagNotFoundException.class).when(giftCertificateService).deleteTagFromGiftCertificate(anyLong(), anyLong());
+
+            assertThrows(TagNotFoundException.class, () -> giftCertificateService.deleteTagFromGiftCertificate(TEST_ID, TEST_ID));
+
+            verify(giftCertificateService).deleteTagFromGiftCertificate(anyLong(), anyLong());
+        }
+    }
+
+    @Nested
     public class DeleteGiftCertificateByIdTest {
         @DisplayName("Delete Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {4L, 5L, 6L})
-        void checkDeleteGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
+        void checkDeleteGiftCertificateByIdShouldReturnVoid(Long id) {
             doNothing().when(giftCertificateService).deleteGiftCertificateById(id);
 
             var voidResponse = giftCertificateController.deleteGiftCertificateById(id);

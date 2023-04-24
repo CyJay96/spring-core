@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.clevertec.ecl.model.enums.SortType;
+import org.springframework.data.domain.Sort;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -13,15 +15,21 @@ import ru.clevertec.ecl.model.enums.SortType;
 @AllArgsConstructor
 public class GiftCertificateCriteria {
 
-    @JsonProperty("tagName")
-    private String tagName;
+    @JsonProperty("tagNames")
+    private List<String> tagNames;
 
     @JsonProperty("description")
     private String description;
 
-    @JsonProperty("sortTypeName")
-    private SortType sortTypeName;
+    @JsonProperty("sortDirectionName")
+    private Sort.Direction sortDirectionName;
 
-    @JsonProperty("sortTypeDate")
-    private SortType sortTypeDate;
+    @JsonProperty("sortDirectionDate")
+    private Sort.Direction sortDirectionDate;
+
+    @JsonProperty("page")
+    private Integer offset;
+
+    @JsonProperty("pageSize")
+    private Integer limit;
 }

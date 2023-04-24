@@ -1,5 +1,7 @@
 package ru.clevertec.ecl.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,8 +25,6 @@ import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 import ru.clevertec.ecl.service.TagService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.TagController.TAG_API_PATH;
@@ -83,7 +83,9 @@ public class TagController {
         PageResponse<TagDtoResponse> tags = tagService.getAllTags(page, pageSize);
 
         return apiResponseEntity(
-                "All Tags",
+                "All Tags: " +
+                        "; page: " + page +
+                        "; page_size: " + pageSize,
                 TAG_API_PATH,
                 HttpStatus.OK,
                 ApiResponse.Color.SUCCESS,
@@ -94,8 +96,8 @@ public class TagController {
     /**
      * GET /api/v0/tags/{id} : Find Tag info
      *
-     * @param id Tag id to return (required)
-     * @throws TagNotFoundException if the Tag with id doesn't exist
+     * @param id Tag ID to return (required)
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TagDtoResponse>> findTagById(@PathVariable @Valid @NotNull Long id) {
@@ -113,9 +115,9 @@ public class TagController {
     /**
      * PUT /api/v0/tags/{id} : Update an existing Tag info
      *
-     * @param id Tag id to return (required)
+     * @param id Tag ID to return (required)
      * @param tagDtoRequest Tag object to update (required)
-     * @throws TagNotFoundException if the Tag with id doesn't exist
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagById(
@@ -136,9 +138,9 @@ public class TagController {
     /**
      * PATCH /api/v0/tags/{id} : Partial Update an existing Tag info
      *
-     * @param id Tag id to return (required)
+     * @param id Tag ID to return (required)
      * @param tagDtoRequest Tag object to update (required)
-     * @throws TagNotFoundException if Tag with id doesn't exist
+     * @throws TagNotFoundException if Tag with ID doesn't exist
      */
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagByIdPartially(
@@ -159,8 +161,8 @@ public class TagController {
     /**
      * DELETE /api/v0/tags/{id} : Delete a Tag
      *
-     * @param id Tag id to return (required)
-     * @throws TagNotFoundException if the Tag with id doesn't exist
+     * @param id Tag ID to return (required)
+     * @throws TagNotFoundException if the Tag with ID doesn't exist
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteTagById(@PathVariable @Valid @NotNull Long id) {

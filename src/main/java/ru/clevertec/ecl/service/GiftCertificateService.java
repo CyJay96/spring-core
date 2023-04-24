@@ -11,13 +11,17 @@ public interface GiftCertificateService {
 
     PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize);
 
-    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria, Integer page, Integer pageSize);
+    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria);
 
     GiftCertificateDtoResponse getGiftCertificateById(Long id);
 
     GiftCertificateDtoResponse updateGiftCertificateById(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
 
     GiftCertificateDtoResponse updateGiftCertificateByIdPartially(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
+
+    GiftCertificateDtoResponse addTagToGiftCertificate(Long giftCertificateId, Long tagId);
+
+    GiftCertificateDtoResponse deleteTagFromGiftCertificate(Long giftCertificateId, Long tagId);
 
     void deleteGiftCertificateById(Long id);
 }

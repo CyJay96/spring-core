@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,4 +19,7 @@ public class TagDtoResponse {
 
     @JsonProperty("name")
     private String name;
+
+    @JsonProperty("giftCertificatesIds")
+    private List<Long> giftCertificatesIds;
 }
