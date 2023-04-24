@@ -62,9 +62,9 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Get all Gift Certificates by criteria")
     void checkGetAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponsePage() {
-        int expectedSize = 2;
+        int expectedGiftCertificatesSize = 2;
         PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
-        assertThat(actualGiftCertificates.getContent()).hasSize(expectedSize);
+        assertThat(actualGiftCertificates.getContent()).hasSize(expectedGiftCertificatesSize);
     }
 
     @Nested
@@ -99,14 +99,14 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
         @DisplayName("Partial Update Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
+        void checkUpdateGiftCertificateByIdPartiallyShouldReturnGiftCertificateDtoResponse(Long id) {
             GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
             assertThat(actualGiftCertificate.getId()).isEqualTo(id);
         }
 
         @Test
         @DisplayName("Partial Update Gift Certificate by ID; not found")
-        void checkPartialUpdateGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() {
+        void checkUpdateGiftCertificateByIdPartiallyShouldThrowGiftCertificateNotFoundException() {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateService.updateGiftCertificateByIdPartially(doesntExistGiftCertificateId, giftCertificateDtoRequest));

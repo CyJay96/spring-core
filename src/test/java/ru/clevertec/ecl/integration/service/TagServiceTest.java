@@ -81,7 +81,7 @@ class TagServiceTest extends BaseIntegrationTest {
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
+        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) {
             TagDtoResponse actualTag = tagService.updateTagByIdPartially(id, tagDtoRequest);
             assertThat(actualTag.getId()).isEqualTo(id);
         }
@@ -96,7 +96,7 @@ class TagServiceTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Partial Update Tag by ID; not found")
-        void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
+        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() {
             Long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             assertThrows(TagNotFoundException.class, () -> tagService.updateTagByIdPartially(doesntExistTagId, tagDtoRequest));

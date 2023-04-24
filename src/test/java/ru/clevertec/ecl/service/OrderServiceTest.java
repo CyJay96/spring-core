@@ -153,8 +153,8 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Find all Orders by User ID; User not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() {
+        @DisplayName("Get all Orders by User ID; User not found")
+        void checkGetAllOrdersByUserIdShouldThrowUserNotFoundException() {
             when(userRepository.existsById(anyLong())).thenReturn(false);
 
             assertThrows(UserNotFoundException.class, () -> orderService.getAllOrdersByUserId(TEST_ID, PAGE, PAGE_SIZE));
@@ -181,8 +181,8 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Find Order by ID; Order not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() {
+        @DisplayName("Get Order by ID; Order not found")
+        void checkGetAllOrdersByUserIdShouldThrowUserNotFoundException() {
             doThrow(OrderNotFoundException.class).when(orderRepository).findById(anyLong());
 
             assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(TEST_ID));
@@ -212,8 +212,8 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Find Order by ID & User ID; Order not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderNotFoundException() {
+        @DisplayName("Get Order by ID & User ID; Order not found")
+        void checkGetOrderByIdAndUserIdShouldThrowOrderNotFoundException() {
             when(orderRepository.existsById(anyLong())).thenReturn(false);
 
             assertThrows(OrderNotFoundException.class, () -> orderService.getOrderByIdAndUserId(TEST_ID, TEST_ID));
@@ -222,8 +222,8 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Find Order by ID & User ID; User not found")
-        void checkFindOrderByIdAndUserIdShouldThrowUserNotFoundException() {
+        @DisplayName("Get Order by ID & User ID; User not found")
+        void checkGetOrderByIdAndUserIdShouldThrowUserNotFoundException() {
             when(orderRepository.existsById(anyLong())).thenReturn(TEST_BOOLEAN);
             when(userRepository.existsById(anyLong())).thenReturn(false);
 
@@ -234,8 +234,8 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Find Order by ID & User ID; Order by User not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderByUserNotFoundException() {
+        @DisplayName("Get Order by ID & User ID; Order by User not found")
+        void checkGetOrderByIdAndUserIdShouldThrowOrderByUserNotFoundException() {
             when(orderRepository.existsById(anyLong())).thenReturn(TEST_BOOLEAN);
             when(userRepository.existsById(anyLong())).thenReturn(TEST_BOOLEAN);
             doThrow(OrderByUserNotFoundException.class).when(orderRepository).findByIdAndUserId(anyLong(), anyLong());

@@ -182,7 +182,7 @@ class GiftCertificateControllerTest {
         @DisplayName("Partial Update Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
+        void checkUpdateGiftCertificateByIdPartiallyShouldReturnGiftCertificateDtoResponse(Long id) {
             when(giftCertificateService.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest)).thenReturn(giftCertificateDtoResponse);
 
             var giftCertificateDto = giftCertificateController.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
@@ -198,7 +198,7 @@ class GiftCertificateControllerTest {
 
         @Test
         @DisplayName("Partial Update Gift Certificate by ID; not found")
-        void checkPartialUpdateGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() {
+        void checkUpdateGiftCertificateByIdPartiallyShouldThrowGiftCertificateNotFoundException() {
             doThrow(GiftCertificateNotFoundException.class).when(giftCertificateService).updateGiftCertificateByIdPartially(anyLong(), any());
 
             assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateController.updateGiftCertificateByIdPartially(TEST_ID, giftCertificateDtoRequest));

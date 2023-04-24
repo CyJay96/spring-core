@@ -151,7 +151,7 @@ class TagControllerTest {
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
+        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) {
             when(tagService.updateTagByIdPartially(id, tagDtoRequest)).thenReturn(tagDtoResponse);
 
             var tagDto = tagController.updateTagByIdPartially(id, tagDtoRequest);
@@ -177,7 +177,7 @@ class TagControllerTest {
 
         @Test
         @DisplayName("Partial Update Tag by ID; not found")
-        void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
+        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() {
             doThrow(TagNotFoundException.class).when(tagService).updateTagByIdPartially(anyLong(), any());
 
             assertThrows(TagNotFoundException.class, () -> tagController.updateTagByIdPartially(TEST_ID, tagDtoRequest));

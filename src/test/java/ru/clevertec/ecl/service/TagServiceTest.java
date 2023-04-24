@@ -153,7 +153,7 @@ class TagServiceTest {
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
+        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) {
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagRepository.save(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
@@ -182,7 +182,7 @@ class TagServiceTest {
 
         @Test
         @DisplayName("Partial Update Tag by ID; not found")
-        void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
+        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() {
             doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
 
             assertThrows(TagNotFoundException.class, () -> tagService.updateTagByIdPartially(TEST_ID, tagDtoRequest));
