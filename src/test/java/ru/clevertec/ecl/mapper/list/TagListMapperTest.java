@@ -39,6 +39,10 @@ class TagListMapperTest {
     @Captor
     ArgumentCaptor<Tag> tagCaptor;
 
+    private final Tag tag = TagTestBuilder.aTag().build();
+    private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+    private final TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         tagListMapper = new TagListMapperImpl(tagMapper);
@@ -47,9 +51,6 @@ class TagListMapperTest {
     @Test
     @DisplayName("Map Tag List DTO to Entity")
     void checkToEntityShouldReturnTagList() {
-        Tag tag = TagTestBuilder.aTag().build();
-        TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-
         when(tagMapper.toEntity(any())).thenReturn(tag);
 
         List<Tag> tagList = tagListMapper.toEntity(List.of(tagDtoRequest));
@@ -58,7 +59,9 @@ class TagListMapperTest {
 
         assertAll(
                 () -> assertThat(Objects.requireNonNull(tagList).size()).isEqualTo(1),
-                () -> assertThat(Objects.requireNonNull(tagList).get(0)).isEqualTo(tag),
+                () -> assertThat(Objects.requireNonNull(tagList).stream()
+                        .anyMatch(tagDto -> tagDto.equals(tag))
+                ).isTrue(),
                 () -> assertThat(Objects.requireNonNull(tagDtoRequestCaptor).getValue()).isEqualTo(tagDtoRequest)
         );
     }
@@ -66,9 +69,6 @@ class TagListMapperTest {
     @Test
     @DisplayName("Map Tag List Entity to DTO")
     void checkToDtoShouldReturnTagDtoResponseList() {
-        Tag tag = TagTestBuilder.aTag().build();
-        TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-
         when(tagMapper.toDto(any())).thenReturn(tagDtoResponse);
 
         List<TagDtoResponse> tagDtoResponseList = tagListMapper.toDto(List.of(tag));
@@ -77,7 +77,9 @@ class TagListMapperTest {
 
         assertAll(
                 () -> assertThat(Objects.requireNonNull(tagDtoResponseList).size()).isEqualTo(1),
-                () -> assertThat(Objects.requireNonNull(tagDtoResponseList).get(0)).isEqualTo(tagDtoResponse),
+                () -> assertThat(Objects.requireNonNull(tagDtoResponseList).stream()
+                        .anyMatch(tagDto -> tagDto.equals(tagDtoResponse))
+                ).isTrue(),
                 () -> assertThat(Objects.requireNonNull(tagCaptor).getValue()).isEqualTo(tag)
         );
     }

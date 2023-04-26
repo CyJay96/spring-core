@@ -19,6 +19,8 @@ class OrderMapperTest {
 
     private OrderMapper orderMapper;
 
+    private final Order order = OrderTestBuilder.aOrder().build();
+
     @BeforeEach
     void setUp() {
         orderMapper = new OrderMapperImpl();
@@ -27,8 +29,6 @@ class OrderMapperTest {
     @Test
     @DisplayName("Map Order Entity to DTO")
     void checkToDtoShouldReturnOrderDtoResponseList() {
-        Order order = OrderTestBuilder.aOrder().build();
-
         OrderDtoResponse orderDtoResponse = orderMapper.toDto(order);
 
         assertAll(

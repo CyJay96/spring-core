@@ -35,6 +35,7 @@ public class Tag implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Exclude
     @Column(name = "id")
     private Long id;
 
@@ -42,6 +43,7 @@ public class Tag implements BaseEntity<Long> {
     private String name;
 
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "gift_certificates_tags",
             joinColumns = {@JoinColumn(name = "tag_id")},

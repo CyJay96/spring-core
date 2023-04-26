@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
 import ru.clevertec.ecl.exception.OrderNotFoundException;
 import ru.clevertec.ecl.exception.TagNotFoundException;
 import ru.clevertec.ecl.exception.UserNotFoundException;
@@ -58,6 +59,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleOrderNotFoundException(
+            RuntimeException exception,
+            HttpServletRequest request
+    ) {
+        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request, ApiResponse.Color.WARNING);
+    }
+
+    @ExceptionHandler(OrderByUserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOrderByUserNotFoundException(
             RuntimeException exception,
             HttpServletRequest request
     ) {

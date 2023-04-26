@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +42,7 @@ public class GiftCertificate implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Exclude
     @Column(name = "id")
     private Long id;
 
@@ -56,17 +58,25 @@ public class GiftCertificate implements BaseEntity<Long> {
     @Column(name = "duration")
     private Duration duration;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "giftCertificate", cascade = CascadeType.ALL)
+    private List<Order> orders;
+
     @CreatedDate
+    @EqualsAndHashCode.Exclude
     @Column(name = "create_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private OffsetDateTime createDate;
 
     @LastModifiedDate
+    @EqualsAndHashCode.Exclude
     @Column(name = "last_update_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private OffsetDateTime lastUpdateDate;
 
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "gift_certificates_tags",
             joinColumns = {@JoinColumn(name = "gift_certificate_id")},

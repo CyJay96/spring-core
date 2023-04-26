@@ -19,12 +19,15 @@
 
 **DataBase:**
 - PostgreSQL
-- H2
 - LiquiBase
+
+**Containerization:**
+- Docker
 
 **Testing:**
 - Junit 5
 - Mockito
+- Test Containers
 
 ### **Endpoints**
 
@@ -67,6 +70,6 @@
 |:---------------:|:---------------------------------------------:|:-------------------------:|
 |    **POST**     | `/api/v0/orders/{userId}/{giftCertificateId}` |     Create new Order      |
 |     **GET**     |               `/api/v0/orders`                |      Get all Orders       |
-|     **GET**     |      `/api/v0/orders//byUserId/{userId}`      |   Get Orders by User ID   |
+|     **GET**     |      `/api/v0/orders/byUserId/{userId}`       |   Get Orders by User ID   |
 |     **GET**     |             `/api/v0/orders/{id}`             |      Get Order by ID      |
-|     **GET**     |     `/api/v0/orders//{orderId}/{userId}`      | Get Order by ID & User ID |
+|     **GET**     |      `/api/v0/orders/{orderId}/{userId}`      | Get Order by ID & User ID |

@@ -52,6 +52,9 @@ class TagControllerTest {
     @Captor
     ArgumentCaptor<TagDtoRequest> tagDtoRequestCaptor;
 
+    private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+    private final TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         tagController = new TagController(tagService, paginationProperties);
@@ -60,27 +63,22 @@ class TagControllerTest {
     @Test
     @DisplayName("Create Tag")
     void checkCreateTagShouldReturnTagDtoResponse() {
-        TagDtoRequest giftCertificateDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-        TagDtoResponse giftCertificateDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
+        when(tagService.createTag(tagDtoRequest)).thenReturn(tagDtoResponse);
 
-        when(tagService.createTag(giftCertificateDtoRequest)).thenReturn(giftCertificateDtoResponse);
-
-        var tagDto = tagController.createTag(giftCertificateDtoRequest);
+        var tagDto = tagController.createTag(tagDtoRequest);
 
         verify(tagService).createTag(tagDtoRequestCaptor.capture());
 
         assertAll(
                 () -> assertThat(tagDto.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-                () -> assertThat(Objects.requireNonNull(tagDto.getBody()).getData()).isEqualTo(giftCertificateDtoResponse),
-                () -> assertThat(tagDtoRequestCaptor.getValue()).isEqualTo(giftCertificateDtoRequest)
+                () -> assertThat(Objects.requireNonNull(tagDto.getBody()).getData()).isEqualTo(tagDtoResponse),
+                () -> assertThat(tagDtoRequestCaptor.getValue()).isEqualTo(tagDtoRequest)
         );
     }
 
     @Test
     @DisplayName("Find all Tags")
     void checkFindAllTagsShouldReturnTagPage() {
-        TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-
         PageResponse<TagDtoResponse> pageResponse = PageResponse.<TagDtoResponse>builder()
                 .content(List.of(tagDtoResponse))
                 .number(PAGE)
@@ -96,7 +94,9 @@ class TagControllerTest {
 
         assertAll(
                 () -> assertThat(tagDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(tagDtoList.getBody()).getData().getContent().get(0)).isEqualTo(tagDtoResponse)
+                () -> assertThat(Objects.requireNonNull(tagDtoList.getBody()).getData().getContent().stream()
+                        .anyMatch(tagDto -> tagDto.equals(tagDtoResponse))
+                ).isTrue()
         );
     }
 
@@ -106,8 +106,6 @@ class TagControllerTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkFindTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-
             when(tagService.getTagById(id)).thenReturn(tagDtoResponse);
 
             var tagDto = tagController.findTagById(id);
@@ -137,9 +135,6 @@ class TagControllerTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-
             when(tagService.updateTagById(id, tagDtoRequest)).thenReturn(tagDtoResponse);
 
             var tagDto = tagController.updateTagById(id, tagDtoRequest);
@@ -156,10 +151,7 @@ class TagControllerTest {
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-
+        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) {
             when(tagService.updateTagByIdPartially(id, tagDtoRequest)).thenReturn(tagDtoResponse);
 
             var tagDto = tagController.updateTagByIdPartially(id, tagDtoRequest);
@@ -174,10 +166,18 @@ class TagControllerTest {
         }
 
         @Test
-        @DisplayName("Partial Update Tag by ID; not found")
-        void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+        @DisplayName("Update Tag by ID; not found")
+        void checkUpdateTagByIdShouldThrowTagNotFoundException() {
+            doThrow(TagNotFoundException.class).when(tagService).updateTagById(anyLong(), any());
 
+            assertThrows(TagNotFoundException.class, () -> tagController.updateTagById(TEST_ID, tagDtoRequest));
+
+            verify(tagService).updateTagById(anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("Partial Update Tag by ID; not found")
+        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() {
             doThrow(TagNotFoundException.class).when(tagService).updateTagByIdPartially(anyLong(), any());
 
             assertThrows(TagNotFoundException.class, () -> tagController.updateTagByIdPartially(TEST_ID, tagDtoRequest));
@@ -190,7 +190,7 @@ class TagControllerTest {
     public class DeleteTagByIdTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
-        @ValueSource(longs = {4L, 5L, 6L})
+        @ValueSource(longs = {1L, 2L, 3L})
         void checkDeleteTagByIdShouldReturnVoid(Long id) {
             doNothing().when(tagService).deleteTagById(id);
 

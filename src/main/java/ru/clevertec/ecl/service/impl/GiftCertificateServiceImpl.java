@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -129,6 +128,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException(tagId));
 
+        boolean alreadyAdded = giftCertificate.getTags().stream()
+                .map(Tag::getId)
+                .anyMatch(id -> id.equals(tagId));
+
+        if (alreadyAdded) {
+            return giftCertificateMapper.toDto(giftCertificate);
+        }
+
         giftCertificate.getTags().add(tag);
 
         return giftCertificateMapper.toDto(giftCertificateRepository.save(giftCertificate));
@@ -148,10 +155,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public void deleteGiftCertificateById(Long id) {
-        try {
-            giftCertificateRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
+        if (!giftCertificateRepository.existsById(id)) {
             throw new GiftCertificateNotFoundException(id);
         }
+        giftCertificateRepository.deleteById(id);
     }
 }

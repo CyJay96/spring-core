@@ -23,6 +23,9 @@ class GiftCertificateMapperTest {
 
     private GiftCertificateMapper giftCertificateMapper;
 
+    private final GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
+    private final GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
+
     @BeforeEach
     void setUp() {
         giftCertificateMapper = new GiftCertificateMapperImpl();
@@ -31,8 +34,6 @@ class GiftCertificateMapperTest {
     @Test
     @DisplayName("Map Gift Certificate DTO to Entity")
     void checkToEntityShouldReturnGiftCertificate() {
-        GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
-
         GiftCertificate giftCertificate = giftCertificateMapper.toEntity(giftCertificateDtoRequest);
 
         assertAll(
@@ -50,8 +51,6 @@ class GiftCertificateMapperTest {
     @Test
     @DisplayName("Map Gift Certificate Entity to DTO")
     void checkToDtoShouldReturnGiftCertificateDtoResponse() {
-        GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
-
         GiftCertificateDtoResponse giftCertificateDtoResponse = giftCertificateMapper.toDto(giftCertificate);
 
         assertAll(

@@ -43,6 +43,8 @@ class UserControllerTest {
     @Mock
     private PaginationProperties paginationProperties;
 
+    private final UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         userController = new UserController(userService, paginationProperties);
@@ -51,8 +53,6 @@ class UserControllerTest {
     @Test
     @DisplayName("Find all Users")
     void checkFindAllUsersShouldReturnUserDtoResponseList() {
-        UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
-
         PageResponse<UserDtoResponse> pageResponse = PageResponse.<UserDtoResponse>builder()
                 .content(List.of(userDtoResponse))
                 .number(PAGE)
@@ -68,7 +68,9 @@ class UserControllerTest {
 
         assertAll(
                 () -> assertThat(userDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(userDtoList.getBody()).getData().getContent().get(0)).isEqualTo(userDtoResponse)
+                () -> assertThat(Objects.requireNonNull(userDtoList.getBody()).getData().getContent().stream()
+                        .anyMatch(userDto -> userDto.equals(userDtoResponse))
+                ).isTrue()
         );
     }
 
@@ -78,8 +80,6 @@ class UserControllerTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkFindUserByIdShouldReturnUserDtoResponse(Long id) {
-            UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
-
             when(userService.getUserById(id)).thenReturn(userDtoResponse);
 
             var userDto = userController.findUserById(id);
@@ -108,8 +108,6 @@ class UserControllerTest {
         @Test
         @DisplayName("Find User by highest order cost")
         void checkFindUserByHighestOrderCostShouldReturnUserDtoResponse() {
-            UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
-
             when(userService.getUserByHighestOrderCost()).thenReturn(userDtoResponse);
 
             var userDto = userController.findUserByHighestOrderCost();

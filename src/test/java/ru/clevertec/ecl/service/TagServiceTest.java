@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static ru.clevertec.ecl.util.TestConstants.PAGE;
 import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
+import static ru.clevertec.ecl.util.TestConstants.TEST_BOOLEAN;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,6 +56,10 @@ class TagServiceTest {
     @Captor
     ArgumentCaptor<Tag> tagCaptor;
 
+    private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+    private final TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
+    private final Tag tag = TagTestBuilder.aTag().build();
+
     @BeforeEach
     void setUp() {
         tagService = new TagServiceImpl(tagRepository, tagMapper);
@@ -63,10 +68,6 @@ class TagServiceTest {
     @Test
     @DisplayName("Create Tag")
     void checkCreateTagShouldReturnTagDtoResponse() {
-        TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-        TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-        Tag tag = TagTestBuilder.aTag().build();
-
         when(tagRepository.save(tag)).thenReturn(tag);
         when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
         when(tagMapper.toEntity(tagDtoRequest)).thenReturn(tag);
@@ -86,9 +87,6 @@ class TagServiceTest {
     @Test
     @DisplayName("Get all Tags")
     void checkGetAllTagsShouldReturnTagDtoResponsePage() {
-        TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-        Tag tag = TagTestBuilder.aTag().build();
-
         when(tagRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(tag)));
         when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
@@ -97,7 +95,9 @@ class TagServiceTest {
         verify(tagRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
         verify(tagMapper).toDto(any());
 
-        assertThat(response.getContent().get(0)).isEqualTo(tagDtoResponse);
+        assertThat(response.getContent().stream()
+                .anyMatch(tagDto -> tagDto.equals(tagDtoResponse))
+        ).isTrue();
     }
 
     @Nested
@@ -106,9 +106,6 @@ class TagServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkGetTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-            Tag tag = TagTestBuilder.aTag().build();
-
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
 
@@ -137,10 +134,6 @@ class TagServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-            Tag tag = TagTestBuilder.aTag().build();
-
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagRepository.save(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
@@ -160,11 +153,7 @@ class TagServiceTest {
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-            TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-            Tag tag = TagTestBuilder.aTag().build();
-
+        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) {
             when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
             when(tagRepository.save(tag)).thenReturn(tag);
             when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
@@ -182,10 +171,18 @@ class TagServiceTest {
         }
 
         @Test
-        @DisplayName("Partial Update Tag by ID; not found")
-        void checkPartialUpdateTagByIdShouldThrowTagNotFoundException() {
-            TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+        @DisplayName("Update Tag by ID; not found")
+        void checkUpdateTagByIdShouldThrowTagNotFoundException() {
+            doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
 
+            assertThrows(TagNotFoundException.class, () -> tagService.updateTagById(TEST_ID, tagDtoRequest));
+
+            verify(tagRepository).findById(anyLong());
+        }
+
+        @Test
+        @DisplayName("Partial Update Tag by ID; not found")
+        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() {
             doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
 
             assertThrows(TagNotFoundException.class, () -> tagService.updateTagByIdPartially(TEST_ID, tagDtoRequest));
@@ -198,23 +195,25 @@ class TagServiceTest {
     public class DeleteTagByIdTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
-        @ValueSource(longs = {4L, 5L, 6L})
+        @ValueSource(longs = {1L, 2L, 3L})
         void checkDeleteTagByIdShouldReturnVoid(Long id) {
+            when(tagRepository.existsById(id)).thenReturn(TEST_BOOLEAN);
             doNothing().when(tagRepository).deleteById(id);
 
             tagService.deleteTagById(id);
 
+            verify(tagRepository).existsById(anyLong());
             verify(tagRepository).deleteById(anyLong());
         }
 
         @Test
         @DisplayName("Delete Tag by ID; not found")
         void checkDeleteTagByIdShouldThrowTagNotFoundException() {
-            doThrow(TagNotFoundException.class).when(tagRepository).deleteById(anyLong());
+            when(tagRepository.existsById(anyLong())).thenReturn(false);
 
             assertThrows(TagNotFoundException.class, () -> tagService.deleteTagById(TEST_ID));
 
-            verify(tagRepository).deleteById(anyLong());
+            verify(tagRepository).existsById(anyLong());
         }
     }
 }
