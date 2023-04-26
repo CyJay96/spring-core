@@ -11,6 +11,7 @@ import ru.clevertec.ecl.model.entity.User;
 import ru.clevertec.ecl.repository.UserRepository;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ public class UserRepositoryTest extends BaseIntegrationTest {
     public class FindUserByHighestOrderCostTest {
         @Test
         @DisplayName("Find User by highest order cost")
-        void checkFindUserByHighestOrderCostShouldReturnUserDtoResponse() {
+        void checkFindUserByHighestOrderCostShouldReturnNotEmptyUserOptional() {
             List<User> users = userRepository.findAll();
             double expectedMaxPrice = users.stream()
                     .map(User::getOrders)
@@ -51,9 +52,63 @@ public class UserRepositoryTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find User by highest order cost; not found")
-        void checkFindUserByHighestOrderCostShouldThrowTagNotFoundException() {
+        void checkFindUserByHighestOrderCostShouldReturnEmptyUserOptional() {
             userRepository.deleteAll();
             Optional<User> actualUserOptional = userRepository.findUserByHighestOrderCost();
+            assertThat(actualUserOptional.isEmpty()).isTrue();
+        }
+    }
+
+    @Nested
+    public class FindFirstByOrderByIdAscTest {
+        @Test
+        @DisplayName("Find first User order by ID ASC")
+        void checkFindFirstByOrderByIdAscShouldReturnNotEmptyUserOptional() {
+            List<User> users = userRepository.findAll();
+
+            User expectedUser = users.stream()
+                    .sorted(Comparator.comparing(User::getId))
+                    .limit(1)
+                    .toList()
+                    .get(0);
+
+            User actualUser = userRepository.findFirstByOrderByIdAsc().get();
+
+            assertThat(actualUser.getId()).isEqualTo(expectedUser.getId());
+        }
+
+        @Test
+        @DisplayName("Find first User order by ID ASC; not found")
+        void checkFindFirstByOrderByIdAscShouldReturnEmptyUserOptional() {
+            userRepository.deleteAll();
+            Optional<User> actualUserOptional = userRepository.findFirstByOrderByIdAsc();
+            assertThat(actualUserOptional.isEmpty()).isTrue();
+        }
+    }
+
+    @Nested
+    public class FindFirstByOrderByIdDescTest {
+        @Test
+        @DisplayName("Find first User order by ID DESC")
+        void checkFindFirstByOrderByIdAscShouldReturnNotEmptyUserOptional() {
+            List<User> users = userRepository.findAll();
+
+            User expectedUser = users.stream()
+                    .sorted(Comparator.comparing(User::getId).reversed())
+                    .limit(1)
+                    .toList()
+                    .get(0);
+
+            User actualUser = userRepository.findFirstByOrderByIdDesc().get();
+
+            assertThat(actualUser.getId()).isEqualTo(expectedUser.getId());
+        }
+
+        @Test
+        @DisplayName("Find first User order by ID DESC; not found")
+        void checkFindFirstByOrderByIdDescShouldReturnEmptyUserOptional() {
+            userRepository.deleteAll();
+            Optional<User> actualUserOptional = userRepository.findFirstByOrderByIdDesc();
             assertThat(actualUserOptional.isEmpty()).isTrue();
         }
     }
