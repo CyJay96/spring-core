@@ -34,6 +34,9 @@ class OrderListMapperTest {
     @Captor
     ArgumentCaptor<Order> orderCaptor;
 
+    private final Order order = OrderTestBuilder.aOrder().build();
+    private final OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         orderListMapper = new OrderListMapperImpl(orderMapper);
@@ -42,9 +45,6 @@ class OrderListMapperTest {
     @Test
     @DisplayName("Map Order List Entity to DTO")
     void checkToDtoShouldReturnOrderDtoResponseList() {
-        Order order = OrderTestBuilder.aOrder().build();
-        OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
         when(orderMapper.toDto(any())).thenReturn(orderDtoResponse);
 
         List<OrderDtoResponse> orderDtoResponseList = orderListMapper.toDto(List.of(order));
@@ -53,7 +53,9 @@ class OrderListMapperTest {
 
         assertAll(
                 () -> assertThat(Objects.requireNonNull(orderDtoResponseList).size()).isEqualTo(1),
-                () -> assertThat(Objects.requireNonNull(orderDtoResponseList).get(0)).isEqualTo(orderDtoResponse),
+                () -> assertThat(Objects.requireNonNull(orderDtoResponseList).stream()
+                        .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+                ).isTrue(),
                 () -> assertThat(Objects.requireNonNull(orderCaptor).getValue()).isEqualTo(order)
         );
     }

@@ -54,6 +54,10 @@ class GiftCertificateControllerTest {
     @Captor
     ArgumentCaptor<GiftCertificateDtoRequest> giftCertificateDtoRequestCaptor;
 
+    private final GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
+    private final GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
+    private final GiftCertificateCriteria searchCriteria = GiftCertificateCriteria.builder().build();
+
     @BeforeEach
     void setUp() {
         giftCertificateController = new GiftCertificateController(giftCertificateService, paginationProperties);
@@ -62,9 +66,6 @@ class GiftCertificateControllerTest {
     @Test
     @DisplayName("Create Gift Certificate")
     void checkCreateGiftCertificateShouldReturnGiftCertificateDtoResponse() {
-        GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
-        GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
         when(giftCertificateService.createGiftCertificate(giftCertificateDtoRequest)).thenReturn(giftCertificateDtoResponse);
 
         var giftCertificateDto = giftCertificateController.createGiftCertificate(giftCertificateDtoRequest);
@@ -81,8 +82,6 @@ class GiftCertificateControllerTest {
     @Test
     @DisplayName("Find all Gift Certificates")
     void checkFindAllGiftCertificatesShouldReturnGiftCertificateDtoResponsePage() {
-        GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
         PageResponse<GiftCertificateDtoResponse> pageResponse = PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(List.of(giftCertificateDtoResponse))
                 .number(PAGE)
@@ -98,17 +97,15 @@ class GiftCertificateControllerTest {
 
         assertAll(
                 () -> assertThat(giftCertificateDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().getContent().get(0)).isEqualTo(giftCertificateDtoResponse)
+                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().getContent().stream()
+                        .anyMatch(giftCertificateDto -> giftCertificateDto.equals(giftCertificateDtoResponse))
+                ).isTrue()
         );
     }
 
     @Test
     @DisplayName("Find all Gift Certificates by criteria")
     void checkFindAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponsePage() {
-        GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
-        GiftCertificateCriteria searchCriteria = GiftCertificateCriteria.builder().build();
-
         PageResponse<GiftCertificateDtoResponse> pageResponse = PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(List.of(giftCertificateDtoResponse))
                 .number(PAGE)
@@ -124,7 +121,9 @@ class GiftCertificateControllerTest {
 
         assertAll(
                 () -> assertThat(giftCertificateDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().getContent().get(0)).isEqualTo(giftCertificateDtoResponse)
+                () -> assertThat(Objects.requireNonNull(giftCertificateDtoList.getBody()).getData().getContent().stream()
+                        .anyMatch(giftCertificateDto -> giftCertificateDto.equals(giftCertificateDtoResponse))
+                ).isTrue()
         );
     }
 
@@ -167,9 +166,6 @@ class GiftCertificateControllerTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
-            GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
-            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
             when(giftCertificateService.updateGiftCertificateById(id, giftCertificateDtoRequest)).thenReturn(giftCertificateDtoResponse);
 
             var giftCertificateDto = giftCertificateController.updateGiftCertificateById(id, giftCertificateDtoRequest);
@@ -186,10 +182,7 @@ class GiftCertificateControllerTest {
         @DisplayName("Partial Update Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkPartialUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
-            GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
-            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
+        void checkUpdateGiftCertificateByIdPartiallyShouldReturnGiftCertificateDtoResponse(Long id) {
             when(giftCertificateService.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest)).thenReturn(giftCertificateDtoResponse);
 
             var giftCertificateDto = giftCertificateController.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
@@ -205,9 +198,7 @@ class GiftCertificateControllerTest {
 
         @Test
         @DisplayName("Partial Update Gift Certificate by ID; not found")
-        void checkPartialUpdateGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() {
-            GiftCertificateDtoRequest giftCertificateDtoRequest = GiftCertificateDtoRequestTestBuilder.aGiftCertificateDtoRequest().build();
-
+        void checkUpdateGiftCertificateByIdPartiallyShouldThrowGiftCertificateNotFoundException() {
             doThrow(GiftCertificateNotFoundException.class).when(giftCertificateService).updateGiftCertificateByIdPartially(anyLong(), any());
 
             assertThrows(GiftCertificateNotFoundException.class, () -> giftCertificateController.updateGiftCertificateByIdPartially(TEST_ID, giftCertificateDtoRequest));
@@ -221,8 +212,6 @@ class GiftCertificateControllerTest {
         @Test
         @DisplayName("Add Tag to Gift Certificate")
         void checkAddTagToGiftCertificateShouldReturnGiftCertificateDtoResponse() {
-            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
             when(giftCertificateService.addTagToGiftCertificate(TEST_ID, TEST_ID)).thenReturn(giftCertificateDtoResponse);
 
             var giftCertificateDto = giftCertificateController.addTagToGiftCertificate(TEST_ID, TEST_ID);
@@ -261,8 +250,6 @@ class GiftCertificateControllerTest {
         @Test
         @DisplayName("Delete Tag from Gift Certificate")
         void checkDeleteTagFromGiftCertificateShouldReturnGiftCertificateDtoResponse() {
-            GiftCertificateDtoResponse giftCertificateDtoResponse = GiftCertificateDtoResponseTestBuilder.aGiftCertificateDtoResponse().build();
-
             when(giftCertificateService.deleteTagFromGiftCertificate(TEST_ID, TEST_ID)).thenReturn(giftCertificateDtoResponse);
 
             var giftCertificateDto = giftCertificateController.deleteTagFromGiftCertificate(TEST_ID, TEST_ID);
@@ -300,7 +287,7 @@ class GiftCertificateControllerTest {
     public class DeleteGiftCertificateByIdTest {
         @DisplayName("Delete Gift Certificate by ID")
         @ParameterizedTest
-        @ValueSource(longs = {4L, 5L, 6L})
+        @ValueSource(longs = {1L, 2L, 3L})
         void checkDeleteGiftCertificateByIdShouldReturnVoid(Long id) {
             doNothing().when(giftCertificateService).deleteGiftCertificateById(id);
 

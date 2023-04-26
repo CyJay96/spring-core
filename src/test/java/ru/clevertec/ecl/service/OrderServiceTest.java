@@ -16,6 +16,7 @@ import ru.clevertec.ecl.builder.order.OrderDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.order.OrderTestBuilder;
 import ru.clevertec.ecl.builder.user.UserTestBuilder;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
 import ru.clevertec.ecl.exception.OrderNotFoundException;
 import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.mapper.OrderMapper;
@@ -27,6 +28,7 @@ import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.repository.OrderRepository;
 import ru.clevertec.ecl.repository.UserRepository;
 import ru.clevertec.ecl.service.impl.OrderServiceImpl;
+import ru.clevertec.ecl.util.TestConstants;
 
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +63,11 @@ class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
 
+    private final User user = UserTestBuilder.aUser().build();
+    private final GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
+    private final Order order = OrderTestBuilder.aOrder().build();
+    private final OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         orderService = new OrderServiceImpl(orderRepository, userRepository, giftCertificateRepository, orderMapper);
@@ -71,11 +78,6 @@ class OrderServiceTest {
         @Test
         @DisplayName("Create Order")
         void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
-            User user = UserTestBuilder.aUser().build();
-            GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
             when(userRepository.findById(TEST_ID)).thenReturn(Optional.of(user));
             when(giftCertificateRepository.findById(TEST_ID)).thenReturn(Optional.of(giftCertificate));
             when(orderRepository.save(any())).thenReturn(order);
@@ -104,9 +106,7 @@ class OrderServiceTest {
         @Test
         @DisplayName("Create Order; Gift Certificate not found")
         void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowOrderNotFoundException() {
-            User user = UserTestBuilder.aUser().build();
-
-            when(userRepository.findById(TEST_ID)).thenReturn(Optional.of(user));
+            when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
             doThrow(GiftCertificateNotFoundException.class).when(giftCertificateRepository).findById(anyLong());
 
             assertThrows(GiftCertificateNotFoundException.class, () -> orderService.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID));
@@ -119,9 +119,6 @@ class OrderServiceTest {
     @Test
     @DisplayName("Get all Orders")
     void checkGetAllOrdersShouldReturnOrderDtoResponseList() {
-        Order order = OrderTestBuilder.aOrder().build();
-        OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
         when(orderRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(order)));
         when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);
 
@@ -130,7 +127,9 @@ class OrderServiceTest {
         verify(orderRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
         verify(orderMapper).toDto(order);
 
-        assertThat(Objects.requireNonNull(orderDtoList).getContent().get(0)).isEqualTo(orderDtoResponse);
+        assertThat(Objects.requireNonNull(orderDtoList).getContent().stream()
+                .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+        ).isTrue();
     }
 
     @Nested
@@ -138,9 +137,6 @@ class OrderServiceTest {
         @Test
         @DisplayName("Get all Orders by User ID")
         void checkGetAllOrdersByUserIdShouldReturnOrderDtoResponseList() {
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
-
             when(userRepository.existsById(TEST_ID)).thenReturn(TEST_BOOLEAN);
             when(orderRepository.findAllByUserId(TEST_ID, PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(order)));
             when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);
@@ -151,13 +147,15 @@ class OrderServiceTest {
             verify(orderRepository).findAllByUserId(TEST_ID, PageRequest.of(PAGE, PAGE_SIZE));
             verify(orderMapper).toDto(any());
 
-            assertThat(Objects.requireNonNull(orderDtoList).getContent().get(0)).isEqualTo(orderDtoResponse);
+            assertThat(Objects.requireNonNull(orderDtoList).getContent().stream()
+                    .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+            ).isTrue();
         }
 
         @Test
-        @DisplayName("Find all Orders by User ID; User not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() {
-            when(userRepository.existsById(TEST_ID)).thenReturn(false);
+        @DisplayName("Get all Orders by User ID; User not found")
+        void checkGetAllOrdersByUserIdShouldThrowUserNotFoundException() {
+            when(userRepository.existsById(anyLong())).thenReturn(false);
 
             assertThrows(UserNotFoundException.class, () -> orderService.getAllOrdersByUserId(TEST_ID, PAGE, PAGE_SIZE));
 
@@ -171,11 +169,6 @@ class OrderServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkGetOrderByIdShouldReturnOrderDtoResponse(Long id) {
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse()
-                    .withId(id)
-                    .build();
-
             when(orderRepository.findById(id)).thenReturn(Optional.of(order));
             when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);
 
@@ -188,8 +181,8 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Find Order by ID; Order not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() {
+        @DisplayName("Get Order by ID; Order not found")
+        void checkGetAllOrdersByUserIdShouldThrowUserNotFoundException() {
             doThrow(OrderNotFoundException.class).when(orderRepository).findById(anyLong());
 
             assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(TEST_ID));
@@ -200,21 +193,17 @@ class OrderServiceTest {
 
     @Nested
     public class GetOrderByIdAndUserIdTest {
+        @Test
         @DisplayName("Get Order by ID & User ID")
-        @ParameterizedTest
-        @ValueSource(longs = {1L, 2L, 3L})
-        void checkGetOrderByIdAndUserIdShouldReturnOrderDtoResponse(Long id) {
-            Order order = OrderTestBuilder.aOrder().build();
-            OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse()
-                    .withId(id)
-                    .build();
-
-            when(userRepository.existsById(TEST_ID)).thenReturn(TEST_BOOLEAN);
-            when(orderRepository.findByIdAndUserId(id, TEST_ID)).thenReturn(Optional.of(order));
+        void checkGetOrderByIdAndUserIdShouldReturnOrderDtoResponse() {
+            when(orderRepository.existsById(TEST_ID)).thenReturn(TEST_BOOLEAN);
+            when(userRepository.existsById(TestConstants.TEST_ID)).thenReturn(TEST_BOOLEAN);
+            when(orderRepository.findByIdAndUserId(TEST_ID, TestConstants.TEST_ID)).thenReturn(Optional.of(order));
             when(orderMapper.toDto(order)).thenReturn(orderDtoResponse);
 
-            var orderDto = orderService.getOrderByIdAndUserId(id, TEST_ID);
+            var orderDto = orderService.getOrderByIdAndUserId(TEST_ID, TestConstants.TEST_ID);
 
+            verify(orderRepository).existsById(anyLong());
             verify(userRepository).existsById(anyLong());
             verify(orderRepository).findByIdAndUserId(anyLong(), anyLong());
             verify(orderMapper).toDto(any());
@@ -223,23 +212,38 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Find Order by ID & User ID; User not found")
-        void checkFindOrderByIdAndUserIdShouldThrowUserNotFoundException() {
-            when(userRepository.existsById(TEST_ID)).thenReturn(false);
+        @DisplayName("Get Order by ID & User ID; Order not found")
+        void checkGetOrderByIdAndUserIdShouldThrowOrderNotFoundException() {
+            when(orderRepository.existsById(anyLong())).thenReturn(false);
+
+            assertThrows(OrderNotFoundException.class, () -> orderService.getOrderByIdAndUserId(TEST_ID, TEST_ID));
+
+            verify(orderRepository).existsById(anyLong());
+        }
+
+        @Test
+        @DisplayName("Get Order by ID & User ID; User not found")
+        void checkGetOrderByIdAndUserIdShouldThrowUserNotFoundException() {
+            when(orderRepository.existsById(anyLong())).thenReturn(TEST_BOOLEAN);
+            when(userRepository.existsById(anyLong())).thenReturn(false);
 
             assertThrows(UserNotFoundException.class, () -> orderService.getOrderByIdAndUserId(TEST_ID, TEST_ID));
 
+            verify(orderRepository).existsById(anyLong());
             verify(userRepository).existsById(anyLong());
         }
 
         @Test
-        @DisplayName("Find Order by ID & User ID; Order not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderNotFoundException() {
-            when(userRepository.existsById(TEST_ID)).thenReturn(TEST_BOOLEAN);
-            doThrow(OrderNotFoundException.class).when(orderRepository).findByIdAndUserId(anyLong(), anyLong());
+        @DisplayName("Get Order by ID & User ID; Order by User not found")
+        void checkGetOrderByIdAndUserIdShouldThrowOrderByUserNotFoundException() {
+            when(orderRepository.existsById(anyLong())).thenReturn(TEST_BOOLEAN);
+            when(userRepository.existsById(anyLong())).thenReturn(TEST_BOOLEAN);
+            doThrow(OrderByUserNotFoundException.class).when(orderRepository).findByIdAndUserId(anyLong(), anyLong());
 
-            assertThrows(OrderNotFoundException.class, () -> orderService.getOrderByIdAndUserId(TEST_ID, TEST_ID));
+            assertThrows(OrderByUserNotFoundException.class, () -> orderService.getOrderByIdAndUserId(TEST_ID, TEST_ID));
 
+            verify(orderRepository).existsById(anyLong());
+            verify(userRepository).existsById(anyLong());
             verify(orderRepository).findByIdAndUserId(anyLong(), anyLong());
         }
     }

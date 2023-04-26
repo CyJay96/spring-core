@@ -1,0 +1,584 @@
+{
+	"info": {
+		"_postman_id": "f7f6b617-46bf-4a50-a916-8c6953c68407",
+		"name": "GiftCertificate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22750065"
+	},
+	"item": [
+		{
+			"name": "GiftCertificate",
+			"item": [
+				{
+					"name": "Create Gift Certificate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"gift certificate name\",\r\n    \"description\": \"gift certificate description\",\r\n    \"price\": 4.5,\r\n    \"duration\": 8,\r\n    \"tags\": [\r\n        {\r\n            \"name\": \"tag name\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Gift Certificates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Gift Certificates by Criteria",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tagNames\": [\r\n        \"java\",\r\n        \"c sharp\"\r\n    ],\r\n    \"description\": \"frame\",\r\n    \"sortDirectionName\": \"ASC\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/criteria",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates",
+								"criteria"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Gift Certificate by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Put Gift Certificate by ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"put gift certificate name\",\r\n    \"description\": \"put gift certificate description\",\r\n    \"price\": 4.5,\r\n    \"duration\": 8,\r\n    \"tags\": [\r\n        {\r\n            \"name\": \"put tag name\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Gift Certificate by ID",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"price\": 810,\r\n    \"tags\": [\r\n        {\r\n            \"name\": \"patch tag name\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Tag to Gift Certificate",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/add/1/4",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates",
+								"add",
+								"1",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Tag from Gift Certificate",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/delete/1/4",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates",
+								"delete",
+								"1",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Gift Certificate by ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"giftCertificates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tag",
+			"item": [
+				{
+					"name": "Create Tag",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"tag name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/tags",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/tags",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tag by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/tags/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"tags",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Put Tag by ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"put tag name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/tags/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"tags",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Tag by ID",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"patch tag name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/tags/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"tags",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Tag by ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/tags/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"tags",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get all Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/users",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/users/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by highest order cost",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/users/highestOrderCost",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"users",
+								"highestOrderCost"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/orders/1/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"orders",
+								"1",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/orders",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Orders by User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/orders/byUserId/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"orders",
+								"byUserId",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/orders/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by ID and User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostUrl}}/api/v0/orders/1/1",
+							"host": [
+								"{{hostUrl}}"
+							],
+							"path": [
+								"api",
+								"v0",
+								"orders",
+								"1",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "hostUrl",
+			"value": "localhost:8080",
+			"type": "string"
+		}
+	]
+}

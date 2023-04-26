@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
 import ru.clevertec.ecl.exception.OrderNotFoundException;
 import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.mapper.OrderMapper;
@@ -95,11 +96,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDtoResponse getOrderByIdAndUserId(Long orderId, Long userId) {
+        if (!orderRepository.existsById(orderId)) {
+            throw new OrderNotFoundException(orderId);
+        }
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException(userId);
         }
         return orderRepository.findByIdAndUserId(orderId, userId)
                 .map(orderMapper::toDto)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
+                .orElseThrow(() -> new OrderByUserNotFoundException(orderId, userId));
     }
 }

@@ -21,6 +21,8 @@ class UserMapperTest {
 
     private UserMapper userMapper;
 
+    private final User user = UserTestBuilder.aUser().build();
+
     @BeforeEach
     void setUp() {
         userMapper = new UserMapperImpl();
@@ -29,8 +31,6 @@ class UserMapperTest {
     @Test
     @DisplayName("Map User Entity to DTO")
     void checkToDtoShouldReturnUserDtoResponse() {
-        User user = UserTestBuilder.aUser().build();
-
         UserDtoResponse userDtoResponse = userMapper.toDto(user);
 
         assertAll(

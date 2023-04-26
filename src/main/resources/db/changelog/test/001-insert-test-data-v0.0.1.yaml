@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: postgres
+
+  - changeSet:
+      id: 001v0.0.1
+      author: github.com/CyJay96
+      context: test
+      changes:
+        - sql:
+            INSERT INTO gift_certificates(name, description, price, duration, create_date, last_update_date)
+            VALUES ('Java course', 'Course about Spring Framework and Spring Boot', 450, 1036800000000000, '2023-03-16 16:25:21.867392', '2023-03-25 16:25:21.867392'),
+                   ('C# course', 'Course about .NET Framework', 400, 1036800000000000, '2023-03-25 16:25:21.867392', '2023-03-25 16:25:21.867392'),
+                   ('Python course', 'Course about machine learning and data science', 320, 1036800000000000, '2023-03-19 16:25:21.867392', '2023-03-25 16:25:21.867392'),
+                   ('JavaScript course', 'Course about React JS, Angular JS and View JS', 380, 1036800000000000, '2023-03-07 16:25:21.867392', '2023-03-25 16:25:21.867392');
+
+            INSERT INTO tags(name)
+            VALUES ('Java'),
+                   ('C Sharp'),
+                   ('Python'),
+                   ('JavaScript');
+
+            INSERT INTO gift_certificates_tags(gift_certificate_id, tag_id)
+            VALUES (1, 1),
+                   (1, 2),
+                   (1, 3),
+                   (2, 3),
+                   (2, 4),
+                   (3, 2),
+                   (4, 3);
+
+            INSERT INTO users(username, first_name, last_name, email, status, create_date, last_update_date)
+            VALUES ('Kjoscelyn', 'Kristin', 'Joscelyn', 'kjoscelyn3@cyberchimps.com', 'ACTIVE', '2023-04-08 14:04:28.547638', '2023-04-08 14:04:28.547638'),
+                   ('Hbatchelourd', 'Harland', 'Batchelour', 'hbatchelourd@wikispaces.com', 'ACTIVE', '2023-03-29 11:54:12.249537', '2023-03-29 11:54:12.249537'),
+                   ('Kandreia', 'Kerry', 'Andreia', 'kandreia0@comsenz.com', 'ACTIVE', '2023-04-02 14:04:28.198542', '2023-04-02 14:04:28.198542'),
+                   ('Apinchin', 'Alexina', 'Pinchin', 'apinchino@yale.edu', 'ACTIVE', '2023-04-08 09:37:43.782436', '2023-04-08 09:37:43.782436'),
+                   ('Dskurm', 'Dalis', 'Skurm', 'dskurm1f@ft.com', 'ACTIVE', '2023-04-05 19:25:41.954237', '2023-04-05 19:25:41.954237'),
+                   ('Jtipple', 'Jayme', 'Tipple', 'jtipple1u@aol.com', 'ACTIVE', '2023-04-08 14:04:28.172483', '2023-04-08 14:04:28.172483');
+
+            INSERT INTO orders(user_id, gift_certificate_id, final_price, create_date, last_update_date)
+            VALUES (1, 2, 400, '2023-04-08 15:26:09.674258', '2023-04-08 15:26:09.674258'),
+                   (2, 1, 450, '2023-03-29 12:47:34.540638', '2023-03-29 12:47:34.540638'),
+                   (2, 3, 320, '2023-03-29 13:04:16.843571', '2023-03-29 13:04:16.843571'),
+                   (4, 4, 380, '2023-04-08 10:52:18.429106', '2023-04-08 10:52:18.429106'),
+                   (6, 2, 400, '2023-04-08 15:26:09.674258', '2023-04-08 15:26:09.674258'),
+                   (6, 4, 380, '2023-04-08 15:28:53.571089', '2023-04-08 15:28:53.571089');

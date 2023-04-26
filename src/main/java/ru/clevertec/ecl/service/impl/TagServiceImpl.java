@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -81,10 +80,9 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public void deleteTagById(Long id) {
-        try {
-            tagRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
+        if (!tagRepository.existsById(id)) {
             throw new TagNotFoundException(id);
         }
+        tagRepository.deleteById(id);
     }
 }

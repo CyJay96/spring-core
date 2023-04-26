@@ -46,6 +46,9 @@ class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    private final User user = UserTestBuilder.aUser().build();
+    private final UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+
     @BeforeEach
     void setUp() {
         userService = new UserServiceImpl(userRepository, userMapper);
@@ -54,9 +57,6 @@ class UserServiceTest {
     @Test
     @DisplayName("Get all Users")
     void checkGetAllUsersShouldReturnUserDtoResponseList() {
-        User user = UserTestBuilder.aUser().build();
-        UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
-
         when(userRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(user)));
         when(userMapper.toDto(user)).thenReturn(userDtoResponse);
 
@@ -65,7 +65,9 @@ class UserServiceTest {
         verify(userRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
         verify(userMapper).toDto(any());
 
-        assertThat(response.getContent().get(0)).isEqualTo(userDtoResponse);
+        assertThat(response.getContent().stream()
+                .anyMatch(userDto -> userDto.equals(userDtoResponse))
+        ).isTrue();
     }
 
     @Nested
@@ -74,9 +76,6 @@ class UserServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkGetUserByIdShouldReturnUserDtoResponse(Long id) {
-            User user = UserTestBuilder.aUser().build();
-            UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
-
             when(userRepository.findById(id)).thenReturn(Optional.of(user));
             when(userMapper.toDto(user)).thenReturn(userDtoResponse);
 
@@ -104,9 +103,6 @@ class UserServiceTest {
         @Test
         @DisplayName("Get User by highest order cost")
         void checkGetUserByHighestOrderCostShouldReturnUserDtoResponse() {
-            User user = UserTestBuilder.aUser().build();
-            UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
-
             when(userRepository.findUserByHighestOrderCost()).thenReturn(Optional.of(user));
             when(userMapper.toDto(user)).thenReturn(userDtoResponse);
 
