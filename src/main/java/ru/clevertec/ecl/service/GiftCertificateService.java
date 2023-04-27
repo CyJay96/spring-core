@@ -7,21 +7,25 @@ import ru.clevertec.ecl.model.dto.response.PageResponse;
 
 public interface GiftCertificateService {
 
-    GiftCertificateDtoResponse createGiftCertificate(GiftCertificateDtoRequest giftCertificateDtoRequest);
+    GiftCertificateDtoResponse save(GiftCertificateDtoRequest giftCertificateDtoRequest);
 
-    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize);
+    PageResponse<GiftCertificateDtoResponse> findAll(Integer page, Integer pageSize);
 
-    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria);
+    PageResponse<GiftCertificateDtoResponse> findAllByCriteria(
+            GiftCertificateCriteria searchCriteria,
+            Integer page,
+            Integer pageSize
+    );
 
-    GiftCertificateDtoResponse getGiftCertificateById(Long id);
+    GiftCertificateDtoResponse findById(Long id);
 
-    GiftCertificateDtoResponse updateGiftCertificateById(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
+    GiftCertificateDtoResponse update(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
 
-    GiftCertificateDtoResponse updateGiftCertificateByIdPartially(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
+    GiftCertificateDtoResponse updatePartially(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
 
     GiftCertificateDtoResponse addTagToGiftCertificate(Long giftCertificateId, Long tagId);
 
     GiftCertificateDtoResponse deleteTagFromGiftCertificate(Long giftCertificateId, Long tagId);
 
-    void deleteGiftCertificateById(Long id);
+    void deleteById(Long id);
 }

@@ -53,7 +53,7 @@ databaseChangeLog:
                     - addForeignKeyConstraint:
                             baseColumnNames: user_id
                             baseTableName: orders
-                            constraintName: fk_orders_user_id
+                            constraintName: fk_orders_users
                             deferrable: false
                             initiallyDeferred: false
                             referencedColumnNames: id

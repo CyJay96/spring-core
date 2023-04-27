@@ -10,7 +10,7 @@
 			"name": "GiftCertificate",
 			"item": [
 				{
-					"name": "Create Gift Certificate",
+					"name": "Save",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -38,7 +38,7 @@
 					"response": []
 				},
 				{
-					"name": "Get all Gift Certificates",
+					"name": "Find all",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -57,7 +57,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Gift Certificates by Criteria",
+					"name": "FInd all by Criteria",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -89,7 +89,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Gift Certificate by ID",
+					"name": "Find by ID",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -109,7 +109,7 @@
 					"response": []
 				},
 				{
-					"name": "Put Gift Certificate by ID",
+					"name": "Update",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -138,7 +138,7 @@
 					"response": []
 				},
 				{
-					"name": "Patch Gift Certificate by ID",
+					"name": "Partial Update",
 					"request": {
 						"method": "PATCH",
 						"header": [],
@@ -211,7 +211,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete Gift Certificate by ID",
+					"name": "Delete by ID",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -236,7 +236,7 @@
 			"name": "Tag",
 			"item": [
 				{
-					"name": "Create Tag",
+					"name": "Save",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -264,7 +264,7 @@
 					"response": []
 				},
 				{
-					"name": "Get all Tags",
+					"name": "Find all",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -283,7 +283,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Tag by ID",
+					"name": "Find by ID",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -303,7 +303,7 @@
 					"response": []
 				},
 				{
-					"name": "Put Tag by ID",
+					"name": "Update",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -332,7 +332,7 @@
 					"response": []
 				},
 				{
-					"name": "Patch Tag by ID",
+					"name": "Partial update",
 					"request": {
 						"method": "PATCH",
 						"header": [],
@@ -361,7 +361,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete Tag by ID",
+					"name": "Delete by ID",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -386,7 +386,7 @@
 			"name": "User",
 			"item": [
 				{
-					"name": "Get all Users",
+					"name": "FInd all",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -405,7 +405,7 @@
 					"response": []
 				},
 				{
-					"name": "Get User by ID",
+					"name": "FInd by ID",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -425,7 +425,7 @@
 					"response": []
 				},
 				{
-					"name": "Get User by highest order cost",
+					"name": "Find by highest order cost",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -450,7 +450,7 @@
 			"name": "Order",
 			"item": [
 				{
-					"name": "Create Order",
+					"name": "Save",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -471,7 +471,7 @@
 					"response": []
 				},
 				{
-					"name": "Get all Orders",
+					"name": "Find all",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -490,7 +490,7 @@
 					"response": []
 				},
 				{
-					"name": "Get all Orders by User ID",
+					"name": "Find all by User ID",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -511,7 +511,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Order by ID",
+					"name": "Find by ID",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -531,7 +531,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Order by ID and User ID",
+					"name": "Find by ID and User ID",
 					"request": {
 						"method": "GET",
 						"header": [],

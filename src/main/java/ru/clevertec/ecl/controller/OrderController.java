@@ -2,6 +2,7 @@ package ru.clevertec.ecl.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.ecl.config.PaginationProperties;
-import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
-import ru.clevertec.ecl.exception.OrderNotFoundException;
-import ru.clevertec.ecl.exception.UserNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -24,7 +23,6 @@ import ru.clevertec.ecl.service.OrderService;
 import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.OrderController.ORDER_API_PATH;
-import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 
 /**
  * Order API
@@ -40,29 +38,27 @@ public class OrderController {
     private final OrderService orderService;
     private final PaginationProperties paginationProperties;
 
-    public static final String ORDER_API_PATH = "/api/v0/orders";
+    public static final String ORDER_API_PATH = "/v0/orders";
 
     /**
      * POST /api/v0/orders/{userId}/{giftCertificateId} : Create a new Order
      *
      * @param userId User ID to create Order (required)
      * @param giftCertificateId Gift Certificate ID to create Order (required)
-     * @throws UserNotFoundException if the User with ID doesn't exist
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
+     * @throws EntityNotFoundException if the User or Gift Certificate with ID doesn't exist
      */
     @PostMapping("/{userId}/{giftCertificateId}")
-    public ResponseEntity<ApiResponse<OrderDtoResponse>> createOrderByUserIdAndGiftCertificateId(
-            @PathVariable @Valid @NotNull Long userId,
-            @PathVariable @Valid @NotNull Long giftCertificateId
-    ) {
-        OrderDtoResponse orderDtoResponse = orderService.createOrderByUserIdAndGiftCertificateId(userId, giftCertificateId);
+    public ResponseEntity<ApiResponse<OrderDtoResponse>> saveByUserIdAndGiftCertificateId(
+            @PathVariable @NotNull @PositiveOrZero Long userId,
+            @PathVariable @NotNull @PositiveOrZero Long giftCertificateId) {
+        OrderDtoResponse orderDtoResponse = orderService
+                .saveByUserIdAndGiftCertificateId(userId, giftCertificateId);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Order with ID " + orderDtoResponse.getId() + " was created by " +
                         "user_id: " + userId + "; gift_certificate_id: " + giftCertificateId,
                 ORDER_API_PATH,
                 HttpStatus.CREATED,
-                ApiResponse.Color.SUCCESS,
                 orderDtoResponse
         );
     }
@@ -74,22 +70,20 @@ public class OrderController {
      * @param pageSize page size to return (not required)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAllOrders(
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize
-    ) {
+    public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAll(
+            @RequestParam(value = "page", required = false) @PositiveOrZero Integer page,
+            @RequestParam(value = "pageSize", required = false) @PositiveOrZero Integer pageSize) {
         page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
         pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
 
-        PageResponse<OrderDtoResponse> orders = orderService.getAllOrders(page, pageSize);
+        PageResponse<OrderDtoResponse> orders = orderService.findAll(page, pageSize);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "All Orders: " +
                         "; page: " + page +
                         "; page_size: " + pageSize,
                 ORDER_API_PATH,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 orders
         );
     }
@@ -102,23 +96,21 @@ public class OrderController {
      * @param pageSize page size to return (not required)
      */
     @GetMapping("/byUserId/{userId}")
-    public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAllOrdersByUserId(
+    public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAllByUserId(
             @PathVariable @Valid @NotNull Long userId,
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize
-    ) {
+            @RequestParam(value = "page", required = false) @PositiveOrZero Integer page,
+            @RequestParam(value = "pageSize", required = false) @PositiveOrZero Integer pageSize) {
         page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
         pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
 
-        PageResponse<OrderDtoResponse> orders = orderService.getAllOrdersByUserId(userId, page, pageSize);
+        PageResponse<OrderDtoResponse> orders = orderService.findAllByUserId(userId, page, pageSize);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "All Orders by User ID: " + userId +
                         "; page: " + page +
                         "; page_size: " + pageSize,
                 ORDER_API_PATH,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 orders
         );
     }
@@ -127,17 +119,16 @@ public class OrderController {
      * GET /api/v0/Orders/{id} : Find Order info
      *
      * @param id Order ID to return (required)
-     * @throws OrderNotFoundException if the Order with ID doesn't exist
+     * @throws EntityNotFoundException if the Order with ID doesn't exist
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrderDtoResponse>> findOrderById(@PathVariable @Valid @NotNull Long id) {
-        OrderDtoResponse user = orderService.getOrderById(id);
+    public ResponseEntity<ApiResponse<OrderDtoResponse>> findById(@PathVariable @NotNull @PositiveOrZero Long id) {
+        OrderDtoResponse user = orderService.findById(id);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Order with ID " + user.getId() + " was found",
                 ORDER_API_PATH + "/" + id,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 user
         );
     }
@@ -147,21 +138,18 @@ public class OrderController {
      *
      * @param orderId Order ID to return (required)
      * @param userId User ID to return (required)
-     * @throws OrderNotFoundException if the Order with ID doesn't exist
-     * @throws UserNotFoundException if the User with ID doesn't exist
+     * @throws EntityNotFoundException if the Order or User with ID doesn't exist
      */
     @GetMapping("/{orderId}/{userId}")
-    public ResponseEntity<ApiResponse<OrderDtoResponse>> findOrderByIdAndUserId(
-            @PathVariable @Valid @NotNull Long orderId,
-            @PathVariable @Valid @NotNull Long userId
-    ) {
-        OrderDtoResponse user = orderService.getOrderByIdAndUserId(orderId, userId);
+    public ResponseEntity<ApiResponse<OrderDtoResponse>> findByIdAndUserId(
+            @PathVariable @NotNull @PositiveOrZero Long orderId,
+            @PathVariable @NotNull @PositiveOrZero Long userId) {
+        OrderDtoResponse user = orderService.findByIdAndUserId(orderId, userId);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Order with ID " + user.getId() + " and User ID " + userId + " was found",
                 ORDER_API_PATH + "/" + orderId + "/" + userId,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 user
         );
     }

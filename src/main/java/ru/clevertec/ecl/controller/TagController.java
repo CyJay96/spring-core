@@ -2,6 +2,7 @@ package ru.clevertec.ecl.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.ecl.config.PaginationProperties;
-import ru.clevertec.ecl.exception.TagNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -28,7 +29,6 @@ import ru.clevertec.ecl.service.TagService;
 import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.TagController.TAG_API_PATH;
-import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 
 /**
  * Tag API
@@ -44,7 +44,7 @@ public class TagController {
     private final TagService tagService;
     private final PaginationProperties paginationProperties;
 
-    public static final String TAG_API_PATH = "/api/v0/tags";
+    public static final String TAG_API_PATH = "/v0/tags";
 
     /**
      * POST /api/v0/tags : Create a new Tag
@@ -52,16 +52,13 @@ public class TagController {
      * @param tagDtoRequest Tag object to create (required)
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<TagDtoResponse>> createTag(
-            @RequestBody @Valid TagDtoRequest tagDtoRequest
-    ) {
-        TagDtoResponse tag = tagService.createTag(tagDtoRequest);
+    public ResponseEntity<ApiResponse<TagDtoResponse>> save(@RequestBody @Valid TagDtoRequest tagDtoRequest) {
+        TagDtoResponse tag = tagService.save(tagDtoRequest);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Tag with ID " + tag.getId() + " was created",
                 TAG_API_PATH,
                 HttpStatus.CREATED,
-                ApiResponse.Color.SUCCESS,
                 tag
         );
     }
@@ -73,22 +70,20 @@ public class TagController {
      * @param pageSize page size to return (not required)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<TagDtoResponse>>> findAllTags(
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize
-    ) {
+    public ResponseEntity<ApiResponse<PageResponse<TagDtoResponse>>> findAll(
+            @RequestParam(value = "page", required = false) @PositiveOrZero Integer page,
+            @RequestParam(value = "pageSize", required = false) @PositiveOrZero Integer pageSize) {
         page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
         pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
 
-        PageResponse<TagDtoResponse> tags = tagService.getAllTags(page, pageSize);
+        PageResponse<TagDtoResponse> tags = tagService.findAll(page, pageSize);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "All Tags: " +
                         "; page: " + page +
                         "; page_size: " + pageSize,
                 TAG_API_PATH,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 tags
         );
     }
@@ -97,17 +92,16 @@ public class TagController {
      * GET /api/v0/tags/{id} : Find Tag info
      *
      * @param id Tag ID to return (required)
-     * @throws TagNotFoundException if the Tag with ID doesn't exist
+     * @throws EntityNotFoundException if the Tag with ID doesn't exist
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TagDtoResponse>> findTagById(@PathVariable @Valid @NotNull Long id) {
-        TagDtoResponse tag = tagService.getTagById(id);
+    public ResponseEntity<ApiResponse<TagDtoResponse>> findById(@PathVariable @NotNull @PositiveOrZero Long id) {
+        TagDtoResponse tag = tagService.findById(id);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Tag with ID " + tag.getId() + " was found",
                 TAG_API_PATH + "/" + id,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 tag
         );
     }
@@ -117,20 +111,18 @@ public class TagController {
      *
      * @param id Tag ID to return (required)
      * @param tagDtoRequest Tag object to update (required)
-     * @throws TagNotFoundException if the Tag with ID doesn't exist
+     * @throws EntityNotFoundException if the Tag with ID doesn't exist
      */
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagById(
-            @PathVariable @Valid @NotNull Long id,
-            @RequestBody @Valid TagDtoRequest tagDtoRequest
-    ) {
-        TagDtoResponse tag = tagService.updateTagById(id, tagDtoRequest);
+    public ResponseEntity<ApiResponse<TagDtoResponse>> update(
+            @PathVariable @NotNull @PositiveOrZero Long id,
+            @RequestBody @Valid TagDtoRequest tagDtoRequest) {
+        TagDtoResponse tag = tagService.update(id, tagDtoRequest);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Changes were applied to the Tag with ID " + id,
                 TAG_API_PATH + "/" + id,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 tag
         );
     }
@@ -140,20 +132,18 @@ public class TagController {
      *
      * @param id Tag ID to return (required)
      * @param tagDtoRequest Tag object to update (required)
-     * @throws TagNotFoundException if Tag with ID doesn't exist
+     * @throws EntityNotFoundException if Tag with ID doesn't exist
      */
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<TagDtoResponse>> updateTagByIdPartially(
-            @PathVariable @Valid @NotNull Long id,
-            @RequestBody TagDtoRequest tagDtoRequest
-    ) {
-        TagDtoResponse tag = tagService.updateTagByIdPartially(id, tagDtoRequest);
+    public ResponseEntity<ApiResponse<TagDtoResponse>> updatePartially(
+            @PathVariable @NotNull @PositiveOrZero Long id,
+            @RequestBody TagDtoRequest tagDtoRequest) {
+        TagDtoResponse tag = tagService.updatePartially(id, tagDtoRequest);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Partial changes were applied to the Tag with ID " + id,
                 TAG_API_PATH + "/" + id,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 tag
         );
     }
@@ -162,17 +152,16 @@ public class TagController {
      * DELETE /api/v0/tags/{id} : Delete a Tag
      *
      * @param id Tag ID to return (required)
-     * @throws TagNotFoundException if the Tag with ID doesn't exist
+     * @throws EntityNotFoundException if the Tag with ID doesn't exist
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteTagById(@PathVariable @Valid @NotNull Long id) {
-        tagService.deleteTagById(id);
+    public ResponseEntity<ApiResponse<Void>> deleteById(@PathVariable @NotNull @PositiveOrZero Long id) {
+        tagService.deleteById(id);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Tag with ID " + id + " was deleted",
                 TAG_API_PATH + "/" + id,
                 HttpStatus.NO_CONTENT,
-                ApiResponse.Color.SUCCESS,
                 null
         );
     }

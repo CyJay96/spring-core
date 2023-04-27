@@ -6,15 +6,15 @@ import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 
 public interface TagService {
 
-    TagDtoResponse createTag(TagDtoRequest tagDtoRequest);
+    TagDtoResponse save(TagDtoRequest tagDtoRequest);
 
-    PageResponse<TagDtoResponse> getAllTags(Integer page, Integer pageSize);
+    PageResponse<TagDtoResponse> findAll(Integer page, Integer pageSize);
 
-    TagDtoResponse getTagById(Long id);
+    TagDtoResponse findById(Long id);
 
-    TagDtoResponse updateTagById(Long id, TagDtoRequest tagDtoRequest);
+    TagDtoResponse update(Long id, TagDtoRequest tagDtoRequest);
 
-    TagDtoResponse updateTagByIdPartially(Long id, TagDtoRequest tagDtoRequest);
+    TagDtoResponse updatePartially(Long id, TagDtoRequest tagDtoRequest);
 
-    void deleteTagById(Long id);
+    void deleteById(Long id);
 }

@@ -5,9 +5,9 @@ import ru.clevertec.ecl.model.dto.response.UserDtoResponse;
 
 public interface UserService {
 
-    PageResponse<UserDtoResponse> getAllUsers(Integer page, Integer pageSize);
+    PageResponse<UserDtoResponse> findAll(Integer page, Integer pageSize);
 
-    UserDtoResponse getUserById(Long id);
+    UserDtoResponse findById(Long id);
 
-    UserDtoResponse getUserByHighestOrderCost();
+    UserDtoResponse findByHighestOrderCost();
 }

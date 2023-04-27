@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
-import ru.clevertec.ecl.exception.TagNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
-import ru.clevertec.ecl.mapper.list.TagListMapper;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
@@ -19,10 +17,8 @@ import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 import ru.clevertec.ecl.service.searcher.GiftCertificateSearcher;
 
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,24 +28,20 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateRepository giftCertificateRepository;
     private final TagRepository tagRepository;
     private final GiftCertificateMapper giftCertificateMapper;
-    private final TagListMapper tagListMapper;
 
     @Override
-    public GiftCertificateDtoResponse createGiftCertificate(GiftCertificateDtoRequest giftCertificateDtoRequest) {
-        GiftCertificate giftCertificate = giftCertificateMapper.toEntity(giftCertificateDtoRequest);
-        giftCertificate.setCreateDate(OffsetDateTime.now());
-        giftCertificate.setLastUpdateDate(OffsetDateTime.now());
-
+    public GiftCertificateDtoResponse save(GiftCertificateDtoRequest giftCertificateDtoRequest) {
+        GiftCertificate giftCertificate = giftCertificateMapper.toGiftCertificate(giftCertificateDtoRequest);
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
-        return giftCertificateMapper.toDto(savedGiftCertificate);
+        return giftCertificateMapper.toGiftCertificateDtoResponse(savedGiftCertificate);
     }
 
     @Override
-    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize) {
+    public PageResponse<GiftCertificateDtoResponse> findAll(Integer page, Integer pageSize) {
         Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(PageRequest.of(page, pageSize));
 
         List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificatePage.stream()
-                .map(giftCertificateMapper::toDto)
+                .map(giftCertificateMapper::toGiftCertificateDtoResponse)
                 .toList();
 
         return PageResponse.<GiftCertificateDtoResponse>builder()
@@ -61,11 +53,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria) {
+    public PageResponse<GiftCertificateDtoResponse> findAllByCriteria(
+            GiftCertificateCriteria searchCriteria,
+            Integer page,
+            Integer pageSize) {
+        if (searchCriteria == null) {
+            searchCriteria = GiftCertificateCriteria.builder().build();
+        }
+
+        searchCriteria.setOffset(page);
+        searchCriteria.setLimit(pageSize);
+
         Page<GiftCertificate> giftCertificatePage = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria);
 
         List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificatePage.stream()
-                .map(giftCertificateMapper::toDto)
+                .map(giftCertificateMapper::toGiftCertificateDtoResponse)
                 .toList();
 
         return PageResponse.<GiftCertificateDtoResponse>builder()
@@ -77,86 +79,75 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public GiftCertificateDtoResponse getGiftCertificateById(Long id) {
+    public GiftCertificateDtoResponse findById(Long id) {
         return giftCertificateRepository.findById(id)
-                .map(giftCertificateMapper::toDto)
-                .orElseThrow(() -> new GiftCertificateNotFoundException(id));
+                .map(giftCertificateMapper::toGiftCertificateDtoResponse)
+                .orElseThrow(() -> new EntityNotFoundException(GiftCertificate.class, id));
     }
 
     @Override
-    public GiftCertificateDtoResponse updateGiftCertificateById(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest) {
-        GiftCertificate giftCertificate = giftCertificateMapper.toEntity(giftCertificateDtoRequest);
-        giftCertificate.setId(id);
-        giftCertificate.setLastUpdateDate(OffsetDateTime.now());
+    public GiftCertificateDtoResponse update(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest) {
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(GiftCertificate.class, id));
 
-        if (giftCertificate.getCreateDate() == null) {
-            giftCertificate.setCreateDate(OffsetDateTime.now());
-        }
-
-        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(giftCertificate);
-        return giftCertificateMapper.toDto(savedGiftCertificate);
-    }
-
-    @Override
-    public GiftCertificateDtoResponse updateGiftCertificateByIdPartially(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest) {
-        GiftCertificate updatedGiftCertificate = giftCertificateRepository.findById(id)
-                .map(giftCertificate -> {
-                    Optional.ofNullable(giftCertificateDtoRequest.getName()).ifPresent(giftCertificate::setName);
-                    Optional.ofNullable(giftCertificateDtoRequest.getDescription()).ifPresent(giftCertificate::setDescription);
-                    Optional.ofNullable(giftCertificateDtoRequest.getPrice()).ifPresent(giftCertificate::setPrice);
-                    Optional.ofNullable(giftCertificateDtoRequest.getDuration()).ifPresent(duration -> giftCertificate.setDuration(Duration.ofDays(duration)));
-                    giftCertificate.setLastUpdateDate(OffsetDateTime.now());
-
-                    Optional.ofNullable(giftCertificateDtoRequest.getTags())
-                            .ifPresent(tagDtoList -> {
-                                giftCertificate.getTags().clear();
-                                giftCertificate.setTags(tagListMapper.toEntity(tagDtoList));
-                            });
-
-                    return giftCertificate;
-                })
-                .orElseThrow(() -> new GiftCertificateNotFoundException(id));
+        GiftCertificate updatedGiftCertificate = giftCertificateMapper.toGiftCertificate(giftCertificateDtoRequest);
+        updatedGiftCertificate.setId(id);
+        updatedGiftCertificate.setCreateDate(giftCertificate.getCreateDate());
+        updatedGiftCertificate.setLastUpdateDate(OffsetDateTime.now());
 
         GiftCertificate savedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
-        return giftCertificateMapper.toDto(savedGiftCertificate);
+        return giftCertificateMapper.toGiftCertificateDtoResponse(savedGiftCertificate);
+    }
+
+    @Override
+    public GiftCertificateDtoResponse updatePartially(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest) {
+        GiftCertificate updatedGiftCertificate = giftCertificateRepository.findById(id)
+                .map(giftCertificate -> {
+                    giftCertificateMapper.updateGiftCertificate(giftCertificateDtoRequest, giftCertificate);
+                    return giftCertificate;
+                })
+                .orElseThrow(() -> new EntityNotFoundException(GiftCertificate.class, id));
+
+        GiftCertificate savedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
+        return giftCertificateMapper.toGiftCertificateDtoResponse(savedGiftCertificate);
     }
 
     @Override
     public GiftCertificateDtoResponse addTagToGiftCertificate(Long giftCertificateId, Long tagId) {
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateId)
-                .orElseThrow(() -> new GiftCertificateNotFoundException(giftCertificateId));
+                .orElseThrow(() -> new EntityNotFoundException(GiftCertificate.class, giftCertificateId));
         Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new TagNotFoundException(tagId));
+                .orElseThrow(() -> new EntityNotFoundException(Tag.class, tagId));
 
         boolean alreadyAdded = giftCertificate.getTags().stream()
                 .map(Tag::getId)
                 .anyMatch(id -> id.equals(tagId));
 
         if (alreadyAdded) {
-            return giftCertificateMapper.toDto(giftCertificate);
+            return giftCertificateMapper.toGiftCertificateDtoResponse(giftCertificate);
         }
 
         giftCertificate.getTags().add(tag);
 
-        return giftCertificateMapper.toDto(giftCertificateRepository.save(giftCertificate));
+        return giftCertificateMapper.toGiftCertificateDtoResponse(giftCertificateRepository.save(giftCertificate));
     }
 
     @Override
     public GiftCertificateDtoResponse deleteTagFromGiftCertificate(Long giftCertificateId, Long tagId) {
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateId)
-                .orElseThrow(() -> new GiftCertificateNotFoundException(giftCertificateId));
+                .orElseThrow(() -> new EntityNotFoundException(GiftCertificate.class, giftCertificateId));
         Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new TagNotFoundException(tagId));
+                .orElseThrow(() -> new EntityNotFoundException(Tag.class, tagId));
 
         giftCertificate.getTags().remove(tag);
 
-        return giftCertificateMapper.toDto(giftCertificateRepository.save(giftCertificate));
+        return giftCertificateMapper.toGiftCertificateDtoResponse(giftCertificateRepository.save(giftCertificate));
     }
 
     @Override
-    public void deleteGiftCertificateById(Long id) {
+    public void deleteById(Long id) {
         if (!giftCertificateRepository.existsById(id)) {
-            throw new GiftCertificateNotFoundException(id);
+            throw new EntityNotFoundException(GiftCertificate.class, id);
         }
         giftCertificateRepository.deleteById(id);
     }

@@ -5,13 +5,13 @@ import ru.clevertec.ecl.model.dto.response.PageResponse;
 
 public interface OrderService {
 
-    OrderDtoResponse createOrderByUserIdAndGiftCertificateId(Long userId, Long giftCertificateId);
+    OrderDtoResponse saveByUserIdAndGiftCertificateId(Long userId, Long giftCertificateId);
 
-    PageResponse<OrderDtoResponse> getAllOrders(Integer page, Integer pageSize);
+    PageResponse<OrderDtoResponse> findAll(Integer page, Integer pageSize);
 
-    PageResponse<OrderDtoResponse> getAllOrdersByUserId(Long userId, Integer page, Integer pageSize);
+    PageResponse<OrderDtoResponse> findAllByUserId(Long userId, Integer page, Integer pageSize);
 
-    OrderDtoResponse getOrderById(Long id);
+    OrderDtoResponse findById(Long id);
 
-    OrderDtoResponse getOrderByIdAndUserId(Long orderId, Long userId);
+    OrderDtoResponse findByIdAndUserId(Long orderId, Long userId);
 }
