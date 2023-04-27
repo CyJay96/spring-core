@@ -20,9 +20,9 @@ public class TagTestBuilder implements TestBuilder<Tag> {
 
     @Override
     public Tag build() {
-        Tag tag = new Tag();
-        tag.setId(id);
-        tag.setName(name);
-        return tag;
+        return Tag.builder()
+                .id(id)
+                .name(name)
+                .build();
     }
 }

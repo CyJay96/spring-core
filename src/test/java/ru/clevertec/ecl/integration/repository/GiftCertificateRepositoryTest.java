@@ -16,7 +16,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class GiftCertificateRepositoryTest extends BaseIntegrationTest {
+class GiftCertificateRepositoryTest extends BaseIntegrationTest {
 
     private final GiftCertificateRepository giftCertificateRepository;
 

@@ -16,7 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagTestBuilder;
-import ru.clevertec.ecl.exception.TagNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -29,17 +29,15 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static ru.clevertec.ecl.util.TestConstants.PAGE;
 import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
-import static ru.clevertec.ecl.util.TestConstants.TEST_BOOLEAN;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,150 +55,198 @@ class TagServiceTest {
     ArgumentCaptor<Tag> tagCaptor;
 
     private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
-    private final TagDtoResponse tagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
-    private final Tag tag = TagTestBuilder.aTag().build();
+    private final TagDtoResponse expectedTagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
+    private final Tag expectedTag = TagTestBuilder.aTag().build();
 
     @BeforeEach
     void setUp() {
         tagService = new TagServiceImpl(tagRepository, tagMapper);
     }
 
-    @Test
-    @DisplayName("Create Tag")
-    void checkCreateTagShouldReturnTagDtoResponse() {
-        when(tagRepository.save(tag)).thenReturn(tag);
-        when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
-        when(tagMapper.toEntity(tagDtoRequest)).thenReturn(tag);
+    @Nested
+    public class SaveTest {
+        @Test
+        @DisplayName("Save Tag")
+        void checkSaveShouldReturnTagDtoResponse() {
+            doReturn(expectedTag).when(tagRepository).save(expectedTag);
+            doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
+            doReturn(expectedTag).when(tagMapper).toTag(tagDtoRequest);
 
-        TagDtoResponse response = tagService.createTag(tagDtoRequest);
+            TagDtoResponse actualTag = tagService.save(tagDtoRequest);
 
-        verify(tagRepository).save(tagCaptor.capture());
-        verify(tagMapper).toEntity(any());
-        verify(tagMapper).toDto(any());
+            verify(tagRepository).save(any());
+            verify(tagMapper).toTag(any());
+            verify(tagMapper).toTagDtoResponse(any());
 
-        assertAll(
-                () -> assertThat(response).isEqualTo(tagDtoResponse),
-                () -> assertThat(tagCaptor.getValue()).isEqualTo(tag)
-        );
+            assertThat(actualTag).isEqualTo(expectedTagDtoResponse);
+        }
+
+        @Test
+        @DisplayName("Save Tag with Argument Captor")
+        void checkSaveWithArgumentCaptorShouldReturnTagDtoResponse() {
+            doReturn(expectedTag).when(tagRepository).save(expectedTag);
+            doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
+            doReturn(expectedTag).when(tagMapper).toTag(tagDtoRequest);
+
+            tagService.save(tagDtoRequest);
+
+            verify(tagRepository).save(tagCaptor.capture());
+            verify(tagMapper).toTag(any());
+            verify(tagMapper).toTagDtoResponse(any());
+
+            assertThat(tagCaptor.getValue()).isEqualTo(expectedTag);
+        }
     }
 
     @Test
-    @DisplayName("Get all Tags")
-    void checkGetAllTagsShouldReturnTagDtoResponsePage() {
-        when(tagRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(tag)));
-        when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
+    @DisplayName("Find all Tags")
+    void checkFindAllShouldReturnTagDtoResponsePage() {
+        doReturn(new PageImpl<>(List.of(expectedTag))).when(tagRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
 
-        PageResponse<TagDtoResponse> response = tagService.getAllTags(PAGE, PAGE_SIZE);
+        PageResponse<TagDtoResponse> actualTags = tagService.findAll(PAGE, PAGE_SIZE);
 
         verify(tagRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
-        verify(tagMapper).toDto(any());
+        verify(tagMapper).toTagDtoResponse(any());
 
-        assertThat(response.getContent().stream()
-                .anyMatch(tagDto -> tagDto.equals(tagDtoResponse))
+        assertThat(actualTags.getContent().stream()
+                .anyMatch(actualTagDtoResponse -> actualTagDtoResponse.equals(expectedTagDtoResponse))
         ).isTrue();
     }
 
     @Nested
-    public class GetTagByIdTest {
-        @DisplayName("Get Tag by ID")
+    public class FindByIdTest {
+        @DisplayName("Find Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkGetTagByIdShouldReturnTagDtoResponse(Long id) {
-            when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
-            when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
+        void checkFindByIdShouldReturnTagDtoResponse(Long id) {
+            doReturn(Optional.of(expectedTag)).when(tagRepository).findById(id);
+            doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
 
-            TagDtoResponse response = tagService.getTagById(id);
+            TagDtoResponse actualTag = tagService.findById(id);
 
             verify(tagRepository).findById(anyLong());
-            verify(tagMapper).toDto(any());
+            verify(tagMapper).toTagDtoResponse(any());
 
-            assertThat(response).isEqualTo(tagDtoResponse);
+            assertThat(actualTag).isEqualTo(expectedTagDtoResponse);
         }
 
         @Test
-        @DisplayName("Get Tag by ID; not found")
-        void checkGetTagByIdShouldThrowTagNotFoundException() {
-            doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
+        @DisplayName("Find Tag by ID; not found")
+        void checkFindByIdShouldThrowTagNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(tagRepository).findById(anyLong());
 
-            assertThrows(TagNotFoundException.class, () -> tagService.getTagById(TEST_ID));
+            assertThrows(EntityNotFoundException.class, () -> tagService.findById(TEST_ID));
 
             verify(tagRepository).findById(anyLong());
         }
     }
 
     @Nested
-    public class UpdateTagByIdTest {
+    public class UpdateTest {
         @DisplayName("Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
-            when(tagRepository.save(tag)).thenReturn(tag);
-            when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
+        void checkUpdateShouldReturnTagDtoResponse(Long id) {
+            doReturn(Optional.of(expectedTag)).when(tagRepository).findById(id);
+            doReturn(expectedTag).when(tagRepository).save(expectedTag);
+            doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
 
-            TagDtoResponse response = tagService.updateTagById(id, tagDtoRequest);
+            TagDtoResponse actualTag = tagService.update(id, tagDtoRequest);
+
+            verify(tagRepository).findById(anyLong());
+            verify(tagRepository).save(any());
+            verify(tagMapper).toTagDtoResponse(any());
+
+            assertThat(actualTag).isEqualTo(expectedTagDtoResponse);
+        }
+
+        @DisplayName("Update Tag by ID with Argument Captor")
+        @ParameterizedTest
+        @ValueSource(longs = {1L, 2L, 3L})
+        void checkUpdateWithArgumentCaptorShouldReturnTagDtoResponse(Long id) {
+            doReturn(Optional.of(expectedTag)).when(tagRepository).findById(id);
+            doReturn(expectedTag).when(tagRepository).save(expectedTag);
+            doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
+
+            tagService.update(id, tagDtoRequest);
 
             verify(tagRepository).findById(anyLong());
             verify(tagRepository).save(tagCaptor.capture());
-            verify(tagMapper).toDto(any());
+            verify(tagMapper).toTagDtoResponse(any());
 
-            assertAll(
-                    () -> assertThat(response).isEqualTo(tagDtoResponse),
-                    () -> assertThat(tagCaptor.getValue()).isEqualTo(tag)
-            );
+            assertThat(tagCaptor.getValue()).isEqualTo(expectedTag);
         }
 
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) {
-            when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
-            when(tagRepository.save(tag)).thenReturn(tag);
-            when(tagMapper.toDto(tag)).thenReturn(tagDtoResponse);
+        void checkUpdatePartiallyShouldReturnTagDtoResponse(Long id) {
+            doReturn(Optional.of(expectedTag)).when(tagRepository).findById(id);
+            doNothing().when(tagMapper).updateTag(tagDtoRequest, expectedTag);
+            doReturn(expectedTag).when(tagRepository).save(expectedTag);
+            doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
 
-            TagDtoResponse response = tagService.updateTagByIdPartially(id, tagDtoRequest);
+            TagDtoResponse actualTag = tagService.updatePartially(id, tagDtoRequest);
 
             verify(tagRepository).findById(anyLong());
-            verify(tagRepository).save(tagCaptor.capture());
-            verify(tagMapper).toDto(any());
+            verify(tagMapper).updateTag(any(), any());
+            verify(tagRepository).save(any());
+            verify(tagMapper).toTagDtoResponse(any());
 
-            assertAll(
-                    () -> assertThat(response).isEqualTo(tagDtoResponse),
-                    () -> assertThat(tagCaptor.getValue()).isEqualTo(tag)
-            );
+            assertThat(actualTag).isEqualTo(expectedTagDtoResponse);
+        }
+
+        @DisplayName("Partial Update Tag by ID with Argument Captor")
+        @ParameterizedTest
+        @ValueSource(longs = {1L, 2L, 3L})
+        void checkUpdatePartiallyWithArgumentCaptorShouldReturnTagDtoResponse(Long id) {
+            doReturn(Optional.of(expectedTag)).when(tagRepository).findById(id);
+            doNothing().when(tagMapper).updateTag(tagDtoRequest, expectedTag);
+            doReturn(expectedTag).when(tagRepository).save(expectedTag);
+            doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
+
+            tagService.updatePartially(id, tagDtoRequest);
+
+            verify(tagRepository).findById(anyLong());
+            verify(tagMapper).updateTag(any(), any());
+            verify(tagRepository).save(tagCaptor.capture());
+            verify(tagMapper).toTagDtoResponse(any());
+
+            assertThat(tagCaptor.getValue()).isEqualTo(expectedTag);
         }
 
         @Test
         @DisplayName("Update Tag by ID; not found")
-        void checkUpdateTagByIdShouldThrowTagNotFoundException() {
-            doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
+        void checkUpdateShouldThrowTagNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(tagRepository).findById(anyLong());
 
-            assertThrows(TagNotFoundException.class, () -> tagService.updateTagById(TEST_ID, tagDtoRequest));
+            assertThrows(EntityNotFoundException.class, () -> tagService.update(TEST_ID, tagDtoRequest));
 
             verify(tagRepository).findById(anyLong());
         }
 
         @Test
         @DisplayName("Partial Update Tag by ID; not found")
-        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() {
-            doThrow(TagNotFoundException.class).when(tagRepository).findById(anyLong());
+        void checkUpdatePartiallyShouldThrowTagNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(tagRepository).findById(anyLong());
 
-            assertThrows(TagNotFoundException.class, () -> tagService.updateTagByIdPartially(TEST_ID, tagDtoRequest));
+            assertThrows(EntityNotFoundException.class, () -> tagService.updatePartially(TEST_ID, tagDtoRequest));
 
             verify(tagRepository).findById(anyLong());
         }
     }
 
     @Nested
-    public class DeleteTagByIdTest {
+    public class DeleteByIdTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkDeleteTagByIdShouldReturnVoid(Long id) {
-            when(tagRepository.existsById(id)).thenReturn(TEST_BOOLEAN);
+        void checkDeleteByIdShouldReturnVoid(Long id) {
+            doReturn(true).when(tagRepository).existsById(id);
             doNothing().when(tagRepository).deleteById(id);
 
-            tagService.deleteTagById(id);
+            tagService.deleteById(id);
 
             verify(tagRepository).existsById(anyLong());
             verify(tagRepository).deleteById(anyLong());
@@ -208,10 +254,10 @@ class TagServiceTest {
 
         @Test
         @DisplayName("Delete Tag by ID; not found")
-        void checkDeleteTagByIdShouldThrowTagNotFoundException() {
-            when(tagRepository.existsById(anyLong())).thenReturn(false);
+        void checkDeleteByIdShouldThrowTagNotFoundException() {
+            doReturn(false).when(tagRepository).existsById(anyLong());
 
-            assertThrows(TagNotFoundException.class, () -> tagService.deleteTagById(TEST_ID));
+            assertThrows(EntityNotFoundException.class, () -> tagService.deleteById(TEST_ID));
 
             verify(tagRepository).existsById(anyLong());
         }

@@ -3,6 +3,7 @@ package ru.clevertec.ecl.mapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import ru.clevertec.ecl.builder.user.UserTestBuilder;
 import ru.clevertec.ecl.model.dto.response.UserDtoResponse;
 import ru.clevertec.ecl.model.entity.User;
@@ -25,13 +26,13 @@ class UserMapperTest {
 
     @BeforeEach
     void setUp() {
-        userMapper = new UserMapperImpl();
+        userMapper = Mappers.getMapper(UserMapper.class);
     }
 
     @Test
     @DisplayName("Map User Entity to DTO")
-    void checkToDtoShouldReturnUserDtoResponse() {
-        UserDtoResponse userDtoResponse = userMapper.toDto(user);
+    void checkToUserDtoResponseShouldReturnUserDtoResponse() {
+        UserDtoResponse userDtoResponse = userMapper.toUserDtoResponse(user);
 
         assertAll(
                 () -> assertThat(Objects.requireNonNull(userDtoResponse).getId()).isEqualTo(TEST_ID),

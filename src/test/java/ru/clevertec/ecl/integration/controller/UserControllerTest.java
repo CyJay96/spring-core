@@ -24,14 +24,14 @@ import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 
 @AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UserControllerTest extends BaseIntegrationTest {
+class UserControllerTest extends BaseIntegrationTest {
 
     private final MockMvc mockMvc;
     private final UserRepository userRepository;
 
     @Test
     @DisplayName("Find all Users")
-    void checkFindAllUsersShouldReturnUserDtoResponseList() throws Exception {
+    void checkFindAllShouldReturnUserDtoResponseList() throws Exception {
         int expectedUsersSize = (int) userRepository.count();
         mockMvc.perform(get(USER_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -43,11 +43,11 @@ public class UserControllerTest extends BaseIntegrationTest {
     }
 
     @Nested
-    public class FindUserByIdTest {
+    public class FindByIdTest {
         @DisplayName("Find User by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkFindUserByIdShouldReturnUserDtoResponse(Long id) throws Exception {
+        void checkFindByIdShouldReturnUserDtoResponse(Long id) throws Exception {
             mockMvc.perform(get(USER_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -57,7 +57,7 @@ public class UserControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find User by ID; not found")
-        void checkFindUserByIdShouldThrowTagNotFoundException() throws Exception {
+        void checkFindByIdShouldThrowTagNotFoundException() throws Exception {
             long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(get(USER_API_PATH + "/{id}", doesntExistUserId)
@@ -67,11 +67,11 @@ public class UserControllerTest extends BaseIntegrationTest {
     }
 
     @Nested
-    public class FindUserByHighestOrderCostTest {
+    public class FindByHighestOrderCostTest {
         @Test
         @DisplayName("Find User by highest order cost")
-        void checkFindUserByHighestOrderCostShouldReturnUserDtoResponse() throws Exception {
-            long expectedUserId = userRepository.findUserByHighestOrderCost().get().getId();
+        void checkFindByHighestOrderCostShouldReturnUserDtoResponse() throws Exception {
+            long expectedUserId = userRepository.findByHighestOrderCost().get().getId();
             mockMvc.perform(get(USER_API_PATH + "/highestOrderCost")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -81,7 +81,7 @@ public class UserControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find User by highest order cost; not found")
-        void checkFindUserByHighestOrderCostShouldThrowTagNotFoundException() throws Exception {
+        void checkFindByHighestOrderCostShouldThrowTagNotFoundException() throws Exception {
             userRepository.deleteAll();
             mockMvc.perform(get(USER_API_PATH + "/highestOrderCost")
                             .contentType(MediaType.APPLICATION_JSON))

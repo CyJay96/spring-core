@@ -32,13 +32,13 @@ public class OrderDtoResponseTestBuilder implements TestBuilder<OrderDtoResponse
 
     @Override
     public OrderDtoResponse build() {
-        OrderDtoResponse orderDtoResponse = new OrderDtoResponse();
-        orderDtoResponse.setId(id);
-        orderDtoResponse.setUserId(userId);
-        orderDtoResponse.setGiftCertificateId(giftCertificateId);
-        orderDtoResponse.setFinalPrice(finalPrice);
-        orderDtoResponse.setCreateDate(createDate);
-        orderDtoResponse.setLastUpdateDate(lastUpdateDate);
-        return orderDtoResponse;
+        return OrderDtoResponse.builder()
+                .id(id)
+                .userId(userId)
+                .giftCertificateId(giftCertificateId)
+                .finalPrice(finalPrice)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .build();
     }
 }

@@ -29,7 +29,7 @@ import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 
 @AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class OrderControllerTest extends BaseIntegrationTest {
+class OrderControllerTest extends BaseIntegrationTest {
 
     private final MockMvc mockMvc;
     private final OrderRepository orderRepository;
@@ -39,8 +39,8 @@ public class OrderControllerTest extends BaseIntegrationTest {
     @Nested
     public class CreateOrderTest {
         @Test
-        @DisplayName("Create Order")
-        void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() throws Exception {
+        @DisplayName("Save Order")
+        void checkSaveByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() throws Exception {
             long expectedUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
             long expectedGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
             mockMvc.perform(post(ORDER_API_PATH + "/{userId}/{giftCertificateId}",
@@ -53,8 +53,8 @@ public class OrderControllerTest extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("Create Order; User not found")
-        void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowUserNotFoundException() throws Exception {
+        @DisplayName("Save Order; User not found")
+        void checkSaveByUserIdAndGiftCertificateIdShouldThrowUserNotFoundException() throws Exception {
             long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
@@ -65,8 +65,8 @@ public class OrderControllerTest extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("Create Order; Gift Certificate not found")
-        void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowOrderNotFoundException() throws Exception {
+        @DisplayName("Save Order; Gift Certificate not found")
+        void checkSaveByUserIdAndGiftCertificateIdShouldThrowOrderNotFoundException() throws Exception {
             long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
             long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
@@ -79,7 +79,7 @@ public class OrderControllerTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("Find all Orders")
-    void checkFindAllOrdersShouldReturnOrderDtoResponseList() throws Exception {
+    void checkFindAllShouldReturnOrderDtoResponseList() throws Exception {
         int expectedOrdersSize = (int) orderRepository.count();
         mockMvc.perform(get(ORDER_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,10 +91,10 @@ public class OrderControllerTest extends BaseIntegrationTest {
     }
 
     @Nested
-    public class FindAllOrdersByUserIdTest {
+    public class FindAllByUserIdTest {
         @Test
         @DisplayName("Find all Orders by User ID")
-        void checkFindAllOrdersByUserIdShouldReturnOrderDtoResponseList() throws Exception {
+        void checkFindAllByUserIdShouldReturnOrderDtoResponseList() throws Exception {
             Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
             int expectedOrdersSize = orderRepository
                     .findAllByUserId(existsUserId, PageRequest.of(PAGE, PAGE_SIZE)).getNumberOfElements();
@@ -109,21 +109,23 @@ public class OrderControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find all Orders by User ID; User not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() throws Exception {
+        void checkFindAllByUserIdShouldThrowUserNotFoundException() throws Exception {
             long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(get(ORDER_API_PATH + "/byUserId/{userId}", doesntExistUserId)
-                            .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("page", String.valueOf(PAGE))
+                            .param("pageSize", String.valueOf(PAGE_SIZE)))
                     .andExpect(status().isNotFound());
         }
     }
 
     @Nested
-    public class FindOrderByIdTest {
+    public class FindByIdTest {
         @DisplayName("Get Order by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkFindOrderByIdShouldReturnOrderDtoResponse(Long id) throws Exception {
+        void checkFindByIdShouldReturnOrderDtoResponse(Long id) throws Exception {
             mockMvc.perform(get(ORDER_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -133,7 +135,7 @@ public class OrderControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find Order by ID; Order not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() throws Exception {
+        void checkFindAllByUserIdShouldThrowUserNotFoundException() throws Exception {
             long doesntExistOrderId = new Random()
                     .nextLong(orderRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(get(ORDER_API_PATH + "/{id}", doesntExistOrderId)
@@ -146,7 +148,7 @@ public class OrderControllerTest extends BaseIntegrationTest {
     public class FindOrderByIdAndUserIdTest {
         @DisplayName("Find Order by ID & User ID")
         @Test
-        void checkFindOrderByIdAndUserIdShouldReturnOrderDtoResponse() throws Exception {
+        void checkFindByIdAndUserIdShouldReturnOrderDtoResponse() throws Exception {
             Order existsOrder = orderRepository.findFirstByOrderByIdAsc().get();
             long existsOrderId = existsOrder.getId();
             long existsUserId = existsOrder.getUser().getId();
@@ -160,7 +162,7 @@ public class OrderControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find Order by ID & User ID; User not found")
-        void checkFindOrderByIdAndUserIdShouldThrowUserNotFoundException() throws Exception {
+        void checkFindByIdAndUserIdShouldThrowUserNotFoundException() throws Exception {
             long existsOrderId = orderRepository.findFirstByOrderByIdAsc().get().getId();
             long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
@@ -171,7 +173,7 @@ public class OrderControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find Order by ID & User ID; Order not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderNotFoundException() throws Exception {
+        void checkFindByIdAndUserIdShouldThrowOrderNotFoundException() throws Exception {
             long doesntExistOrderId = new Random()
                     .nextLong(orderRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
@@ -182,7 +184,7 @@ public class OrderControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find Order by ID & User ID; Order by User not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderByUserNotFoundException() throws Exception {
+        void checkFindByIdAndUserIdShouldThrowOrderByUserNotFoundException() throws Exception {
             long existsOrderId = orderRepository.findFirstByOrderByIdAsc().get().getId();
             long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId() + 1;
             mockMvc.perform(get(ORDER_API_PATH + "/{orderId}/{userId}", existsOrderId, existsUserId)

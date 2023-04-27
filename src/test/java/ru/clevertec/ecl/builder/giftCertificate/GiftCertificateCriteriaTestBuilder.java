@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import ru.clevertec.ecl.builder.TestBuilder;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.clevertec.ecl.util.TestConstants.PAGE;
@@ -19,7 +19,7 @@ import static ru.clevertec.ecl.util.TestConstants.TEST_STRING;
 @NoArgsConstructor(staticName = "aGiftCertificateCriteria")
 public class GiftCertificateCriteriaTestBuilder implements TestBuilder<GiftCertificateCriteria> {
 
-    private List<String> tagNames = Collections.emptyList();
+    private List<String> tagNames = new ArrayList<>();
 
     private String description = TEST_STRING;
 
@@ -33,13 +33,13 @@ public class GiftCertificateCriteriaTestBuilder implements TestBuilder<GiftCerti
 
     @Override
     public GiftCertificateCriteria build() {
-        GiftCertificateCriteria giftCertificateCriteria = new GiftCertificateCriteria();
-        giftCertificateCriteria.setTagNames(tagNames);
-        giftCertificateCriteria.setDescription(description);
-        giftCertificateCriteria.setSortDirectionName(sortDirectionName);
-        giftCertificateCriteria.setSortDirectionDate(sortDirectionDate);
-        giftCertificateCriteria.setOffset(offset);
-        giftCertificateCriteria.setLimit(limit);
-        return giftCertificateCriteria;
+        return GiftCertificateCriteria.builder()
+                .tagNames(tagNames)
+                .description(description)
+                .sortDirectionName(sortDirectionName)
+                .sortDirectionDate(sortDirectionDate)
+                .offset(offset)
+                .limit(limit)
+                .build();
     }
 }
