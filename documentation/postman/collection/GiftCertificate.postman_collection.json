@@ -43,7 +43,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostUrl}}/api/v0/giftCertificates",
+							"raw": "{{hostUrl}}/api/v0/giftCertificates?page=0&size=4",
 							"host": [
 								"{{hostUrl}}"
 							],
@@ -51,6 +51,16 @@
 								"api",
 								"v0",
 								"giftCertificates"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "4"
+								}
 							]
 						}
 					},
@@ -74,7 +84,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{hostUrl}}/api/v0/giftCertificates/criteria",
+							"raw": "{{hostUrl}}/api/v0/giftCertificates/criteria?page=0&size=4",
 							"host": [
 								"{{hostUrl}}"
 							],
@@ -83,6 +93,16 @@
 								"v0",
 								"giftCertificates",
 								"criteria"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "4"
+								}
 							]
 						}
 					},
@@ -269,7 +289,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostUrl}}/api/v0/tags",
+							"raw": "{{hostUrl}}/api/v0/tags?page=0&size=4",
 							"host": [
 								"{{hostUrl}}"
 							],
@@ -277,6 +297,16 @@
 								"api",
 								"v0",
 								"tags"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "4"
+								}
 							]
 						}
 					},
@@ -391,7 +421,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostUrl}}/api/v0/users",
+							"raw": "{{hostUrl}}/api/v0/users?page=0&size=4",
 							"host": [
 								"{{hostUrl}}"
 							],
@@ -399,6 +429,16 @@
 								"api",
 								"v0",
 								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "4"
+								}
 							]
 						}
 					},
@@ -476,7 +516,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostUrl}}/api/v0/orders",
+							"raw": "{{hostUrl}}/api/v0/orders?page=0&size=4",
 							"host": [
 								"{{hostUrl}}"
 							],
@@ -484,6 +524,16 @@
 								"api",
 								"v0",
 								"orders"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "4"
+								}
 							]
 						}
 					},
@@ -495,7 +545,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostUrl}}/api/v0/orders/byUserId/1",
+							"raw": "{{hostUrl}}/api/v0/orders/byUserId/1?page=0&size=4",
 							"host": [
 								"{{hostUrl}}"
 							],
@@ -505,6 +555,16 @@
 								"orders",
 								"byUserId",
 								"1"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "4"
+								}
 							]
 						}
 					},

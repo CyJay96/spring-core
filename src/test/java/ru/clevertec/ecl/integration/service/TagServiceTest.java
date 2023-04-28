@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.integration.BaseIntegrationTest;
@@ -32,6 +34,7 @@ class TagServiceTest extends BaseIntegrationTest {
     private final EntityManager entityManager;
 
     private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @Test
     @DisplayName("Save Tag")
@@ -44,7 +47,7 @@ class TagServiceTest extends BaseIntegrationTest {
     @DisplayName("Find all Tags")
     void checkFindAllShouldReturnTagDtoResponsePage() {
         int expectedTagsSize = (int) tagRepository.count();
-        PageResponse<TagDtoResponse> actualTags = tagService.findAll(PAGE, PAGE_SIZE);
+        PageResponse<TagDtoResponse> actualTags = tagService.findAll(pageable);
         assertThat(actualTags.getContent()).hasSize(expectedTagsSize);
     }
 

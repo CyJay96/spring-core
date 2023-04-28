@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateCriteriaTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
@@ -44,6 +46,7 @@ class GiftCertificateServiceTest extends BaseIntegrationTest {
             .aGiftCertificateCriteria()
             .withDescription("frame")
             .build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @Test
     @DisplayName("Save Gift Certificate")
@@ -57,8 +60,7 @@ class GiftCertificateServiceTest extends BaseIntegrationTest {
     @DisplayName("Find all Gift Certificates")
     void checkFindAllShouldReturnGiftCertificateDtoResponsePage() {
         int expectedGiftCertificatesSize = (int) giftCertificateRepository.count();
-        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService
-                .findAll(PAGE, PAGE_SIZE);
+        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService.findAll(pageable);
         assertThat(actualGiftCertificates.getContent()).hasSize(expectedGiftCertificatesSize);
     }
 
@@ -67,7 +69,7 @@ class GiftCertificateServiceTest extends BaseIntegrationTest {
     void checkFindAllByCriteriaShouldReturnGiftCertificateDtoResponsePage() {
         int expectedGiftCertificatesSize = 2;
         PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService
-                .findAllByCriteria(searchCriteria, searchCriteria.getOffset(), searchCriteria.getLimit());
+                .findAllByCriteria(searchCriteria, pageable);
         assertThat(actualGiftCertificates.getContent()).hasSize(expectedGiftCertificatesSize);
     }
 

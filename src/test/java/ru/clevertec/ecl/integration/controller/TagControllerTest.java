@@ -57,7 +57,7 @@ class TagControllerTest extends BaseIntegrationTest {
         mockMvc.perform(get(TAG_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", String.valueOf(PAGE))
-                        .param("pageSize", String.valueOf(PAGE_SIZE)))
+                        .param("size", String.valueOf(PAGE_SIZE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isNotEmpty())
                 .andExpect(jsonPath("$.data.content.size()").value(expectedTagsSize));

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.integration.BaseIntegrationTest;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -27,11 +29,13 @@ class UserServiceTest extends BaseIntegrationTest {
     private final UserService userService;
     private final UserRepository userRepository;
 
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
+
     @Test
     @DisplayName("Find all Users")
     void checkFindAllShouldReturnUserDtoResponseList() {
         int expectedUsersSize = (int) userRepository.count();
-        PageResponse<UserDtoResponse> actualUsers = userService.findAll(PAGE, PAGE_SIZE);
+        PageResponse<UserDtoResponse> actualUsers = userService.findAll(pageable);
         assertThat(actualUsers.getContent()).hasSize(expectedUsersSize);
     }
 

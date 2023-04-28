@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagTestBuilder;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -57,6 +59,7 @@ class TagServiceTest {
     private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
     private final TagDtoResponse expectedTagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
     private final Tag expectedTag = TagTestBuilder.aTag().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
@@ -101,12 +104,12 @@ class TagServiceTest {
     @Test
     @DisplayName("Find all Tags")
     void checkFindAllShouldReturnTagDtoResponsePage() {
-        doReturn(new PageImpl<>(List.of(expectedTag))).when(tagRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        doReturn(new PageImpl<>(List.of(expectedTag))).when(tagRepository).findAll(pageable);
         doReturn(expectedTagDtoResponse).when(tagMapper).toTagDtoResponse(expectedTag);
 
-        PageResponse<TagDtoResponse> actualTags = tagService.findAll(PAGE, PAGE_SIZE);
+        PageResponse<TagDtoResponse> actualTags = tagService.findAll(pageable);
 
-        verify(tagRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        verify(tagRepository).findAll(eq(pageable));
         verify(tagMapper).toTagDtoResponse(any());
 
         assertThat(actualTags.getContent().stream()

@@ -10,9 +10,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.user.UserDtoResponseTestBuilder;
-import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.UserDtoResponse;
@@ -24,7 +25,7 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -42,14 +43,12 @@ class UserControllerTest {
     @Mock
     private UserService userService;
 
-    @Mock
-    private PaginationProperties paginationProperties;
-
     private final UserDtoResponse expectedUserDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(userService, paginationProperties);
+        userController = new UserController(userService);
     }
 
     @Test
@@ -62,11 +61,11 @@ class UserControllerTest {
                 .numberOfElements(1)
                 .build();
 
-        doReturn(pageResponse).when(userService).findAll(PAGE, PAGE_SIZE);
+        doReturn(pageResponse).when(userService).findAll(pageable);
 
-        var actualUsers = userController.findAll(PAGE, PAGE_SIZE);
+        var actualUsers = userController.findAll(pageable);
 
-        verify(userService).findAll(anyInt(), anyInt());
+        verify(userService).findAll(any());
 
         assertAll(
                 () -> assertThat(actualUsers.getStatusCode()).isEqualTo(HttpStatus.OK),

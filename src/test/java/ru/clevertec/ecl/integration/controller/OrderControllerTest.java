@@ -84,7 +84,7 @@ class OrderControllerTest extends BaseIntegrationTest {
         mockMvc.perform(get(ORDER_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", String.valueOf(PAGE))
-                        .param("pageSize", String.valueOf(PAGE_SIZE)))
+                        .param("size", String.valueOf(PAGE_SIZE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isNotEmpty())
                 .andExpect(jsonPath("$.data.content.size()").value(expectedOrdersSize));
@@ -101,7 +101,7 @@ class OrderControllerTest extends BaseIntegrationTest {
             mockMvc.perform(get(ORDER_API_PATH + "/byUserId/{userId}", existsUserId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("page", String.valueOf(PAGE))
-                            .param("pageSize", String.valueOf(PAGE_SIZE)))
+                            .param("size", String.valueOf(PAGE_SIZE)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.content").isNotEmpty())
                     .andExpect(jsonPath("$.data.content.size()").value(expectedOrdersSize));
@@ -115,7 +115,7 @@ class OrderControllerTest extends BaseIntegrationTest {
             mockMvc.perform(get(ORDER_API_PATH + "/byUserId/{userId}", doesntExistUserId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("page", String.valueOf(PAGE))
-                            .param("pageSize", String.valueOf(PAGE_SIZE)))
+                            .param("size", String.valueOf(PAGE_SIZE)))
                     .andExpect(status().isNotFound());
         }
     }

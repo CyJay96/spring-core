@@ -2,7 +2,7 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
@@ -19,6 +19,7 @@ import ru.clevertec.ecl.service.searcher.GiftCertificateSearcher;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +38,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public PageResponse<GiftCertificateDtoResponse> findAll(Integer page, Integer pageSize) {
-        Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(PageRequest.of(page, pageSize));
+    public PageResponse<GiftCertificateDtoResponse> findAll(Pageable pageable) {
+        Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(pageable);
 
         List<GiftCertificateDtoResponse> giftCertificateDtoResponses = giftCertificatePage.stream()
                 .map(giftCertificateMapper::toGiftCertificateDtoResponse)
@@ -46,8 +47,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
         return PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(giftCertificateDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(giftCertificateDtoResponses.size())
                 .build();
     }
@@ -55,14 +56,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public PageResponse<GiftCertificateDtoResponse> findAllByCriteria(
             GiftCertificateCriteria searchCriteria,
-            Integer page,
-            Integer pageSize) {
-        if (searchCriteria == null) {
-            searchCriteria = GiftCertificateCriteria.builder().build();
-        }
+            Pageable pageable) {
+        searchCriteria = Objects.requireNonNullElse(searchCriteria, GiftCertificateCriteria.builder().build());
 
-        searchCriteria.setOffset(page);
-        searchCriteria.setLimit(pageSize);
+        searchCriteria.setOffset(pageable.getPageNumber());
+        searchCriteria.setLimit(pageable.getPageSize());
 
         Page<GiftCertificate> giftCertificatePage = giftCertificateSearcher.getGiftCertificatesByCriteria(searchCriteria);
 
@@ -72,8 +70,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
         return PageResponse.<GiftCertificateDtoResponse>builder()
                 .content(giftCertificateDtoResponses)
-                .number(searchCriteria.getLimit())
-                .size(searchCriteria.getOffset())
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(giftCertificateDtoResponses.size())
                 .build();
     }

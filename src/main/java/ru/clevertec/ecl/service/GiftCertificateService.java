@@ -1,5 +1,6 @@
 package ru.clevertec.ecl.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
@@ -9,13 +10,9 @@ public interface GiftCertificateService {
 
     GiftCertificateDtoResponse save(GiftCertificateDtoRequest giftCertificateDtoRequest);
 
-    PageResponse<GiftCertificateDtoResponse> findAll(Integer page, Integer pageSize);
+    PageResponse<GiftCertificateDtoResponse> findAll(Pageable pageable);
 
-    PageResponse<GiftCertificateDtoResponse> findAllByCriteria(
-            GiftCertificateCriteria searchCriteria,
-            Integer page,
-            Integer pageSize
-    );
+    PageResponse<GiftCertificateDtoResponse> findAllByCriteria(GiftCertificateCriteria searchCriteria, Pageable pageable);
 
     GiftCertificateDtoResponse findById(Long id);
 

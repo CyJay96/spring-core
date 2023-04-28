@@ -2,7 +2,7 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.UserMapper;
@@ -22,8 +22,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public PageResponse<UserDtoResponse> findAll(Integer page, Integer pageSize) {
-        Page<User> userPage = userRepository.findAll(PageRequest.of(page, pageSize));
+    public PageResponse<UserDtoResponse> findAll(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
 
         List<UserDtoResponse> userDtoResponses = userPage.stream()
                 .map(userMapper::toUserDtoResponse)
@@ -31,8 +31,8 @@ public class UserServiceImpl implements UserService {
 
         return PageResponse.<UserDtoResponse>builder()
                 .content(userDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(userDtoResponses.size())
                 .build();
     }

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,9 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
@@ -25,8 +24,6 @@ import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.GiftCertificateService;
-
-import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.GiftCertificateController.GIFT_CERTIFICATE_API_PATH;
 
@@ -42,7 +39,6 @@ import static ru.clevertec.ecl.controller.GiftCertificateController.GIFT_CERTIFI
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
-    private final PaginationProperties paginationProperties;
 
     public static final String GIFT_CERTIFICATE_API_PATH = "/v0/giftCertificates";
 
@@ -68,23 +64,15 @@ public class GiftCertificateController {
     /**
      * GET /api/v0/giftCertificates : Find Gift Certificates info
      *
-     * @param page page value to return (not required)
-     * @param pageSize page size to return (not required)
+     * @param pageable page number & page size values to return (not required)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAll(
-            @RequestParam(value = "page", required = false) @PositiveOrZero Integer page,
-            @RequestParam(value = "pageSize", required = false) @PositiveOrZero Integer pageSize) {
-        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
-        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
-
-        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService
-                .findAll(page, pageSize);
+    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAll(Pageable pageable) {
+        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.findAll(pageable);
 
         return ApiResponse.of(
-                "All Gift Certificates: " +
-                        "; page: " + page +
-                        "; page_size: " + pageSize,
+                "All Gift Certificates: page_number: " + pageable.getPageNumber() +
+                        "; page_size: " + pageable.getPageSize(),
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
                 giftCertificates
@@ -95,27 +83,22 @@ public class GiftCertificateController {
      * GET /api/v0/giftCertificates : Find Gift Certificates info by criteria
      *
      * @param searchCriteria Gift Certificate searchCriteria to return (not required)
-     * @param page page value to return (not required)
-     * @param pageSize page size to return (not required)
+     * @param pageable page number & page size values to return (not required)
      */
     @GetMapping("/criteria")
     public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAllByCriteria(
             @RequestBody(required = false) GiftCertificateCriteria searchCriteria,
-            @RequestParam(value = "page", required = false) @PositiveOrZero Integer page,
-            @RequestParam(value = "pageSize", required = false) @PositiveOrZero Integer pageSize) {
-        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
-        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
-
+            Pageable pageable) {
         PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService
-                .findAllByCriteria(searchCriteria, page, pageSize);
+                .findAllByCriteria(searchCriteria, pageable);
 
         return ApiResponse.of(
                 "Gift Certificates by criteria: tag_names: " + searchCriteria.getTagNames() +
                         "; description: " + searchCriteria.getDescription() +
                         "; sort_direction_name: " + searchCriteria.getSortDirectionName() +
                         "; sort_direction_date: " + searchCriteria.getSortDirectionDate() +
-                        "; page: " + page +
-                        "; page_size: " + pageSize,
+                        "; page_number: " + pageable.getPageNumber() +
+                        "; page_size: " + pageable.getPageSize(),
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
                 giftCertificates

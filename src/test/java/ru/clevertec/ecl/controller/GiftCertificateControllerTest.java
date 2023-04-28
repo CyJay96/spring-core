@@ -12,11 +12,12 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateCriteriaTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
-import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
@@ -31,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -50,9 +50,6 @@ class GiftCertificateControllerTest {
     @Mock
     private GiftCertificateService giftCertificateService;
 
-    @Mock
-    private PaginationProperties paginationProperties;
-
     @Captor
     ArgumentCaptor<GiftCertificateDtoRequest> giftCertificateDtoRequestCaptor;
 
@@ -65,10 +62,11 @@ class GiftCertificateControllerTest {
     private final GiftCertificateCriteria searchCriteria = GiftCertificateCriteriaTestBuilder
             .aGiftCertificateCriteria()
             .build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
-        giftCertificateController = new GiftCertificateController(giftCertificateService, paginationProperties);
+        giftCertificateController = new GiftCertificateController(giftCertificateService);
     }
 
     @Nested
@@ -114,11 +112,11 @@ class GiftCertificateControllerTest {
                 .numberOfElements(1)
                 .build();
 
-        doReturn(pageResponse).when(giftCertificateService).findAll(PAGE, PAGE_SIZE);
+        doReturn(pageResponse).when(giftCertificateService).findAll(pageable);
 
-        var actualGiftCertificates = giftCertificateController.findAll(PAGE, PAGE_SIZE);
+        var actualGiftCertificates = giftCertificateController.findAll(pageable);
 
-        verify(giftCertificateService).findAll(anyInt(), anyInt());
+        verify(giftCertificateService).findAll(any());
 
         assertAll(
                 () -> assertThat(actualGiftCertificates.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -139,12 +137,11 @@ class GiftCertificateControllerTest {
                 .numberOfElements(1)
                 .build();
 
-        doReturn(pageResponse).when(giftCertificateService)
-                .findAllByCriteria(searchCriteria, searchCriteria.getOffset(), searchCriteria.getLimit());
+        doReturn(pageResponse).when(giftCertificateService).findAllByCriteria(searchCriteria, pageable);
 
-        var actualGiftCertificates = giftCertificateController.findAllByCriteria(searchCriteria, PAGE, PAGE_SIZE);
+        var actualGiftCertificates = giftCertificateController.findAllByCriteria(searchCriteria, pageable);
 
-        verify(giftCertificateService).findAllByCriteria(any(), anyInt(), anyInt());
+        verify(giftCertificateService).findAllByCriteria(any(), any());
 
         assertAll(
                 () -> assertThat(actualGiftCertificates.getStatusCode()).isEqualTo(HttpStatus.OK),

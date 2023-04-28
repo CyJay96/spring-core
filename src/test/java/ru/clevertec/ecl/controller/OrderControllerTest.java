@@ -10,9 +10,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.order.OrderDtoResponseTestBuilder;
-import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
@@ -26,7 +27,7 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -44,14 +45,12 @@ class OrderControllerTest {
     @Mock
     private OrderService orderService;
 
-    @Mock
-    private PaginationProperties paginationProperties;
-
     private final OrderDtoResponse expectedOrderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
-        orderController = new OrderController(orderService, paginationProperties);
+        orderController = new OrderController(orderService);
     }
 
     @Nested
@@ -110,11 +109,11 @@ class OrderControllerTest {
                 .numberOfElements(1)
                 .build();
 
-        doReturn(pageResponse).when(orderService).findAll(PAGE, PAGE_SIZE);
+        doReturn(pageResponse).when(orderService).findAll(pageable);
 
-        var actualOrders = orderController.findAll(PAGE, PAGE_SIZE);
+        var actualOrders = orderController.findAll(pageable);
 
-        verify(orderService).findAll(anyInt(), anyInt());
+        verify(orderService).findAll(any());
 
         assertAll(
                 () -> assertThat(actualOrders.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -136,11 +135,11 @@ class OrderControllerTest {
                     .numberOfElements(1)
                     .build();
 
-            doReturn(pageResponse). when(orderService).findAllByUserId(TEST_ID, PAGE, PAGE_SIZE);
+            doReturn(pageResponse). when(orderService).findAllByUserId(TEST_ID, pageable);
 
-            var actualOrders = orderController.findAllByUserId(TEST_ID, PAGE, PAGE_SIZE);
+            var actualOrders = orderController.findAllByUserId(TEST_ID, pageable);
 
-            verify(orderService).findAllByUserId(anyLong(), anyInt(), anyInt());
+            verify(orderService).findAllByUserId(anyLong(), any());
 
             assertAll(
                     () -> assertThat(actualOrders.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -153,13 +152,13 @@ class OrderControllerTest {
         @Test
         @DisplayName("Find all Orders by User ID; User not found")
         void checkFindAllByUserIdShouldThrowUserNotFoundException() {
-            doThrow(EntityNotFoundException.class).when(orderService).findAllByUserId(anyLong(), anyInt(), anyInt());
+            doThrow(EntityNotFoundException.class).when(orderService).findAllByUserId(anyLong(), any());
 
             assertThrows(EntityNotFoundException.class,
-                    () -> orderController.findAllByUserId(TEST_ID, PAGE, PAGE_SIZE)
+                    () -> orderController.findAllByUserId(TEST_ID, pageable)
             );
 
-            verify(orderService).findAllByUserId(anyLong(), anyInt(), anyInt());
+            verify(orderService).findAllByUserId(anyLong(), any());
         }
     }
 

@@ -19,8 +19,3 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     enabled: true
-
-app:
-  pagination:
-    defaultPageValue: 0
-    defaultPageSize: 18

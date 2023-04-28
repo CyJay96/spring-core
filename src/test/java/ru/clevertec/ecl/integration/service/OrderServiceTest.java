@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
 import ru.clevertec.ecl.integration.BaseIntegrationTest;
@@ -34,6 +35,8 @@ class OrderServiceTest extends BaseIntegrationTest {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final GiftCertificateRepository giftCertificateRepository;
+
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @Nested
     public class CreateOrderTest {
@@ -79,7 +82,7 @@ class OrderServiceTest extends BaseIntegrationTest {
     @DisplayName("Find all Orders")
     void checkFindAllShouldReturnOrderDtoResponseList() {
         int expectedOrdersSize = (int) orderRepository.count();
-        PageResponse<OrderDtoResponse> actualOrders = orderService.findAll(PAGE, PAGE_SIZE);
+        PageResponse<OrderDtoResponse> actualOrders = orderService.findAll(pageable);
         assertThat(actualOrders.getContent()).hasSize(expectedOrdersSize);
     }
 
@@ -91,7 +94,7 @@ class OrderServiceTest extends BaseIntegrationTest {
             Long existsUserId = userRepository.findFirstByOrderByIdAsc().get().getId();
             int expectedOrdersSize = orderRepository
                     .findAllByUserId(existsUserId, PageRequest.of(PAGE, PAGE_SIZE)).getNumberOfElements();
-            PageResponse<OrderDtoResponse> actualOrders = orderService.findAllByUserId(existsUserId, PAGE, PAGE_SIZE);
+            PageResponse<OrderDtoResponse> actualOrders = orderService.findAllByUserId(existsUserId, pageable);
             assertAll(
                     () -> assertThat(actualOrders.getContent()).hasSize(expectedOrdersSize),
                     () -> assertThat(actualOrders.getContent().stream()
@@ -107,7 +110,7 @@ class OrderServiceTest extends BaseIntegrationTest {
             Long doesntExistUserId = new Random()
                     .nextLong(userRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             assertThrows(EntityNotFoundException.class,
-                    () -> orderService.findAllByUserId(doesntExistUserId, PAGE, PAGE_SIZE)
+                    () -> orderService.findAllByUserId(doesntExistUserId, pageable)
             );
         }
     }

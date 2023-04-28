@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.user.UserDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.user.UserTestBuilder;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
@@ -28,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +50,7 @@ class UserServiceTest {
 
     private final User user = UserTestBuilder.aUser().build();
     private final UserDtoResponse expectedUserDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
@@ -57,12 +60,12 @@ class UserServiceTest {
     @Test
     @DisplayName("Find all Users")
     void checkFindAllShouldReturnUserDtoResponseList() {
-        when(userRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(user)));
+        when(userRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(user)));
         when(userMapper.toUserDtoResponse(user)).thenReturn(expectedUserDtoResponse);
 
-        PageResponse<UserDtoResponse> actualUsers = userService.findAll(PAGE, PAGE_SIZE);
+        PageResponse<UserDtoResponse> actualUsers = userService.findAll(pageable);
 
-        verify(userRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        verify(userRepository).findAll(eq(pageable));
         verify(userMapper).toUserDtoResponse(any());
 
         assertThat(actualUsers.getContent().stream()

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -11,16 +12,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.OrderService;
-
-import java.util.Optional;
 
 import static ru.clevertec.ecl.controller.OrderController.ORDER_API_PATH;
 
@@ -36,7 +33,6 @@ import static ru.clevertec.ecl.controller.OrderController.ORDER_API_PATH;
 public class OrderController {
 
     private final OrderService orderService;
-    private final PaginationProperties paginationProperties;
 
     public static final String ORDER_API_PATH = "/v0/orders";
 
@@ -66,22 +62,15 @@ public class OrderController {
     /**
      * GET /api/v0/orders : Find Orders info
      *
-     * @param page page value to return (not required)
-     * @param pageSize page size to return (not required)
+     * @param pageable page number & page size values to return (not required)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAll(
-            @RequestParam(value = "page", required = false) @PositiveOrZero Integer page,
-            @RequestParam(value = "pageSize", required = false) @PositiveOrZero Integer pageSize) {
-        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
-        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
-
-        PageResponse<OrderDtoResponse> orders = orderService.findAll(page, pageSize);
+    public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAll(Pageable pageable) {
+        PageResponse<OrderDtoResponse> orders = orderService.findAll(pageable);
 
         return ApiResponse.of(
-                "All Orders: " +
-                        "; page: " + page +
-                        "; page_size: " + pageSize,
+                "All Orders: page_number: " + pageable.getPageNumber() +
+                        "; page_size: " + pageable.getPageSize(),
                 ORDER_API_PATH,
                 HttpStatus.OK,
                 orders
@@ -92,23 +81,18 @@ public class OrderController {
      * GET /api/v0/orders/{userId} : Find Orders info by User ID
      *
      * @param userId User ID to return Order (required)
-     * @param page page value to return (not required)
-     * @param pageSize page size to return (not required)
+     * @param pageable page number & page size values to return (not required)
      */
     @GetMapping("/byUserId/{userId}")
     public ResponseEntity<ApiResponse<PageResponse<OrderDtoResponse>>> findAllByUserId(
             @PathVariable @Valid @NotNull Long userId,
-            @RequestParam(value = "page", required = false) @PositiveOrZero Integer page,
-            @RequestParam(value = "pageSize", required = false) @PositiveOrZero Integer pageSize) {
-        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
-        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
-
-        PageResponse<OrderDtoResponse> orders = orderService.findAllByUserId(userId, page, pageSize);
+            Pageable pageable) {
+        PageResponse<OrderDtoResponse> orders = orderService.findAllByUserId(userId, pageable);
 
         return ApiResponse.of(
                 "All Orders by User ID: " + userId +
-                        "; page: " + page +
-                        "; page_size: " + pageSize,
+                        "; page_number: " + pageable.getPageNumber() +
+                        "; page_size: " + pageable.getPageSize(),
                 ORDER_API_PATH,
                 HttpStatus.OK,
                 orders

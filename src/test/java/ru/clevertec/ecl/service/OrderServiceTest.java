@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateTestBuilder;
 import ru.clevertec.ecl.builder.order.OrderDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.order.OrderTestBuilder;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -65,6 +67,7 @@ class OrderServiceTest {
     private final GiftCertificate giftCertificate = GiftCertificateTestBuilder.aGiftCertificate().build();
     private final Order order = OrderTestBuilder.aOrder().build();
     private final OrderDtoResponse expectedOrderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
@@ -121,13 +124,13 @@ class OrderServiceTest {
     @Test
     @DisplayName("Find all Orders")
     void checkFindAllShouldReturnOrderDtoResponseList() {
-        doReturn(new PageImpl<>(List.of(order))).when(orderRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        doReturn(new PageImpl<>(List.of(order))).when(orderRepository).findAll(pageable);
         doReturn(expectedOrderDtoResponse).when(orderMapper).toOrderDtoResponse(order);
 
-        PageResponse<OrderDtoResponse> actualOrders = orderService.findAll(PAGE, PAGE_SIZE);
+        PageResponse<OrderDtoResponse> actualOrders = orderService.findAll(pageable);
 
-        verify(orderRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
-        verify(orderMapper).toOrderDtoResponse(order);
+        verify(orderRepository).findAll(eq(pageable));
+        verify(orderMapper).toOrderDtoResponse(any());
 
         assertThat(Objects.requireNonNull(actualOrders).getContent().stream()
                 .anyMatch(actualOrderDtoResponse -> actualOrderDtoResponse.equals(expectedOrderDtoResponse))
@@ -141,13 +144,13 @@ class OrderServiceTest {
         void checkFindAllByUserIdShouldReturnOrderDtoResponseList() {
             doReturn(true).when(userRepository).existsById(TEST_ID);
             doReturn(new PageImpl<>(List.of(order)))
-                    .when(orderRepository).findAllByUserId(TEST_ID, PageRequest.of(PAGE, PAGE_SIZE));
+                    .when(orderRepository).findAllByUserId(TEST_ID, pageable);
             doReturn(expectedOrderDtoResponse).when(orderMapper).toOrderDtoResponse(order);
 
-            PageResponse<OrderDtoResponse> actualOrders = orderService.findAllByUserId(TEST_ID, PAGE, PAGE_SIZE);
+            PageResponse<OrderDtoResponse> actualOrders = orderService.findAllByUserId(TEST_ID, pageable);
 
             verify(userRepository).existsById(anyLong());
-            verify(orderRepository).findAllByUserId(TEST_ID, PageRequest.of(PAGE, PAGE_SIZE));
+            verify(orderRepository).findAllByUserId(eq(TEST_ID), eq(pageable));
             verify(orderMapper).toOrderDtoResponse(any());
 
             assertThat(Objects.requireNonNull(actualOrders).getContent().stream()
@@ -160,7 +163,7 @@ class OrderServiceTest {
         void checkFindAllByUserIdShouldThrowUserNotFoundException() {
             doReturn(false).when(userRepository).existsById(anyLong());
 
-            assertThrows(EntityNotFoundException.class, () -> orderService.findAllByUserId(TEST_ID, PAGE, PAGE_SIZE));
+            assertThrows(EntityNotFoundException.class, () -> orderService.findAllByUserId(TEST_ID, pageable));
 
             verify(userRepository).existsById(anyLong());
         }

@@ -21,7 +21,7 @@ public interface TagMapper {
 
     @Mapping(
             target = "giftCertificatesIds",
-            expression = "java(tag.getGiftCertificates() != null ? " +
+            expression = "java(java.util.Objects.nonNull(tag.getGiftCertificates()) ? " +
                     "tag.getGiftCertificates().stream().map(giftCertificate -> giftCertificate.getId()).toList() : " +
                     "new ArrayList<>())"
     )

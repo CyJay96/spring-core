@@ -67,7 +67,7 @@ class GiftCertificateControllerTest extends BaseIntegrationTest {
         mockMvc.perform(get(GIFT_CERTIFICATE_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", String.valueOf(PAGE))
-                        .param("pageSize", String.valueOf(PAGE_SIZE)))
+                        .param("size", String.valueOf(PAGE_SIZE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isNotEmpty())
                 .andExpect(jsonPath("$.data.content.size()").value(expectedGiftCertificatesSize));
@@ -81,7 +81,7 @@ class GiftCertificateControllerTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(searchCriteria))
                         .param("page", String.valueOf(PAGE))
-                        .param("pageSize", String.valueOf(PAGE_SIZE)))
+                        .param("size", String.valueOf(PAGE_SIZE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isNotEmpty())
                 .andExpect(jsonPath("$.data.content.size()").value(expectedGiftCertificatesSize));

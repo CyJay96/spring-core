@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateTestBuilder;
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -77,6 +79,7 @@ class GiftCertificateServiceTest {
     private final GiftCertificateCriteria searchCriteria = GiftCertificateCriteria.builder().build();
     private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
     private final Tag tag = TagTestBuilder.aTag().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
@@ -125,13 +128,13 @@ class GiftCertificateServiceTest {
     @DisplayName("Find all Gift Certificates")
     void checkFindAllShouldReturnGiftCertificateDtoResponsePage() {
         doReturn(new PageImpl<>(List.of(expectedGiftCertificate)))
-                .when(giftCertificateRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+                .when(giftCertificateRepository).findAll(pageable);
         doReturn(expectedGiftCertificateDtoResponse)
                 .when(giftCertificateMapper).toGiftCertificateDtoResponse(expectedGiftCertificate);
 
-        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService.findAll(PAGE, PAGE_SIZE);
+        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService.findAll(pageable);
 
-        verify(giftCertificateRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
+        verify(giftCertificateRepository).findAll(eq(pageable));
         verify(giftCertificateMapper).toGiftCertificateDtoResponse(any());
 
         assertThat(actualGiftCertificates.getContent().stream()
@@ -149,7 +152,7 @@ class GiftCertificateServiceTest {
                 when(giftCertificateMapper).toGiftCertificateDtoResponse(expectedGiftCertificate);
 
         PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService
-                .findAllByCriteria(searchCriteria, searchCriteria.getOffset(), searchCriteria.getLimit());
+                .findAllByCriteria(searchCriteria, pageable);
 
         verify(giftCertificateSearcher).getGiftCertificatesByCriteria(any());
         verify(giftCertificateMapper).toGiftCertificateDtoResponse(any());

@@ -37,7 +37,7 @@ public interface GiftCertificateMapper {
     @Mapping(target = "lastUpdateDate", expression = "java(java.time.OffsetDateTime.now())")
     @Mapping(
             target = "duration",
-            expression = "java(giftCertificateDtoRequest.getDuration() != null ? " +
+            expression = "java(java.util.Objects.nonNull(giftCertificateDtoRequest.getDuration()) ? " +
                     "java.time.Duration.ofDays(giftCertificateDtoRequest.getDuration()) : " +
                     "giftCertificate.getDuration())")
     void updateGiftCertificate(

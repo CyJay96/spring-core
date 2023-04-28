@@ -2,7 +2,7 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
@@ -50,8 +50,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PageResponse<OrderDtoResponse> findAll(Integer page, Integer pageSize) {
-        Page<Order> orderPage = orderRepository.findAll(PageRequest.of(page, pageSize));
+    public PageResponse<OrderDtoResponse> findAll(Pageable pageable) {
+        Page<Order> orderPage = orderRepository.findAll(pageable);
 
         List<OrderDtoResponse> orderDtoResponses = orderPage.stream()
                 .map(orderMapper::toOrderDtoResponse)
@@ -59,19 +59,19 @@ public class OrderServiceImpl implements OrderService {
 
         return PageResponse.<OrderDtoResponse>builder()
                 .content(orderDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(orderDtoResponses.size())
                 .build();
     }
 
     @Override
-    public PageResponse<OrderDtoResponse> findAllByUserId(Long userId, Integer page, Integer pageSize) {
+    public PageResponse<OrderDtoResponse> findAllByUserId(Long userId, Pageable pageable) {
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException(User.class, userId);
         }
 
-        Page<Order> orderPage = orderRepository.findAllByUserId(userId, PageRequest.of(page, pageSize));
+        Page<Order> orderPage = orderRepository.findAllByUserId(userId, pageable);
 
         List<OrderDtoResponse> orderDtoResponses = orderPage.stream()
                 .map(orderMapper::toOrderDtoResponse)
@@ -79,8 +79,8 @@ public class OrderServiceImpl implements OrderService {
 
         return PageResponse.<OrderDtoResponse>builder()
                 .content(orderDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(orderDtoResponses.size())
                 .build();
     }

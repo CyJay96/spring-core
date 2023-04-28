@@ -12,10 +12,11 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.tag.TagDtoResponseTestBuilder;
-import ru.clevertec.ecl.config.PaginationProperties;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -29,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -48,18 +48,16 @@ class TagControllerTest {
     @Mock
     private TagService tagService;
 
-    @Mock
-    private PaginationProperties paginationProperties;
-
     @Captor
     ArgumentCaptor<TagDtoRequest> tagDtoRequestCaptor;
 
     private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
     private final TagDtoResponse expectedTagDtoResponse = TagDtoResponseTestBuilder.aTagDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
-        tagController = new TagController(tagService, paginationProperties);
+        tagController = new TagController(tagService);
     }
 
     @Nested
@@ -102,11 +100,11 @@ class TagControllerTest {
                 .numberOfElements(1)
                 .build();
 
-        doReturn(pageResponse).when(tagService).findAll(PAGE, PAGE_SIZE);
+        doReturn(pageResponse).when(tagService).findAll(pageable);
 
-        var actualTags = tagController.findAll(PAGE, PAGE_SIZE);
+        var actualTags = tagController.findAll(pageable);
 
-        verify(tagService).findAll(anyInt(), anyInt());
+        verify(tagService).findAll(any());
 
         assertAll(
                 () -> assertThat(actualTags.getStatusCode()).isEqualTo(HttpStatus.OK),

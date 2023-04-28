@@ -2,7 +2,7 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
@@ -29,8 +29,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public PageResponse<TagDtoResponse> findAll(Integer page, Integer pageSize) {
-        Page<Tag> tagPage = tagRepository.findAll(PageRequest.of(page, pageSize));
+    public PageResponse<TagDtoResponse> findAll(Pageable pageable) {
+        Page<Tag> tagPage = tagRepository.findAll(pageable);
 
         List<TagDtoResponse> tagDtoResponses = tagPage.stream()
                 .map(tagMapper::toTagDtoResponse)
@@ -38,8 +38,8 @@ public class TagServiceImpl implements TagService {
 
         return PageResponse.<TagDtoResponse>builder()
                 .content(tagDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(tagDtoResponses.size())
                 .build();
     }
