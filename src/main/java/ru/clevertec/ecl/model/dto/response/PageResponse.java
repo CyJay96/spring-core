@@ -2,23 +2,23 @@ package ru.clevertec.ecl.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Value;
 
 import java.util.List;
 
-@Getter
+@Value
 @Builder
 public class PageResponse<T> {
 
     @JsonProperty("number")
-    private Integer number;
+    Integer number;
 
     @JsonProperty("size")
-    private Integer size;
+    Integer size;
 
     @JsonProperty("numberOfElements")
-    private Integer numberOfElements;
+    Integer numberOfElements;
 
     @JsonProperty("content")
-    private List<T> content;
+    List<T> content;
 }

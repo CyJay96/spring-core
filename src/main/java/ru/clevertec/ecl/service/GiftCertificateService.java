@@ -1,5 +1,6 @@
 package ru.clevertec.ecl.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
@@ -7,21 +8,21 @@ import ru.clevertec.ecl.model.dto.response.PageResponse;
 
 public interface GiftCertificateService {
 
-    GiftCertificateDtoResponse createGiftCertificate(GiftCertificateDtoRequest giftCertificateDtoRequest);
+    GiftCertificateDtoResponse save(GiftCertificateDtoRequest giftCertificateDtoRequest);
 
-    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificates(Integer page, Integer pageSize);
+    PageResponse<GiftCertificateDtoResponse> findAll(Pageable pageable);
 
-    PageResponse<GiftCertificateDtoResponse> getAllGiftCertificatesByCriteria(GiftCertificateCriteria searchCriteria);
+    PageResponse<GiftCertificateDtoResponse> findAllByCriteria(GiftCertificateCriteria searchCriteria, Pageable pageable);
 
-    GiftCertificateDtoResponse getGiftCertificateById(Long id);
+    GiftCertificateDtoResponse findById(Long id);
 
-    GiftCertificateDtoResponse updateGiftCertificateById(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
+    GiftCertificateDtoResponse update(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
 
-    GiftCertificateDtoResponse updateGiftCertificateByIdPartially(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
+    GiftCertificateDtoResponse updatePartially(Long id, GiftCertificateDtoRequest giftCertificateDtoRequest);
 
     GiftCertificateDtoResponse addTagToGiftCertificate(Long giftCertificateId, Long tagId);
 
     GiftCertificateDtoResponse deleteTagFromGiftCertificate(Long giftCertificateId, Long tagId);
 
-    void deleteGiftCertificateById(Long id);
+    void deleteById(Long id);
 }

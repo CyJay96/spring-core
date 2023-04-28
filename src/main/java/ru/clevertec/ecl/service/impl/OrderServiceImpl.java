@@ -2,12 +2,10 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
-import ru.clevertec.ecl.exception.OrderNotFoundException;
-import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.mapper.OrderMapper;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -32,12 +30,12 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
 
     @Override
-    public OrderDtoResponse createOrderByUserIdAndGiftCertificateId(Long userId, Long giftCertificateId) {
+    public OrderDtoResponse saveByUserIdAndGiftCertificateId(Long userId, Long giftCertificateId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
 
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateId)
-                .orElseThrow(() -> new GiftCertificateNotFoundException(giftCertificateId));
+                .orElseThrow(() -> new EntityNotFoundException(GiftCertificate.class, giftCertificateId));
 
         Order order = Order.builder()
                 .user(user)
@@ -48,62 +46,62 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         Order savedOrder = orderRepository.save(order);
-        return orderMapper.toDto(savedOrder);
+        return orderMapper.toOrderDtoResponse(savedOrder);
     }
 
     @Override
-    public PageResponse<OrderDtoResponse> getAllOrders(Integer page, Integer pageSize) {
-        Page<Order> orderPage = orderRepository.findAll(PageRequest.of(page, pageSize));
+    public PageResponse<OrderDtoResponse> findAll(Pageable pageable) {
+        Page<Order> orderPage = orderRepository.findAll(pageable);
 
         List<OrderDtoResponse> orderDtoResponses = orderPage.stream()
-                .map(orderMapper::toDto)
+                .map(orderMapper::toOrderDtoResponse)
                 .toList();
 
         return PageResponse.<OrderDtoResponse>builder()
                 .content(orderDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(orderDtoResponses.size())
                 .build();
     }
 
     @Override
-    public PageResponse<OrderDtoResponse> getAllOrdersByUserId(Long userId, Integer page, Integer pageSize) {
+    public PageResponse<OrderDtoResponse> findAllByUserId(Long userId, Pageable pageable) {
         if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException(userId);
+            throw new EntityNotFoundException(User.class, userId);
         }
 
-        Page<Order> orderPage = orderRepository.findAllByUserId(userId, PageRequest.of(page, pageSize));
+        Page<Order> orderPage = orderRepository.findAllByUserId(userId, pageable);
 
         List<OrderDtoResponse> orderDtoResponses = orderPage.stream()
-                .map(orderMapper::toDto)
+                .map(orderMapper::toOrderDtoResponse)
                 .toList();
 
         return PageResponse.<OrderDtoResponse>builder()
                 .content(orderDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(orderDtoResponses.size())
                 .build();
     }
 
     @Override
-    public OrderDtoResponse getOrderById(Long id) {
+    public OrderDtoResponse findById(Long id) {
         return orderRepository.findById(id)
-                .map(orderMapper::toDto)
-                .orElseThrow(() -> new OrderNotFoundException(id));
+                .map(orderMapper::toOrderDtoResponse)
+                .orElseThrow(() -> new EntityNotFoundException(Order.class, id));
     }
 
     @Override
-    public OrderDtoResponse getOrderByIdAndUserId(Long orderId, Long userId) {
+    public OrderDtoResponse findByIdAndUserId(Long orderId, Long userId) {
         if (!orderRepository.existsById(orderId)) {
-            throw new OrderNotFoundException(orderId);
+            throw new EntityNotFoundException(Order.class, orderId);
         }
         if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException(userId);
+            throw new EntityNotFoundException(User.class, userId);
         }
         return orderRepository.findByIdAndUserId(orderId, userId)
-                .map(orderMapper::toDto)
+                .map(orderMapper::toOrderDtoResponse)
                 .orElseThrow(() -> new OrderByUserNotFoundException(orderId, userId));
     }
 }

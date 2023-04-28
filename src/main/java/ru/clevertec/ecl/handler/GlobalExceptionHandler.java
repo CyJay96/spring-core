@@ -1,21 +1,20 @@
 package ru.clevertec.ecl.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
-import ru.clevertec.ecl.exception.OrderNotFoundException;
-import ru.clevertec.ecl.exception.TagNotFoundException;
-import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
 
 import java.util.Optional;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -30,39 +29,19 @@ public class GlobalExceptionHandler {
                 .reduce((a, b) -> a + "; " + b)
                 .orElse("Undefined error message");
 
-        return generateErrorResponse(exception, HttpStatus.BAD_REQUEST, request, errorMessage, ApiResponse.Color.DANGER);
+        log.warn(exception.getMessage(), exception);
+
+        return generateErrorResponse(exception, HttpStatus.BAD_REQUEST, request, errorMessage);
     }
 
-    @ExceptionHandler(GiftCertificateNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleGiftCertificateNotFoundException(
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEntityNotFoundException(
             RuntimeException exception,
             HttpServletRequest request
     ) {
-        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request, ApiResponse.Color.WARNING);
-    }
+        log.warn(exception.getMessage(), exception);
 
-    @ExceptionHandler(TagNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleTagNotFoundException(
-            RuntimeException exception,
-            HttpServletRequest request
-    ) {
-        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request, ApiResponse.Color.WARNING);
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(
-            RuntimeException exception,
-            HttpServletRequest request
-    ) {
-        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request, ApiResponse.Color.WARNING);
-    }
-
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleOrderNotFoundException(
-            RuntimeException exception,
-            HttpServletRequest request
-    ) {
-        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request, ApiResponse.Color.WARNING);
+        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(OrderByUserNotFoundException.class)
@@ -70,7 +49,8 @@ public class GlobalExceptionHandler {
             RuntimeException exception,
             HttpServletRequest request
     ) {
-        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request, ApiResponse.Color.WARNING);
+        log.warn(exception.getMessage(), exception);
+        return generateErrorResponse(exception, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(Exception.class)
@@ -78,20 +58,19 @@ public class GlobalExceptionHandler {
             Exception exception,
             HttpServletRequest request
     ) {
-        return generateErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, request, ApiResponse.Color.DANGER);
+        log.error(exception.getMessage(), exception);
+        return generateErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     private ResponseEntity<ApiResponse<Void>> generateErrorResponse(
             Exception exception,
             HttpStatus httpStatus,
-            HttpServletRequest request,
-            ApiResponse.Color errorColor
+            HttpServletRequest request
     ) {
         final ApiResponse<Void> errorResponse = ApiResponse.<Void>builder()
                 .status(httpStatus.value())
                 .message(exception.getMessage())
                 .path(request.getServletPath())
-                .color(errorColor.getValue())
                 .data(null)
                 .build();
 
@@ -102,14 +81,12 @@ public class GlobalExceptionHandler {
             Exception exception,
             HttpStatus httpStatus,
             HttpServletRequest request,
-            String customMessage,
-            ApiResponse.Color errorColor
+            String customMessage
     ) {
         final ApiResponse<Void> errorResponse = ApiResponse.<Void>builder()
                 .status(httpStatus.value())
                 .message(Optional.ofNullable(customMessage).orElse(exception.getMessage()))
                 .path(request.getServletPath())
-                .color(errorColor.getValue())
                 .data(null)
                 .build();
 

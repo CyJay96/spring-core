@@ -9,7 +9,7 @@ import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.clevertec.ecl.util.TestConstants.TEST_BIG_DECIMAL;
@@ -37,19 +37,19 @@ public class GiftCertificateDtoResponseTestBuilder implements TestBuilder<GiftCe
 
     private OffsetDateTime lastUpdateDate = TEST_DATE;
 
-    private List<TagDtoResponse> tags =  Collections.emptyList();
+    private List<TagDtoResponse> tags = new ArrayList<>();
 
     @Override
     public GiftCertificateDtoResponse build() {
-        GiftCertificateDtoResponse giftCertificateDtoResponse = new GiftCertificateDtoResponse();
-        giftCertificateDtoResponse.setId(id);
-        giftCertificateDtoResponse.setName(name);
-        giftCertificateDtoResponse.setDescription(description);
-        giftCertificateDtoResponse.setPrice(price);
-        giftCertificateDtoResponse.setDuration(duration);
-        giftCertificateDtoResponse.setCreateDate(createDate);
-        giftCertificateDtoResponse.setLastUpdateDate(lastUpdateDate);
-        giftCertificateDtoResponse.setTags(tags);
-        return giftCertificateDtoResponse;
+        return GiftCertificateDtoResponse.builder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .price(price)
+                .duration(duration)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .tags(tags)
+                .build();
     }
 }

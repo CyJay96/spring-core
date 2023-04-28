@@ -13,6 +13,5 @@ public class TestConstants {
     public static final String TEST_STRING = "test_string";
     public static final String TEST_EMAIL = "test@example.com";
     public static final BigDecimal TEST_BIG_DECIMAL = BigDecimal.ONE;
-    public static final boolean TEST_BOOLEAN = true;
     public static final OffsetDateTime TEST_DATE = OffsetDateTime.now();
 }

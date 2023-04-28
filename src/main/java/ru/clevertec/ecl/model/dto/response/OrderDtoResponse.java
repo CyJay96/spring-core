@@ -1,35 +1,31 @@
 package ru.clevertec.ecl.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
-@Data
+@Value
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class OrderDtoResponse {
 
     @JsonProperty("id")
-    private Long id;
+    Long id;
 
     @JsonProperty("userId")
-    private Long userId;
+    Long userId;
 
     @JsonProperty("giftCertificateId")
-    private Long giftCertificateId;
+    Long giftCertificateId;
 
     @JsonProperty("finalPrice")
-    private BigDecimal finalPrice;
+    BigDecimal finalPrice;
 
     @JsonProperty("createDate")
-    private OffsetDateTime createDate;
+    OffsetDateTime createDate;
 
     @JsonProperty("lastUpdateDate")
-    private OffsetDateTime lastUpdateDate;
+    OffsetDateTime lastUpdateDate;
 }

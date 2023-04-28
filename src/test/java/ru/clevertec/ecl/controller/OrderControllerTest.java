@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.order.OrderDtoResponseTestBuilder;
-import ru.clevertec.ecl.config.PaginationProperties;
-import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.exception.OrderByUserNotFoundException;
-import ru.clevertec.ecl.exception.OrderNotFoundException;
-import ru.clevertec.ecl.exception.UserNotFoundException;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.OrderService;
@@ -27,11 +27,11 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static ru.clevertec.ecl.util.TestConstants.PAGE;
 import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
@@ -39,194 +39,205 @@ import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 @ExtendWith(MockitoExtension.class)
 class OrderControllerTest {
 
+    @InjectMocks
     private OrderController orderController;
 
     @Mock
     private OrderService orderService;
 
-    @Mock
-    private PaginationProperties paginationProperties;
-
-    private final OrderDtoResponse orderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+    private final OrderDtoResponse expectedOrderDtoResponse = OrderDtoResponseTestBuilder.aOrderDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
-        orderController = new OrderController(orderService, paginationProperties);
+        orderController = new OrderController(orderService);
     }
 
     @Nested
-    public class CreateOrderTest {
+    public class SaveTest {
         @Test
-        @DisplayName("Create Order")
-        void checkCreateOrderByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
-            when(orderService.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID)).thenReturn(orderDtoResponse);
+        @DisplayName("Save Order")
+        void checkSaveByUserIdAndGiftCertificateIdShouldReturnOrderDtoResponse() {
+            doReturn(expectedOrderDtoResponse).when(orderService).saveByUserIdAndGiftCertificateId(TEST_ID, TEST_ID);
 
-            var orderDto = orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID);
+            var actualOrder = orderController
+                    .saveByUserIdAndGiftCertificateId(TEST_ID, TEST_ID);
 
-            verify(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+            verify(orderService).saveByUserIdAndGiftCertificateId(anyLong(), anyLong());
 
             assertAll(
-                    () -> assertThat(orderDto.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-                    () -> assertThat(Objects.requireNonNull(orderDto.getBody()).getData()).isEqualTo(orderDtoResponse)
+                    () -> assertThat(actualOrder.getStatusCode()).isEqualTo(HttpStatus.CREATED),
+                    () -> assertThat(Objects.requireNonNull(actualOrder.getBody()).getData())
+                            .isEqualTo(expectedOrderDtoResponse)
             );
         }
 
         @Test
-        @DisplayName("Create Order; User not found")
-        void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowUserNotFoundException() {
-            doThrow(UserNotFoundException.class).when(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+        @DisplayName("Save Order; User not found")
+        void checkSaveByUserIdAndGiftCertificateIdShouldThrowUserNotFoundException() {
+            doThrow(EntityNotFoundException.class)
+                    .when(orderService).saveByUserIdAndGiftCertificateId(anyLong(), anyLong());
 
-            assertThrows(UserNotFoundException.class, () -> orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID));
+            assertThrows(EntityNotFoundException.class,
+                    () -> orderController.saveByUserIdAndGiftCertificateId(TEST_ID, TEST_ID)
+            );
 
-            verify(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+            verify(orderService).saveByUserIdAndGiftCertificateId(anyLong(), anyLong());
         }
 
         @Test
-        @DisplayName("Create Order; Gift Certificate not found")
-        void checkCreateOrderByUserIdAndGiftCertificateIdShouldThrowOrderNotFoundException() {
-            doThrow(GiftCertificateNotFoundException.class).when(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+        @DisplayName("Save Order; Gift Certificate not found")
+        void checkSaveByUserIdAndGiftCertificateIdShouldThrowOrderNotFoundException() {
+            doThrow(EntityNotFoundException.class)
+                    .when(orderService).saveByUserIdAndGiftCertificateId(anyLong(), anyLong());
 
-            assertThrows(GiftCertificateNotFoundException.class, () -> orderController.createOrderByUserIdAndGiftCertificateId(TEST_ID, TEST_ID));
+            assertThrows(EntityNotFoundException.class,
+                    () -> orderController.saveByUserIdAndGiftCertificateId(TEST_ID, TEST_ID)
+            );
 
-            verify(orderService).createOrderByUserIdAndGiftCertificateId(anyLong(), anyLong());
+            verify(orderService).saveByUserIdAndGiftCertificateId(anyLong(), anyLong());
         }
     }
 
     @Test
     @DisplayName("Find all Orders")
-    void checkFindAllOrdersShouldReturnOrderDtoResponseList() {
+    void checkFindAllShouldReturnOrderDtoResponseList() {
         PageResponse<OrderDtoResponse> pageResponse = PageResponse.<OrderDtoResponse>builder()
-                .content(List.of(orderDtoResponse))
+                .content(List.of(expectedOrderDtoResponse))
                 .number(PAGE)
                 .size(PAGE_SIZE)
                 .numberOfElements(1)
                 .build();
 
-        when(orderService.getAllOrders(PAGE, PAGE_SIZE)).thenReturn(pageResponse);
+        doReturn(pageResponse).when(orderService).findAll(pageable);
 
-        var orderDtoList = orderController.findAllOrders(PAGE, PAGE_SIZE);
+        var actualOrders = orderController.findAll(pageable);
 
-        verify(orderService).getAllOrders(anyInt(), anyInt());
+        verify(orderService).findAll(any());
 
         assertAll(
-                () -> assertThat(orderDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(orderDtoList.getBody()).getData().getContent().stream()
-                        .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+                () -> assertThat(actualOrders.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () -> assertThat(Objects.requireNonNull(actualOrders.getBody()).getData().getContent().stream()
+                        .anyMatch(orderDto -> orderDto.equals(expectedOrderDtoResponse))
                 ).isTrue()
         );
     }
 
     @Nested
-    public class FindAllOrdersByUserIdTest {
+    public class FindAllByUserIdTest {
         @Test
         @DisplayName("Find all Orders by User ID")
-        void checkFindAllOrdersByUserIdShouldReturnOrderDtoResponseList() {
+        void checkFindAllByUserIdShouldReturnOrderDtoResponseList() {
             PageResponse<OrderDtoResponse> pageResponse = PageResponse.<OrderDtoResponse>builder()
-                    .content(List.of(orderDtoResponse))
+                    .content(List.of(expectedOrderDtoResponse))
                     .number(PAGE)
                     .size(PAGE_SIZE)
                     .numberOfElements(1)
                     .build();
 
-            when(orderService.getAllOrdersByUserId(TEST_ID, PAGE, PAGE_SIZE)).thenReturn(pageResponse);
+            doReturn(pageResponse). when(orderService).findAllByUserId(TEST_ID, pageable);
 
-            var orderDtoList = orderController.findAllOrdersByUserId(TEST_ID, PAGE, PAGE_SIZE);
+            var actualOrders = orderController.findAllByUserId(TEST_ID, pageable);
 
-            verify(orderService).getAllOrdersByUserId(anyLong(), anyInt(), anyInt());
+            verify(orderService).findAllByUserId(anyLong(), any());
 
             assertAll(
-                    () -> assertThat(orderDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(Objects.requireNonNull(orderDtoList.getBody()).getData().getContent().stream()
-                            .anyMatch(orderDto -> orderDto.equals(orderDtoResponse))
+                    () -> assertThat(actualOrders.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(Objects.requireNonNull(actualOrders.getBody()).getData().getContent().stream()
+                            .anyMatch(orderDto -> orderDto.equals(expectedOrderDtoResponse))
                     ).isTrue()
             );
         }
 
         @Test
         @DisplayName("Find all Orders by User ID; User not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() {
-            doThrow(UserNotFoundException.class).when(orderService).getAllOrdersByUserId(anyLong(), anyInt(), anyInt());
+        void checkFindAllByUserIdShouldThrowUserNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(orderService).findAllByUserId(anyLong(), any());
 
-            assertThrows(UserNotFoundException.class, () -> orderController.findAllOrdersByUserId(TEST_ID, PAGE, PAGE_SIZE));
+            assertThrows(EntityNotFoundException.class,
+                    () -> orderController.findAllByUserId(TEST_ID, pageable)
+            );
 
-            verify(orderService).getAllOrdersByUserId(anyLong(), anyInt(), anyInt());
+            verify(orderService).findAllByUserId(anyLong(), any());
         }
     }
 
     @Nested
-    public class FindOrderByIdTest {
+    public class FindByIdTest {
         @DisplayName("Find Order by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkFindOrderByIdShouldReturnOrderDtoResponse(Long id) {
-            when(orderService.getOrderById(id)).thenReturn(orderDtoResponse);
+        void checkFindByIdShouldReturnOrderDtoResponse(Long id) {
+            doReturn(expectedOrderDtoResponse).when(orderService).findById(id);
 
-            var orderDto = orderController.findOrderById(id);
+            var actualOrder = orderController.findById(id);
 
-            verify(orderService).getOrderById(anyLong());
+            verify(orderService).findById(anyLong());
 
             assertAll(
-                    () -> assertThat(orderDto.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(Objects.requireNonNull(orderDto.getBody()).getData()).isEqualTo(orderDtoResponse)
+                    () -> assertThat(actualOrder.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(Objects.requireNonNull(actualOrder.getBody()).getData())
+                            .isEqualTo(expectedOrderDtoResponse)
             );
         }
 
         @Test
-        @DisplayName("Find Order by ID; Order not found")
-        void checkFindAllOrdersByUserIdShouldThrowUserNotFoundException() {
-            doThrow(OrderNotFoundException.class).when(orderService).getOrderById(anyLong());
+        @DisplayName("Find Order by ID; not found")
+        void checkFindByIdShouldThrowOrderNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(orderService).findById(anyLong());
 
-            assertThrows(OrderNotFoundException.class, () -> orderController.findOrderById(TEST_ID));
+            assertThrows(EntityNotFoundException.class, () -> orderController.findById(TEST_ID));
 
-            verify(orderService).getOrderById(anyLong());
+            verify(orderService).findById(anyLong());
         }
     }
 
     @Nested
-    public class FindOrderByIdAndUserIdTest {
+    public class FindByIdAndUserIdTest {
         @Test
         @DisplayName("Find Order by ID & User ID")
-        void checkFindOrderByIdAndUserIdShouldReturnOrderDtoResponse() {
-            when(orderService.getOrderByIdAndUserId(TEST_ID, TestConstants.TEST_ID)).thenReturn(orderDtoResponse);
+        void checkFindByIdAndUserIdShouldReturnOrderDtoResponse() {
+            doReturn(expectedOrderDtoResponse).when(orderService).findByIdAndUserId(TEST_ID, TestConstants.TEST_ID);
 
-            var orderDto = orderController.findOrderByIdAndUserId(TEST_ID, TestConstants.TEST_ID);
+            var actualOrder = orderController.findByIdAndUserId(TEST_ID, TestConstants.TEST_ID);
 
-            verify(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+            verify(orderService).findByIdAndUserId(anyLong(), anyLong());
 
             assertAll(
-                    () -> assertThat(orderDto.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(Objects.requireNonNull(orderDto.getBody()).getData()).isEqualTo(orderDtoResponse)
+                    () -> assertThat(actualOrder.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(Objects.requireNonNull(actualOrder.getBody()).getData())
+                            .isEqualTo(expectedOrderDtoResponse)
             );
         }
 
         @Test
         @DisplayName("Find Order by ID & User ID; Order not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderNotFoundException() {
-            doThrow(OrderNotFoundException.class).when(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+        void checkFindByIdAndUserIdShouldThrowOrderNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(orderService).findByIdAndUserId(anyLong(), anyLong());
 
-            assertThrows(OrderNotFoundException.class, () -> orderController.findOrderByIdAndUserId(TEST_ID, TEST_ID));
+            assertThrows(EntityNotFoundException.class, () -> orderController.findByIdAndUserId(TEST_ID, TEST_ID));
 
-            verify(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+            verify(orderService).findByIdAndUserId(anyLong(), anyLong());
         }
 
         @Test
         @DisplayName("Find Order by ID & User ID; User not found")
-        void checkFindOrderByIdAndUserIdShouldThrowUserNotFoundException() {
-            doThrow(UserNotFoundException.class).when(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+        void checkFindByIdAndUserIdShouldThrowUserNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(orderService).findByIdAndUserId(anyLong(), anyLong());
 
-            assertThrows(UserNotFoundException.class, () -> orderController.findOrderByIdAndUserId(TEST_ID, TEST_ID));
+            assertThrows(EntityNotFoundException.class, () -> orderController.findByIdAndUserId(TEST_ID, TEST_ID));
 
-            verify(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+            verify(orderService).findByIdAndUserId(anyLong(), anyLong());
         }
 
         @Test
         @DisplayName("Find Order by ID & User ID; Order by User not found")
-        void checkFindOrderByIdAndUserIdShouldThrowOrderByUserNotFoundException() {
-            doThrow(OrderByUserNotFoundException.class).when(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+        void checkFindByIdAndUserIdShouldThrowOrderByUserNotFoundException() {
+            doThrow(OrderByUserNotFoundException.class).when(orderService).findByIdAndUserId(anyLong(), anyLong());
 
-            assertThrows(OrderByUserNotFoundException.class, () -> orderController.findOrderByIdAndUserId(TEST_ID, TEST_ID));
+            assertThrows(OrderByUserNotFoundException.class, () -> orderController.findByIdAndUserId(TEST_ID, TEST_ID));
 
-            verify(orderService).getOrderByIdAndUserId(anyLong(), anyLong());
+            verify(orderService).findByIdAndUserId(anyLong(), anyLong());
         }
     }
 }

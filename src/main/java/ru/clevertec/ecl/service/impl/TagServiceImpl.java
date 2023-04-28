@@ -2,9 +2,9 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.clevertec.ecl.exception.TagNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -14,7 +14,6 @@ import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.TagService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,64 +23,64 @@ public class TagServiceImpl implements TagService {
     private final TagMapper tagMapper;
 
     @Override
-    public TagDtoResponse createTag(TagDtoRequest tagDtoRequest) {
-        Tag savedTag = tagRepository.save(tagMapper.toEntity(tagDtoRequest));
-        return tagMapper.toDto(savedTag);
+    public TagDtoResponse save(TagDtoRequest tagDtoRequest) {
+        Tag savedTag = tagRepository.save(tagMapper.toTag(tagDtoRequest));
+        return tagMapper.toTagDtoResponse(savedTag);
     }
 
     @Override
-    public PageResponse<TagDtoResponse> getAllTags(Integer page, Integer pageSize) {
-        Page<Tag> tagPage = tagRepository.findAll(PageRequest.of(page, pageSize));
+    public PageResponse<TagDtoResponse> findAll(Pageable pageable) {
+        Page<Tag> tagPage = tagRepository.findAll(pageable);
 
         List<TagDtoResponse> tagDtoResponses = tagPage.stream()
-                .map(tagMapper::toDto)
+                .map(tagMapper::toTagDtoResponse)
                 .toList();
 
         return PageResponse.<TagDtoResponse>builder()
                 .content(tagDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(tagDtoResponses.size())
                 .build();
     }
 
     @Override
-    public TagDtoResponse getTagById(Long id) {
+    public TagDtoResponse findById(Long id) {
         return tagRepository.findById(id)
-                .map(tagMapper::toDto)
-                .orElseThrow(() -> new TagNotFoundException(id));
+                .map(tagMapper::toTagDtoResponse)
+                .orElseThrow(() -> new EntityNotFoundException(Tag.class, id));
     }
 
     @Override
-    public TagDtoResponse updateTagById(Long id, TagDtoRequest tagDtoRequest) {
+    public TagDtoResponse update(Long id, TagDtoRequest tagDtoRequest) {
         Tag updatedTag = tagRepository.findById(id)
                 .map(tag -> {
                     tag.setName(tagDtoRequest.getName());
                     return tag;
                 })
-                .orElseThrow(() -> new TagNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(Tag.class, id));
 
         Tag savedTag = tagRepository.save(updatedTag);
-        return tagMapper.toDto(savedTag);
+        return tagMapper.toTagDtoResponse(savedTag);
     }
 
     @Override
-    public TagDtoResponse updateTagByIdPartially(Long id, TagDtoRequest tagDtoRequest) {
+    public TagDtoResponse updatePartially(Long id, TagDtoRequest tagDtoRequest) {
         Tag updatedTag = tagRepository.findById(id)
                 .map(tag -> {
-                    Optional.ofNullable(tagDtoRequest.getName()).ifPresent(tag::setName);
+                    tagMapper.updateTag(tagDtoRequest, tag);
                     return tag;
                 })
-                .orElseThrow(() -> new TagNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(Tag.class, id));
 
         Tag savedTag = tagRepository.save(updatedTag);
-        return tagMapper.toDto(savedTag);
+        return tagMapper.toTagDtoResponse(savedTag);
     }
 
     @Override
-    public void deleteTagById(Long id) {
+    public void deleteById(Long id) {
         if (!tagRepository.existsById(id)) {
-            throw new TagNotFoundException(id);
+            throw new EntityNotFoundException(Tag.class, id);
         }
         tagRepository.deleteById(id);
     }

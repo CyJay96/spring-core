@@ -9,7 +9,7 @@ import ru.clevertec.ecl.model.entity.User;
 import ru.clevertec.ecl.model.enums.Status;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.clevertec.ecl.util.TestConstants.TEST_DATE;
@@ -38,20 +38,20 @@ public class UserTestBuilder implements TestBuilder<User> {
 
     private OffsetDateTime lastUpdateDate = TEST_DATE;
 
-    private List<Order> orders = Collections.emptyList();
+    private List<Order> orders = new ArrayList<>();
 
     @Override
     public User build() {
-        User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setStatus(status);
-        user.setCreateDate(createDate);
-        user.setLastUpdateDate(lastUpdateDate);
-        user.setOrders(orders);
-        return user;
+        return User.builder()
+                .id(id)
+                .username(username)
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .status(status)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .orders(orders)
+                .build();
     }
 }

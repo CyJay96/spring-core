@@ -1,44 +1,40 @@
 package ru.clevertec.ecl.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 
-@Data
+@Value
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserDtoResponse {
 
     @JsonProperty("id")
-    private Long id;
+    Long id;
 
     @JsonProperty("username")
-    private String username;
+    String username;
 
     @JsonProperty("firstName")
-    private String firstName;
+    String firstName;
 
     @JsonProperty("lastName")
-    private String lastName;
+    String lastName;
 
     @JsonProperty("email")
-    private String email;
+    String email;
 
     @JsonProperty("status")
-    private String status;
+    String status;
 
     @JsonProperty("createDate")
-    private OffsetDateTime createDate;
+    OffsetDateTime createDate;
 
     @JsonProperty("lastUpdateDate")
-    private OffsetDateTime lastUpdateDate;
+    OffsetDateTime lastUpdateDate;
 
     @JsonProperty("ordersIds")
-    private List<Long> ordersIds;
+    List<Long> ordersIds;
 }

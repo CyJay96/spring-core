@@ -2,9 +2,9 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.clevertec.ecl.exception.UserNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.UserMapper;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.UserDtoResponse;
@@ -22,32 +22,32 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public PageResponse<UserDtoResponse> getAllUsers(Integer page, Integer pageSize) {
-        Page<User> userPage = userRepository.findAll(PageRequest.of(page, pageSize));
+    public PageResponse<UserDtoResponse> findAll(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
 
         List<UserDtoResponse> userDtoResponses = userPage.stream()
-                .map(userMapper::toDto)
+                .map(userMapper::toUserDtoResponse)
                 .toList();
 
         return PageResponse.<UserDtoResponse>builder()
                 .content(userDtoResponses)
-                .number(page)
-                .size(pageSize)
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
                 .numberOfElements(userDtoResponses.size())
                 .build();
     }
 
     @Override
-    public UserDtoResponse getUserById(Long id) {
+    public UserDtoResponse findById(Long id) {
         return userRepository.findById(id)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException(id));
+                .map(userMapper::toUserDtoResponse)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, id));
     }
 
     @Override
-    public UserDtoResponse getUserByHighestOrderCost() {
-        return userRepository.findUserByHighestOrderCost()
-                .map(userMapper::toDto)
-                .orElseThrow(UserNotFoundException::new);
+    public UserDtoResponse findByHighestOrderCost() {
+        return userRepository.findByHighestOrderCost()
+                .map(userMapper::toUserDtoResponse)
+                .orElseThrow(() -> new EntityNotFoundException(User.class));
     }
 }

@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.model.entity;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,7 +35,6 @@ public class Order implements BaseEntity<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Exclude
-    @Column(name = "id")
     private Long id;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
@@ -45,18 +43,17 @@ public class Order implements BaseEntity<Long> {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private GiftCertificate giftCertificate;
 
-    @Column(name = "final_price")
     private BigDecimal finalPrice;
 
     @CreatedDate
+    @Builder.Default
     @EqualsAndHashCode.Exclude
-    @Column(name = "create_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime createDate;
+    private OffsetDateTime createDate = OffsetDateTime.now();
 
     @LastModifiedDate
+    @Builder.Default
     @EqualsAndHashCode.Exclude
-    @Column(name = "last_update_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime lastUpdateDate;
+    private OffsetDateTime lastUpdateDate = OffsetDateTime.now();
 }

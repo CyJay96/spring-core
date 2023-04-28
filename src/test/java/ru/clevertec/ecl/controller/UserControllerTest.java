@@ -7,12 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import ru.clevertec.ecl.builder.user.UserDtoResponseTestBuilder;
-import ru.clevertec.ecl.config.PaginationProperties;
-import ru.clevertec.ecl.exception.UserNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.UserDtoResponse;
 import ru.clevertec.ecl.service.UserService;
@@ -23,11 +25,11 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static ru.clevertec.ecl.util.TestConstants.PAGE;
 import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
@@ -35,99 +37,100 @@ import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
+    @InjectMocks
     private UserController userController;
 
     @Mock
     private UserService userService;
 
-    @Mock
-    private PaginationProperties paginationProperties;
-
-    private final UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+    private final UserDtoResponse expectedUserDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(userService, paginationProperties);
+        userController = new UserController(userService);
     }
 
     @Test
     @DisplayName("Find all Users")
-    void checkFindAllUsersShouldReturnUserDtoResponseList() {
+    void checkFindAllShouldReturnUserDtoResponseList() {
         PageResponse<UserDtoResponse> pageResponse = PageResponse.<UserDtoResponse>builder()
-                .content(List.of(userDtoResponse))
+                .content(List.of(expectedUserDtoResponse))
                 .number(PAGE)
                 .size(PAGE_SIZE)
                 .numberOfElements(1)
                 .build();
 
-        when(userService.getAllUsers(PAGE, PAGE_SIZE)).thenReturn(pageResponse);
+        doReturn(pageResponse).when(userService).findAll(pageable);
 
-        var userDtoList = userController.findAllUsers(PAGE, PAGE_SIZE);
+        var actualUsers = userController.findAll(pageable);
 
-        verify(userService).getAllUsers(anyInt(), anyInt());
+        verify(userService).findAll(any());
 
         assertAll(
-                () -> assertThat(userDtoList.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(Objects.requireNonNull(userDtoList.getBody()).getData().getContent().stream()
-                        .anyMatch(userDto -> userDto.equals(userDtoResponse))
+                () -> assertThat(actualUsers.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () -> assertThat(Objects.requireNonNull(actualUsers.getBody()).getData().getContent().stream()
+                        .anyMatch(actualUserDtoResponse -> actualUserDtoResponse.equals(expectedUserDtoResponse))
                 ).isTrue()
         );
     }
 
     @Nested
-    public class FindUserByIdTest {
+    public class FindByIdTest {
         @DisplayName("Find User by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkFindUserByIdShouldReturnUserDtoResponse(Long id) {
-            when(userService.getUserById(id)).thenReturn(userDtoResponse);
+        void checkFindByIdShouldReturnUserDtoResponse(Long id) {
+            doReturn(expectedUserDtoResponse).when(userService).findById(id);
 
-            var userDto = userController.findUserById(id);
+            var actualUser = userController.findById(id);
 
-            verify(userService).getUserById(anyLong());
+            verify(userService).findById(anyLong());
 
             assertAll(
-                    () -> assertThat(userDto.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(Objects.requireNonNull(userDto.getBody()).getData()).isEqualTo(userDtoResponse)
+                    () -> assertThat(actualUser.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(Objects.requireNonNull(actualUser.getBody()).getData())
+                            .isEqualTo(expectedUserDtoResponse)
             );
         }
 
         @Test
         @DisplayName("Find User by ID; not found")
-        void checkFindUserByIdShouldThrowUserNotFoundException() {
-            doThrow(UserNotFoundException.class).when(userService).getUserById(anyLong());
+        void checkFindByIdShouldThrowUserNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(userService).findById(anyLong());
 
-            assertThrows(UserNotFoundException.class, () -> userController.findUserById(TEST_ID));
+            assertThrows(EntityNotFoundException.class, () -> userController.findById(TEST_ID));
 
-            verify(userService).getUserById(anyLong());
+            verify(userService).findById(anyLong());
         }
     }
 
     @Nested
-    public class FindUserByHighestOrderCostTest {
+    public class FindByHighestOrderCostTest {
         @Test
         @DisplayName("Find User by highest order cost")
-        void checkFindUserByHighestOrderCostShouldReturnUserDtoResponse() {
-            when(userService.getUserByHighestOrderCost()).thenReturn(userDtoResponse);
+        void checkFindByHighestOrderCostShouldReturnUserDtoResponse() {
+            doReturn(expectedUserDtoResponse).when(userService).findByHighestOrderCost();
 
-            var userDto = userController.findUserByHighestOrderCost();
+            var actualUser = userController.findByHighestOrderCost();
 
-            verify(userService).getUserByHighestOrderCost();
+            verify(userService).findByHighestOrderCost();
 
             assertAll(
-                    () -> assertThat(userDto.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(Objects.requireNonNull(userDto.getBody()).getData()).isEqualTo(userDtoResponse)
+                    () -> assertThat(actualUser.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(Objects.requireNonNull(actualUser.getBody()).getData())
+                            .isEqualTo(expectedUserDtoResponse)
             );
         }
 
         @Test
         @DisplayName("Find User by highest order cost; not found")
-        void checkFindUserByHighestOrderCostShouldThrowUserNotFoundException() {
-            doThrow(UserNotFoundException.class).when(userService).getUserByHighestOrderCost();
+        void checkFindByHighestOrderCostShouldThrowUserNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(userService).findByHighestOrderCost();
 
-            assertThrows(UserNotFoundException.class, () -> userController.findUserByHighestOrderCost());
+            assertThrows(EntityNotFoundException.class, () -> userController.findByHighestOrderCost());
 
-            verify(userService).getUserByHighestOrderCost();
+            verify(userService).findByHighestOrderCost();
         }
     }
 }

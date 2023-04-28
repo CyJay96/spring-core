@@ -6,7 +6,7 @@ import lombok.With;
 import ru.clevertec.ecl.builder.TestBuilder;
 import ru.clevertec.ecl.model.dto.response.TagDtoResponse;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.clevertec.ecl.util.TestConstants.TEST_ID;
@@ -21,14 +21,14 @@ public class TagDtoResponseTestBuilder implements TestBuilder<TagDtoResponse> {
 
     private String name = TEST_STRING;
 
-    private List<Long> giftCertificatesIds = Collections.emptyList();
+    private List<Long> giftCertificatesIds = new ArrayList<>();
 
     @Override
     public TagDtoResponse build() {
-        TagDtoResponse tagDtoResponse = new TagDtoResponse();
-        tagDtoResponse.setId(id);
-        tagDtoResponse.setName(name);
-        tagDtoResponse.setGiftCertificatesIds(giftCertificatesIds);
-        return tagDtoResponse;
+        return TagDtoResponse.builder()
+                .id(id)
+                .name(name)
+                .giftCertificatesIds(giftCertificatesIds)
+                .build();
     }
 }

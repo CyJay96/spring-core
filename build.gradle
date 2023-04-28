@@ -36,9 +36,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.1.0'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 
-    // Configuration Processor
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-
     // Testing
     testImplementation 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
@@ -47,7 +44,10 @@ dependencies {
 }
 
 tasks.named('compileJava') {
-    inputs.files(tasks.named('processResources'))
+    options.compilerArgs = [
+            '-Amapstruct.defaultComponentModel=spring',
+            '-parameters'
+    ]
 }
 
 tasks.named('test') {
