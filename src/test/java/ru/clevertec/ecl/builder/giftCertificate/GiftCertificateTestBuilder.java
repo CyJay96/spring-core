@@ -10,7 +10,7 @@ import ru.clevertec.ecl.model.entity.Tag;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.clevertec.ecl.util.TestConstants.TEST_BIG_DECIMAL;
@@ -38,19 +38,19 @@ public class GiftCertificateTestBuilder implements TestBuilder<GiftCertificate> 
 
     private OffsetDateTime lastUpdateDate = TEST_DATE;
 
-    private List<Tag> tags =  Collections.emptyList();
+    private List<Tag> tags = new ArrayList<>();
 
     @Override
     public GiftCertificate build() {
-        GiftCertificate giftCertificate = new GiftCertificate();
-        giftCertificate.setId(id);
-        giftCertificate.setName(name);
-        giftCertificate.setDescription(description);
-        giftCertificate.setPrice(price);
-        giftCertificate.setDuration(duration);
-        giftCertificate.setCreateDate(createDate);
-        giftCertificate.setLastUpdateDate(lastUpdateDate);
-        giftCertificate.setTags(tags);
-        return giftCertificate;
+        return GiftCertificate.builder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .price(price)
+                .duration(duration)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .tags(tags)
+                .build();
     }
 }

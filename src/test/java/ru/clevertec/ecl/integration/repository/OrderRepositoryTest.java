@@ -16,7 +16,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class OrderRepositoryTest extends BaseIntegrationTest {
+class OrderRepositoryTest extends BaseIntegrationTest {
 
     private final OrderRepository orderRepository;
 

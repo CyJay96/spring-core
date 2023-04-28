@@ -1,17 +1,18 @@
 package ru.clevertec.ecl.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.model.dto.response.OrderDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 
 public interface OrderService {
 
-    OrderDtoResponse createOrderByUserIdAndGiftCertificateId(Long userId, Long giftCertificateId);
+    OrderDtoResponse saveByUserIdAndGiftCertificateId(Long userId, Long giftCertificateId);
 
-    PageResponse<OrderDtoResponse> getAllOrders(Integer page, Integer pageSize);
+    PageResponse<OrderDtoResponse> findAll(Pageable pageable);
 
-    PageResponse<OrderDtoResponse> getAllOrdersByUserId(Long userId, Integer page, Integer pageSize);
+    PageResponse<OrderDtoResponse> findAllByUserId(Long userId, Pageable pageable);
 
-    OrderDtoResponse getOrderById(Long id);
+    OrderDtoResponse findById(Long id);
 
-    OrderDtoResponse getOrderByIdAndUserId(Long orderId, Long userId);
+    OrderDtoResponse findByIdAndUserId(Long orderId, Long userId);
 }

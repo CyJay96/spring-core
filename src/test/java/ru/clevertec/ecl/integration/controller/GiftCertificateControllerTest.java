@@ -34,7 +34,7 @@ import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 
 @AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class GiftCertificateControllerTest extends BaseIntegrationTest {
+class GiftCertificateControllerTest extends BaseIntegrationTest {
 
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
@@ -50,8 +50,8 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
             .build();
 
     @Test
-    @DisplayName("Create Gift Certificate")
-    void checkCreateGiftCertificateShouldReturnGiftCertificateDtoResponse() throws Exception {
+    @DisplayName("Save Gift Certificate")
+    void checkSaveShouldReturnGiftCertificateDtoResponse() throws Exception {
         mockMvc.perform(post(GIFT_CERTIFICATE_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(giftCertificateDtoRequest)))
@@ -62,12 +62,12 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("Find all Gift Certificates")
-    void checkFindAllGiftCertificatesShouldReturnGiftCertificateDtoResponsePage() throws Exception {
+    void checkFindAllShouldReturnGiftCertificateDtoResponsePage() throws Exception {
         int expectedGiftCertificatesSize = (int) giftCertificateRepository.count();
         mockMvc.perform(get(GIFT_CERTIFICATE_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", String.valueOf(PAGE))
-                        .param("pageSize", String.valueOf(PAGE_SIZE)))
+                        .param("size", String.valueOf(PAGE_SIZE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isNotEmpty())
                 .andExpect(jsonPath("$.data.content.size()").value(expectedGiftCertificatesSize));
@@ -75,24 +75,24 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("Find all Gift Certificates by criteria")
-    void checkFindAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponsePage() throws Exception {
+    void checkFindAllByCriteriaShouldReturnGiftCertificateDtoResponsePage() throws Exception {
         int expectedGiftCertificatesSize = 2;
         mockMvc.perform(get(GIFT_CERTIFICATE_API_PATH + "/criteria")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(searchCriteria))
                         .param("page", String.valueOf(PAGE))
-                        .param("pageSize", String.valueOf(PAGE_SIZE)))
+                        .param("size", String.valueOf(PAGE_SIZE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isNotEmpty())
                 .andExpect(jsonPath("$.data.content.size()").value(expectedGiftCertificatesSize));
     }
 
     @Nested
-    public class FindGiftCertificateByIdTest {
+    public class FindByIdTest {
         @DisplayName("Find Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkFindGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
+        void checkFindByIdShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
             mockMvc.perform(get(GIFT_CERTIFICATE_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -102,7 +102,7 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find Gift Certificate by ID; not found")
-        void checkFindGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() throws Exception {
+        void checkFindByIdShouldThrowGiftCertificateNotFoundException() throws Exception {
             long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(get(GIFT_CERTIFICATE_API_PATH + "/{id}", doesntExistGiftCertificateId)
@@ -112,11 +112,11 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
     }
 
     @Nested
-    public class UpdateGiftCertificateByIdTest {
+    public class UpdateTest {
         @DisplayName("Update Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
+        void checkUpdateShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
             mockMvc.perform(put(GIFT_CERTIFICATE_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(giftCertificateDtoRequest)))
@@ -128,7 +128,7 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
         @DisplayName("Partial Update Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateGiftCertificateByIdPartiallyShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
+        void checkUpdatePartiallyShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
             mockMvc.perform(patch(GIFT_CERTIFICATE_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(giftCertificateDtoRequest)))
@@ -138,8 +138,19 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
         }
 
         @Test
+        @DisplayName("Update Gift Certificate by ID; not found")
+        void checkUpdateShouldThrowGiftCertificateNotFoundException() throws Exception {
+            long doesntExistGiftCertificateId = new Random()
+                    .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
+            mockMvc.perform(put(GIFT_CERTIFICATE_API_PATH + "/{id}", doesntExistGiftCertificateId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(giftCertificateDtoRequest)))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
         @DisplayName("Partial Update Gift Certificate by ID; not found")
-        void checkUpdateGiftCertificateByIdPartiallyShouldThrowGiftCertificateNotFoundException() throws Exception {
+        void checkUpdatePartiallyShouldThrowGiftCertificateNotFoundException() throws Exception {
             long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(patch(GIFT_CERTIFICATE_API_PATH + "/{id}", doesntExistGiftCertificateId)
@@ -230,11 +241,11 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
     }
 
     @Nested
-    public class DeleteGiftCertificateByIdTest {
+    public class DeleteByIdTest {
         @DisplayName("Delete Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkDeleteGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
+        void checkDeleteByIdShouldReturnGiftCertificateDtoResponse(Long id) throws Exception {
             mockMvc.perform(delete(GIFT_CERTIFICATE_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNoContent());
@@ -242,7 +253,7 @@ public class GiftCertificateControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Delete Gift Certificate by ID; not found")
-        void checkDeleteGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() throws Exception {
+        void checkDeleteByIdShouldThrowGiftCertificateNotFoundException() throws Exception {
             long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(delete(GIFT_CERTIFICATE_API_PATH + "/{id}", doesntExistGiftCertificateId)

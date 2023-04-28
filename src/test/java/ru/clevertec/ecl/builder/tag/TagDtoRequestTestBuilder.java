@@ -17,8 +17,8 @@ public class TagDtoRequestTestBuilder implements TestBuilder<TagDtoRequest> {
 
     @Override
     public TagDtoRequest build() {
-        TagDtoRequest tagDtoRequest = new TagDtoRequest();
-        tagDtoRequest.setName(name);
-        return tagDtoRequest;
+        return TagDtoRequest.builder()
+                .name(name)
+                .build();
     }
 }

@@ -8,10 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateCriteriaTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
-import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
-import ru.clevertec.ecl.exception.TagNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.integration.BaseIntegrationTest;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
@@ -31,7 +32,7 @@ import static ru.clevertec.ecl.util.TestConstants.PAGE;
 import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class GiftCertificateServiceTest extends BaseIntegrationTest {
+class GiftCertificateServiceTest extends BaseIntegrationTest {
 
     private final GiftCertificateService giftCertificateService;
     private final GiftCertificateRepository giftCertificateRepository;
@@ -45,82 +46,93 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             .aGiftCertificateCriteria()
             .withDescription("frame")
             .build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @Test
-    @DisplayName("Create Gift Certificate")
-    void checkCreateGiftCertificateShouldReturnGiftCertificateDtoResponse() {
+    @DisplayName("Save Gift Certificate")
+    void checkSaveShouldReturnGiftCertificateDtoResponse() {
         GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
-                .createGiftCertificate(giftCertificateDtoRequest);
+                .save(giftCertificateDtoRequest);
         assertThat(actualGiftCertificate.getName()).isEqualTo(giftCertificateDtoRequest.getName());
     }
 
     @Test
-    @DisplayName("Get all Gift Certificates")
-    void checkGetAllGiftCertificatesShouldReturnGiftCertificateDtoResponsePage() {
+    @DisplayName("Find all Gift Certificates")
+    void checkFindAllShouldReturnGiftCertificateDtoResponsePage() {
         int expectedGiftCertificatesSize = (int) giftCertificateRepository.count();
-        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService
-                .getAllGiftCertificates(PAGE, PAGE_SIZE);
+        PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService.findAll(pageable);
         assertThat(actualGiftCertificates.getContent()).hasSize(expectedGiftCertificatesSize);
     }
 
     @Test
-    @DisplayName("Get all Gift Certificates by criteria")
-    void checkGetAllGiftCertificatesByCriteriaShouldReturnGiftCertificateDtoResponsePage() {
+    @DisplayName("Find all Gift Certificates by criteria")
+    void checkFindAllByCriteriaShouldReturnGiftCertificateDtoResponsePage() {
         int expectedGiftCertificatesSize = 2;
         PageResponse<GiftCertificateDtoResponse> actualGiftCertificates = giftCertificateService
-                .getAllGiftCertificatesByCriteria(searchCriteria);
+                .findAllByCriteria(searchCriteria, pageable);
         assertThat(actualGiftCertificates.getContent()).hasSize(expectedGiftCertificatesSize);
     }
 
     @Nested
-    public class GetGiftCertificateByIdTest {
-        @DisplayName("Get Gift Certificate by ID")
+    public class FindByIdTest {
+        @DisplayName("Find Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkGetGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
-            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.getGiftCertificateById(id);
+        void checkFindByIdShouldReturnGiftCertificateDtoResponse(Long id) {
+            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.findById(id);
             assertThat(actualGiftCertificate.getId()).isEqualTo(id);
         }
 
         @Test
-        @DisplayName("Get Gift Certificate by ID; not found")
-        void checkGetGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() {
+        @DisplayName("Find Gift Certificate by ID; not found")
+        void checkFindByIdShouldThrowGiftCertificateNotFoundException() {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(GiftCertificateNotFoundException.class,
-                    () -> giftCertificateService.getGiftCertificateById(doesntExistGiftCertificateId)
+            assertThrows(EntityNotFoundException.class,
+                    () -> giftCertificateService.findById(doesntExistGiftCertificateId)
             );
         }
     }
 
     @Nested
-    public class UpdateGiftCertificateByIdTest {
+    public class UpdateTest {
         @DisplayName("Update Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
+        void checkUpdateShouldReturnGiftCertificateDtoResponse(Long id) {
             GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
-                    .updateGiftCertificateById(id, giftCertificateDtoRequest);
+                    .update(id, giftCertificateDtoRequest);
             assertThat(actualGiftCertificate.getId()).isEqualTo(id);
         }
 
         @DisplayName("Partial Update Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateGiftCertificateByIdPartiallyShouldReturnGiftCertificateDtoResponse(Long id) {
+        void checkUpdatePartiallyShouldReturnGiftCertificateDtoResponse(Long id) {
             GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService
-                    .updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
+                    .updatePartially(id, giftCertificateDtoRequest);
             assertThat(actualGiftCertificate.getId()).isEqualTo(id);
         }
 
         @Test
-        @DisplayName("Partial Update Gift Certificate by ID; not found")
-        void checkUpdateGiftCertificateByIdPartiallyShouldThrowGiftCertificateNotFoundException() {
+        @DisplayName("Update Gift Certificate by ID; not found")
+        void checkUpdateShouldThrowGiftCertificateNotFoundException() {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(GiftCertificateNotFoundException.class,
+            assertThrows(EntityNotFoundException.class,
                     () -> giftCertificateService
-                            .updateGiftCertificateByIdPartially(doesntExistGiftCertificateId, giftCertificateDtoRequest)
+                            .update(doesntExistGiftCertificateId, giftCertificateDtoRequest)
+            );
+        }
+
+        @Test
+        @DisplayName("Partial Update Gift Certificate by ID; not found")
+        void checkUpdatePartiallyShouldThrowGiftCertificateNotFoundException() {
+            Long doesntExistGiftCertificateId = new Random()
+                    .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
+            assertThrows(EntityNotFoundException.class,
+                    () -> giftCertificateService
+                            .updatePartially(doesntExistGiftCertificateId, giftCertificateDtoRequest)
             );
         }
     }
@@ -151,7 +163,7 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             Long existsTagId = tagRepository.findFirstByOrderByIdAsc().get().getId();
-            assertThrows(GiftCertificateNotFoundException.class,
+            assertThrows(EntityNotFoundException.class,
                     () -> giftCertificateService.addTagToGiftCertificate(doesntExistGiftCertificateId, existsTagId)
             );
         }
@@ -162,7 +174,7 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
             Long doesntExistTagId = new Random().nextLong(tagRepository
                     .findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class,
+            assertThrows(EntityNotFoundException.class,
                     () -> giftCertificateService.addTagToGiftCertificate(existsGiftCertificateId, doesntExistTagId)
             );
         }
@@ -194,7 +206,7 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             Long existsTagId = tagRepository.findFirstByOrderByIdAsc().get().getId();
-            assertThrows(GiftCertificateNotFoundException.class,
+            assertThrows(EntityNotFoundException.class,
                     () -> giftCertificateService.deleteTagFromGiftCertificate(doesntExistGiftCertificateId, existsTagId)
             );
         }
@@ -205,29 +217,29 @@ public class GiftCertificateServiceTest extends BaseIntegrationTest {
             Long existsGiftCertificateId = giftCertificateRepository.findFirstByOrderByIdAsc().get().getId();
             Long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class,
+            assertThrows(EntityNotFoundException.class,
                     () -> giftCertificateService.deleteTagFromGiftCertificate(existsGiftCertificateId, doesntExistTagId)
             );
         }
     }
 
     @Nested
-    public class DeleteGiftCertificateByIdTest {
+    public class DeleteByIdTest {
         @DisplayName("Delete Gift Certificate by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkDeleteGiftCertificateByIdShouldReturnGiftCertificateDtoResponse(Long id) {
-            giftCertificateService.deleteGiftCertificateById(id);
+        void checkDeleteByIdShouldReturnGiftCertificateDtoResponse(Long id) {
+            giftCertificateService.deleteById(id);
             entityManager.flush();
         }
 
         @Test
         @DisplayName("Delete Gift Certificate by ID; not found")
-        void checkDeleteGiftCertificateByIdShouldThrowGiftCertificateNotFoundException() {
+        void checkDeleteByIdShouldThrowGiftCertificateNotFoundException() {
             Long doesntExistGiftCertificateId = new Random()
                     .nextLong(giftCertificateRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(GiftCertificateNotFoundException.class, () -> {
-                giftCertificateService.deleteGiftCertificateById(doesntExistGiftCertificateId);
+            assertThrows(EntityNotFoundException.class, () -> {
+                giftCertificateService.deleteById(doesntExistGiftCertificateId);
                 entityManager.flush();
             });
         }

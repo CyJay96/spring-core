@@ -8,8 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.tag.TagDtoRequestTestBuilder;
-import ru.clevertec.ecl.exception.TagNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.integration.BaseIntegrationTest;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
@@ -32,93 +34,94 @@ class TagServiceTest extends BaseIntegrationTest {
     private final EntityManager entityManager;
 
     private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @Test
-    @DisplayName("Create Tag")
-    void checkCreateTagShouldReturnTagDtoResponse() {
-        TagDtoResponse actualTag = tagService.createTag(tagDtoRequest);
+    @DisplayName("Save Tag")
+    void checkSaveShouldReturnTagDtoResponse() {
+        TagDtoResponse actualTag = tagService.save(tagDtoRequest);
         assertThat(actualTag.getName()).isEqualTo(tagDtoRequest.getName());
     }
 
     @Test
-    @DisplayName("Get all Tags")
-    void checkGetAllTagsShouldReturnTagDtoResponsePage() {
+    @DisplayName("Find all Tags")
+    void checkFindAllShouldReturnTagDtoResponsePage() {
         int expectedTagsSize = (int) tagRepository.count();
-        PageResponse<TagDtoResponse> actualTags = tagService.getAllTags(PAGE, PAGE_SIZE);
+        PageResponse<TagDtoResponse> actualTags = tagService.findAll(pageable);
         assertThat(actualTags.getContent()).hasSize(expectedTagsSize);
     }
 
     @Nested
-    public class GetTagByIdTest {
-        @DisplayName("Get Tag by ID")
+    public class FindByIdTest {
+        @DisplayName("Find Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkGetTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoResponse actualTag = tagService.getTagById(id);
+        void checkFindByIdShouldReturnTagDtoResponse(Long id) {
+            TagDtoResponse actualTag = tagService.findById(id);
             assertThat(actualTag.getId()).isEqualTo(id);
         }
 
         @Test
-        @DisplayName("Get Tag by ID; not found")
-        void checkGetTagByIdShouldThrowTagNotFoundException() {
+        @DisplayName("Find Tag by ID; not found")
+        void checkFindByIdShouldThrowTagNotFoundException() {
             Long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class, () -> tagService.getTagById(doesntExistTagId));
+            assertThrows(EntityNotFoundException.class, () -> tagService.findById(doesntExistTagId));
         }
     }
 
     @Nested
-    public class UpdateTagByIdTest {
+    public class UpdateTest {
         @DisplayName("Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateTagByIdShouldReturnTagDtoResponse(Long id) {
-            TagDtoResponse actualTag = tagService.updateTagById(id, tagDtoRequest);
+        void checkUpdateShouldReturnTagDtoResponse(Long id) {
+            TagDtoResponse actualTag = tagService.update(id, tagDtoRequest);
             assertThat(actualTag.getId()).isEqualTo(id);
         }
 
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) {
-            TagDtoResponse actualTag = tagService.updateTagByIdPartially(id, tagDtoRequest);
+        void checkUpdatePartiallyShouldReturnTagDtoResponse(Long id) {
+            TagDtoResponse actualTag = tagService.updatePartially(id, tagDtoRequest);
             assertThat(actualTag.getId()).isEqualTo(id);
         }
 
         @Test
         @DisplayName("Update Tag by ID; not found")
-        void checkUpdateTagByIdShouldThrowTagNotFoundException() {
+        void checkUpdateShouldThrowTagNotFoundException() {
             Long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class, () -> tagService.updateTagById(doesntExistTagId, tagDtoRequest));
+            assertThrows(EntityNotFoundException.class, () -> tagService.update(doesntExistTagId, tagDtoRequest));
         }
 
         @Test
         @DisplayName("Partial Update Tag by ID; not found")
-        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() {
+        void checkUpdatePartiallyShouldThrowTagNotFoundException() {
             Long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class, () -> tagService.updateTagByIdPartially(doesntExistTagId, tagDtoRequest));
+            assertThrows(EntityNotFoundException.class, () -> tagService.updatePartially(doesntExistTagId, tagDtoRequest));
         }
     }
 
     @Nested
-    public class DeleteTagByIdTest {
+    public class DeleteByIdTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkDeleteTagByIdShouldReturnVoid(Long id) {
-            tagService.deleteTagById(id);
+        void checkDeleteByIdShouldReturnVoid(Long id) {
+            tagService.deleteById(id);
             entityManager.flush();
         }
 
         @Test
         @DisplayName("Delete Tag by ID; not found")
-        void checkDeleteTagByIdShouldThrowTagNotFoundException() {
+        void checkDeleteByIdShouldThrowTagNotFoundException() {
             Long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
-            assertThrows(TagNotFoundException.class, () -> {
-                tagService.deleteTagById(doesntExistTagId);
+            assertThrows(EntityNotFoundException.class, () -> {
+                tagService.deleteById(doesntExistTagId);
                 entityManager.flush();
             });
         }

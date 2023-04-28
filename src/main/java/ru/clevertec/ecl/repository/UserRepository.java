@@ -16,7 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "order by sum(o.final_price) desc " +
             "limit 1",
             nativeQuery = true)
-    Optional<User> findUserByHighestOrderCost();
+    Optional<User> findByHighestOrderCost();
 
     Optional<User> findFirstByOrderByIdAsc();
 

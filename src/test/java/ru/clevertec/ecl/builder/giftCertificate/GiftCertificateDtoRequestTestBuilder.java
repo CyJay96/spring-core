@@ -8,7 +8,7 @@ import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.request.TagDtoRequest;
 
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.clevertec.ecl.util.TestConstants.TEST_BIG_DECIMAL;
@@ -28,16 +28,16 @@ public class GiftCertificateDtoRequestTestBuilder implements TestBuilder<GiftCer
 
     private Long duration = TEST_NUMBER;
 
-    private List<TagDtoRequest> tags =  Collections.emptyList();
+    private List<TagDtoRequest> tags = new ArrayList<>();
 
     @Override
     public GiftCertificateDtoRequest build() {
-        GiftCertificateDtoRequest giftCertificateDtoRequest = new GiftCertificateDtoRequest();
-        giftCertificateDtoRequest.setName(name);
-        giftCertificateDtoRequest.setDescription(description);
-        giftCertificateDtoRequest.setPrice(price);
-        giftCertificateDtoRequest.setDuration(duration);
-        giftCertificateDtoRequest.setTags(tags);
-        return giftCertificateDtoRequest;
+        return GiftCertificateDtoRequest.builder()
+                .name(name)
+                .description(description)
+                .price(price)
+                .duration(duration)
+                .tags(tags)
+                .build();
     }
 }

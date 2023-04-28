@@ -11,9 +11,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.builder.user.UserDtoResponseTestBuilder;
 import ru.clevertec.ecl.builder.user.UserTestBuilder;
-import ru.clevertec.ecl.exception.UserNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.mapper.UserMapper;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.model.dto.response.UserDtoResponse;
@@ -28,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +49,8 @@ class UserServiceTest {
     private UserMapper userMapper;
 
     private final User user = UserTestBuilder.aUser().build();
-    private final UserDtoResponse userDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+    private final UserDtoResponse expectedUserDtoResponse = UserDtoResponseTestBuilder.aUserDtoResponse().build();
+    private final Pageable pageable = PageRequest.of(PAGE, PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
@@ -55,73 +58,73 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Get all Users")
-    void checkGetAllUsersShouldReturnUserDtoResponseList() {
-        when(userRepository.findAll(PageRequest.of(PAGE, PAGE_SIZE))).thenReturn(new PageImpl<>(List.of(user)));
-        when(userMapper.toDto(user)).thenReturn(userDtoResponse);
+    @DisplayName("Find all Users")
+    void checkFindAllShouldReturnUserDtoResponseList() {
+        when(userRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(user)));
+        when(userMapper.toUserDtoResponse(user)).thenReturn(expectedUserDtoResponse);
 
-        PageResponse<UserDtoResponse> response = userService.getAllUsers(PAGE, PAGE_SIZE);
+        PageResponse<UserDtoResponse> actualUsers = userService.findAll(pageable);
 
-        verify(userRepository).findAll(PageRequest.of(PAGE, PAGE_SIZE));
-        verify(userMapper).toDto(any());
+        verify(userRepository).findAll(eq(pageable));
+        verify(userMapper).toUserDtoResponse(any());
 
-        assertThat(response.getContent().stream()
-                .anyMatch(userDto -> userDto.equals(userDtoResponse))
+        assertThat(actualUsers.getContent().stream()
+                .anyMatch(actualUserDtoResponse -> actualUserDtoResponse.equals(expectedUserDtoResponse))
         ).isTrue();
     }
 
     @Nested
-    public class GetUserByIdTest {
-        @DisplayName("Get User by ID")
+    public class FindByIdTest {
+        @DisplayName("Find User by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkGetUserByIdShouldReturnUserDtoResponse(Long id) {
+        void checkFindByIdShouldReturnUserDtoResponse(Long id) {
             when(userRepository.findById(id)).thenReturn(Optional.of(user));
-            when(userMapper.toDto(user)).thenReturn(userDtoResponse);
+            when(userMapper.toUserDtoResponse(user)).thenReturn(expectedUserDtoResponse);
 
-            UserDtoResponse response = userService.getUserById(id);
+            UserDtoResponse actualUser = userService.findById(id);
 
             verify(userRepository).findById(anyLong());
-            verify(userMapper).toDto(any());
+            verify(userMapper).toUserDtoResponse(any());
 
-            assertThat(response).isEqualTo(userDtoResponse);
+            assertThat(actualUser).isEqualTo(expectedUserDtoResponse);
         }
 
         @Test
-        @DisplayName("Get User by ID; not found")
-        void checkGetUserByIdShouldThrowTagNotFoundException() {
-            doThrow(UserNotFoundException.class).when(userRepository).findById(anyLong());
+        @DisplayName("Find User by ID; not found")
+        void checkFindByIdShouldThrowTagNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(userRepository).findById(anyLong());
 
-            assertThrows(UserNotFoundException.class, () -> userService.getUserById(TEST_ID));
+            assertThrows(EntityNotFoundException.class, () -> userService.findById(TEST_ID));
 
             verify(userRepository).findById(anyLong());
         }
     }
 
     @Nested
-    public class GetUserByHighestOrderCostTest {
+    public class FindByHighestOrderCostTest {
         @Test
-        @DisplayName("Get User by highest order cost")
-        void checkGetUserByHighestOrderCostShouldReturnUserDtoResponse() {
-            when(userRepository.findUserByHighestOrderCost()).thenReturn(Optional.of(user));
-            when(userMapper.toDto(user)).thenReturn(userDtoResponse);
+        @DisplayName("Find User by highest order cost")
+        void checkFindByHighestOrderCostShouldReturnUserDtoResponse() {
+            when(userRepository.findByHighestOrderCost()).thenReturn(Optional.of(user));
+            when(userMapper.toUserDtoResponse(user)).thenReturn(expectedUserDtoResponse);
 
-            UserDtoResponse response = userService.getUserByHighestOrderCost();
+            UserDtoResponse actualUser = userService.findByHighestOrderCost();
 
-            verify(userRepository).findUserByHighestOrderCost();
-            verify(userMapper).toDto(any());
+            verify(userRepository).findByHighestOrderCost();
+            verify(userMapper).toUserDtoResponse(any());
 
-            assertThat(response).isEqualTo(userDtoResponse);
+            assertThat(actualUser).isEqualTo(expectedUserDtoResponse);
         }
 
         @Test
-        @DisplayName("Get User by highest order cost; not found")
-        void checkGetUserByHighestOrderCostShouldThrowTagNotFoundException() {
-            doThrow(UserNotFoundException.class).when(userRepository).findUserByHighestOrderCost();
+        @DisplayName("Find User by highest order cost; not found")
+        void checkFindByHighestOrderCostShouldThrowTagNotFoundException() {
+            doThrow(EntityNotFoundException.class).when(userRepository).findByHighestOrderCost();
 
-            assertThrows(UserNotFoundException.class, () -> userService.getUserByHighestOrderCost());
+            assertThrows(EntityNotFoundException.class, () -> userService.findByHighestOrderCost());
 
-            verify(userRepository).findUserByHighestOrderCost();
+            verify(userRepository).findByHighestOrderCost();
         }
     }
 }

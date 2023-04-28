@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.model.entity;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -23,6 +22,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import ru.clevertec.ecl.model.enums.Status;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,39 +39,34 @@ public class User implements BaseEntity<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Exclude
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "username")
     private String username;
 
-    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email")
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
     private Status status;
 
     @CreatedDate
+    @Builder.Default
     @EqualsAndHashCode.Exclude
-    @Column(name = "create_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime createDate;
+    private OffsetDateTime createDate = OffsetDateTime.now();
 
     @LastModifiedDate
+    @Builder.Default
     @EqualsAndHashCode.Exclude
-    @Column(name = "last_update_date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime lastUpdateDate;
+    private OffsetDateTime lastUpdateDate = OffsetDateTime.now();
 
+    @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Order> orders;
+    private List<Order> orders = new ArrayList<>();
 }

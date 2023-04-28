@@ -7,7 +7,7 @@ import ru.clevertec.ecl.builder.TestBuilder;
 import ru.clevertec.ecl.model.dto.response.UserDtoResponse;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.clevertec.ecl.util.TestConstants.TEST_DATE;
@@ -36,20 +36,20 @@ public class UserDtoResponseTestBuilder implements TestBuilder<UserDtoResponse> 
 
     private OffsetDateTime lastUpdateDate = TEST_DATE;
 
-    private List<Long> ordersIds = Collections.emptyList();
+    private List<Long> ordersIds = new ArrayList<>();
 
     @Override
     public UserDtoResponse build() {
-        UserDtoResponse userDtoResponse = new UserDtoResponse();
-        userDtoResponse.setId(id);
-        userDtoResponse.setUsername(username);
-        userDtoResponse.setFirstName(firstName);
-        userDtoResponse.setLastName(lastName);
-        userDtoResponse.setEmail(email);
-        userDtoResponse.setStatus(status);
-        userDtoResponse.setCreateDate(createDate);
-        userDtoResponse.setLastUpdateDate(lastUpdateDate);
-        userDtoResponse.setOrdersIds(ordersIds);
-        return userDtoResponse;
+        return UserDtoResponse.builder()
+                .id(id)
+                .username(username)
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .status(status)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .ordersIds(ordersIds)
+                .build();
     }
 }

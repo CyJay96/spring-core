@@ -2,7 +2,9 @@ package ru.clevertec.ecl.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,11 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.clevertec.ecl.config.PaginationProperties;
-import ru.clevertec.ecl.exception.GiftCertificateNotFoundException;
-import ru.clevertec.ecl.exception.TagNotFoundException;
+import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
 import ru.clevertec.ecl.model.dto.request.GiftCertificateDtoRequest;
 import ru.clevertec.ecl.model.dto.response.ApiResponse;
@@ -26,10 +25,7 @@ import ru.clevertec.ecl.model.dto.response.GiftCertificateDtoResponse;
 import ru.clevertec.ecl.model.dto.response.PageResponse;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
-import java.util.Optional;
-
 import static ru.clevertec.ecl.controller.GiftCertificateController.GIFT_CERTIFICATE_API_PATH;
-import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 
 /**
  * Gift Certificate API
@@ -43,9 +39,8 @@ import static ru.clevertec.ecl.model.dto.response.ApiResponse.apiResponseEntity;
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
-    private final PaginationProperties paginationProperties;
 
-    public static final String GIFT_CERTIFICATE_API_PATH = "/api/v0/giftCertificates";
+    public static final String GIFT_CERTIFICATE_API_PATH = "/v0/giftCertificates";
 
     /**
      * POST /api/v0/giftCertificates : Create a new Gift Certificate
@@ -53,16 +48,15 @@ public class GiftCertificateController {
      * @param giftCertificateDtoRequest Gift Certificate object to create (required)
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> createGiftCertificate(
-            @RequestBody @Valid GiftCertificateDtoRequest giftCertificateDtoRequest
-    ) {
-        GiftCertificateDtoResponse giftCertificate = giftCertificateService.createGiftCertificate(giftCertificateDtoRequest);
+    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> save(
+            @RequestBody @Valid GiftCertificateDtoRequest giftCertificateDtoRequest) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService
+                .save(giftCertificateDtoRequest);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Gift Certificate with ID " + giftCertificate.getId() + " was created",
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.CREATED,
-                ApiResponse.Color.SUCCESS,
                 giftCertificate
         );
     }
@@ -70,26 +64,17 @@ public class GiftCertificateController {
     /**
      * GET /api/v0/giftCertificates : Find Gift Certificates info
      *
-     * @param page page value to return (not required)
-     * @param pageSize page size to return (not required)
+     * @param pageable page number & page size values to return (not required)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAllGiftCertificates(
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize
-    ) {
-        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
-        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
+    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAll(Pageable pageable) {
+        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.findAll(pageable);
 
-        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificates(page, pageSize);
-
-        return apiResponseEntity(
-                "All Gift Certificates: " +
-                        "; page: " + page +
-                        "; page_size: " + pageSize,
+        return ApiResponse.of(
+                "All Gift Certificates: page_number: " + pageable.getPageNumber() +
+                        "; page_size: " + pageable.getPageSize(),
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 giftCertificates
         );
     }
@@ -98,37 +83,24 @@ public class GiftCertificateController {
      * GET /api/v0/giftCertificates : Find Gift Certificates info by criteria
      *
      * @param searchCriteria Gift Certificate searchCriteria to return (not required)
-     * @param page page value to return (not required)
-     * @param pageSize page size to return (not required)
+     * @param pageable page number & page size values to return (not required)
      */
     @GetMapping("/criteria")
-    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAllGiftCertificatesByCriteria(
+    public ResponseEntity<ApiResponse<PageResponse<GiftCertificateDtoResponse>>> findAllByCriteria(
             @RequestBody(required = false) GiftCertificateCriteria searchCriteria,
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize
-    ) {
-        page = Optional.ofNullable(page).orElse(paginationProperties.getDefaultPageValue());
-        pageSize = Optional.ofNullable(pageSize).orElse(paginationProperties.getDefaultPageSize());
+            Pageable pageable) {
+        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService
+                .findAllByCriteria(searchCriteria, pageable);
 
-        if (searchCriteria == null) {
-            searchCriteria = GiftCertificateCriteria.builder().build();
-        }
-
-        searchCriteria.setOffset(page);
-        searchCriteria.setLimit(pageSize);
-
-        PageResponse<GiftCertificateDtoResponse> giftCertificates = giftCertificateService.getAllGiftCertificatesByCriteria(searchCriteria);
-
-        return apiResponseEntity(
-                "Gift Certificates by criteria: tag_name: " + searchCriteria.getTagNames() +
+        return ApiResponse.of(
+                "Gift Certificates by criteria: tag_names: " + searchCriteria.getTagNames() +
                         "; description: " + searchCriteria.getDescription() +
                         "; sort_direction_name: " + searchCriteria.getSortDirectionName() +
                         "; sort_direction_date: " + searchCriteria.getSortDirectionDate() +
-                        "; page: " + page +
-                        "; page_size: " + pageSize,
+                        "; page_number: " + pageable.getPageNumber() +
+                        "; page_size: " + pageable.getPageSize(),
                 GIFT_CERTIFICATE_API_PATH,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 giftCertificates
         );
     }
@@ -137,17 +109,17 @@ public class GiftCertificateController {
      * GET /api/v0/giftCertificates/{id} : Find Gift Certificate info
      *
      * @param id Gift Certificate ID to return (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
+     * @throws EntityNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> findGiftCertificateById(@PathVariable @Valid @NotNull Long id) {
-        GiftCertificateDtoResponse giftCertificate = giftCertificateService.getGiftCertificateById(id);
+    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> findById(
+            @PathVariable @NotNull @PositiveOrZero Long id) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService.findById(id);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Gift Certificate with ID " + giftCertificate.getId() + " was found",
                 GIFT_CERTIFICATE_API_PATH + "/" + id,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 giftCertificate
         );
     }
@@ -157,20 +129,19 @@ public class GiftCertificateController {
      *
      * @param id Gift Certificate ID to return (required)
      * @param giftCertificateDtoRequest Gift Certificate object to update (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
+     * @throws EntityNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> updateGiftCertificateById(
-            @PathVariable @Valid @NotNull Long id,
-            @RequestBody @Valid GiftCertificateDtoRequest giftCertificateDtoRequest
-    ) {
-        GiftCertificateDtoResponse giftCertificate = giftCertificateService.updateGiftCertificateById(id, giftCertificateDtoRequest);
+    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> update(
+            @PathVariable @NotNull @PositiveOrZero Long id,
+            @RequestBody @Valid GiftCertificateDtoRequest giftCertificateDtoRequest) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService
+                .update(id, giftCertificateDtoRequest);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Changes were applied to the Gift Certificate with ID " + id,
                 GIFT_CERTIFICATE_API_PATH + "/" + id,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 giftCertificate
         );
     }
@@ -180,20 +151,19 @@ public class GiftCertificateController {
      *
      * @param id Gift Certificate ID to return (required)
      * @param giftCertificateDtoRequest Gift Certificate object to update (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
+     * @throws EntityNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> updateGiftCertificateByIdPartially(
-            @PathVariable @Valid @NotNull Long id,
-            @RequestBody GiftCertificateDtoRequest giftCertificateDtoRequest
-    ) {
-        GiftCertificateDtoResponse giftCertificate = giftCertificateService.updateGiftCertificateByIdPartially(id, giftCertificateDtoRequest);
+    public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> updatePartially(
+            @PathVariable @NotNull @PositiveOrZero Long id,
+            @RequestBody GiftCertificateDtoRequest giftCertificateDtoRequest) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService
+                .updatePartially(id, giftCertificateDtoRequest);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Partial changes were applied to the Gift Certificate with ID " + id,
                 GIFT_CERTIFICATE_API_PATH + "/" + id,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 giftCertificate
         );
     }
@@ -203,21 +173,19 @@ public class GiftCertificateController {
      *
      * @param giftCertificateId Gift Certificate ID to return (required)
      * @param tagId Tag ID to return (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
-     * @throws TagNotFoundException if the Tag with ID doesn't exist
+     * @throws EntityNotFoundException if the Gift Certificate ot Tag with ID doesn't exist
      */
     @PatchMapping("/add/{giftCertificateId}/{tagId}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> addTagToGiftCertificate(
-            @PathVariable @Valid @NotNull Long giftCertificateId,
-            @PathVariable @Valid @NotNull Long tagId
-    ) {
-        GiftCertificateDtoResponse giftCertificate = giftCertificateService.addTagToGiftCertificate(giftCertificateId, tagId);
+            @PathVariable @NotNull @PositiveOrZero Long giftCertificateId,
+            @PathVariable @NotNull @PositiveOrZero Long tagId) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService
+                .addTagToGiftCertificate(giftCertificateId, tagId);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Gift Certificate by ID " + giftCertificateId + "with added Tag by ID " + tagId,
                 GIFT_CERTIFICATE_API_PATH + "/" + giftCertificateId + "/" + tagId,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 giftCertificate
         );
     }
@@ -227,21 +195,19 @@ public class GiftCertificateController {
      *
      * @param giftCertificateId Gift Certificate ID to return (required)
      * @param tagId Tag ID to return (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
-     * @throws TagNotFoundException if the Tag with ID doesn't exist
+     * @throws EntityNotFoundException if the Gift Certificate or Tag with ID doesn't exist
      */
     @PatchMapping("/delete/{giftCertificateId}/{tagId}")
     public ResponseEntity<ApiResponse<GiftCertificateDtoResponse>> deleteTagFromGiftCertificate(
-            @PathVariable @Valid @NotNull Long giftCertificateId,
-            @PathVariable @Valid @NotNull Long tagId
-    ) {
-        GiftCertificateDtoResponse giftCertificate = giftCertificateService.deleteTagFromGiftCertificate(giftCertificateId, tagId);
+            @PathVariable @NotNull @PositiveOrZero Long giftCertificateId,
+            @PathVariable @NotNull @PositiveOrZero Long tagId) {
+        GiftCertificateDtoResponse giftCertificate = giftCertificateService
+                .deleteTagFromGiftCertificate(giftCertificateId, tagId);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Gift Certificate by ID " + giftCertificateId + "with deleted Tag by ID " + tagId,
                 GIFT_CERTIFICATE_API_PATH + "/" + giftCertificateId + "/" + tagId,
                 HttpStatus.OK,
-                ApiResponse.Color.SUCCESS,
                 giftCertificate
         );
     }
@@ -250,17 +216,16 @@ public class GiftCertificateController {
      * DELETE /api/v0/giftCertificates/{id} : Delete a Gift Certificate
      *
      * @param id Gift Certificate ID to return (required)
-     * @throws GiftCertificateNotFoundException if the Gift Certificate with ID doesn't exist
+     * @throws EntityNotFoundException if the Gift Certificate with ID doesn't exist
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteGiftCertificateById(@PathVariable @Valid @NotNull Long id) {
-        giftCertificateService.deleteGiftCertificateById(id);
+    public ResponseEntity<ApiResponse<Void>> deleteById(@PathVariable @NotNull @PositiveOrZero Long id) {
+        giftCertificateService.deleteById(id);
 
-        return apiResponseEntity(
+        return ApiResponse.of(
                 "Gift Certificate with ID " + id + " was deleted",
                 GIFT_CERTIFICATE_API_PATH + "/" + id,
                 HttpStatus.NO_CONTENT,
-                ApiResponse.Color.SUCCESS,
                 null
         );
     }

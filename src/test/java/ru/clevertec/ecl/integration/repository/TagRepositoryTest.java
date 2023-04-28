@@ -16,7 +16,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class TagRepositoryTest extends BaseIntegrationTest {
+class TagRepositoryTest extends BaseIntegrationTest {
 
     private final TagRepository tagRepository;
 

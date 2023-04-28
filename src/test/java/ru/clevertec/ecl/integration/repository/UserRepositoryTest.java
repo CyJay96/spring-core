@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UserRepositoryTest extends BaseIntegrationTest {
+class UserRepositoryTest extends BaseIntegrationTest {
 
     private final UserRepository userRepository;
 
@@ -26,7 +26,7 @@ public class UserRepositoryTest extends BaseIntegrationTest {
     public class FindUserByHighestOrderCostTest {
         @Test
         @DisplayName("Find User by highest order cost")
-        void checkFindUserByHighestOrderCostShouldReturnNotEmptyUserOptional() {
+        void checkFindByHighestOrderCostShouldReturnNotEmptyUserOptional() {
             List<User> users = userRepository.findAll();
             double expectedMaxPrice = users.stream()
                     .map(User::getOrders)
@@ -40,7 +40,7 @@ public class UserRepositoryTest extends BaseIntegrationTest {
                     .max()
                     .getAsDouble();
 
-            Optional<User> userOptional = userRepository.findUserByHighestOrderCost();
+            Optional<User> userOptional = userRepository.findByHighestOrderCost();
             double actualMaxPrice = userOptional.get().getOrders().stream()
                     .map(Order::getFinalPrice)
                     .reduce(BigDecimal::add)
@@ -52,9 +52,9 @@ public class UserRepositoryTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find User by highest order cost; not found")
-        void checkFindUserByHighestOrderCostShouldReturnEmptyUserOptional() {
+        void checkFindByHighestOrderCostShouldReturnEmptyUserOptional() {
             userRepository.deleteAll();
-            Optional<User> actualUserOptional = userRepository.findUserByHighestOrderCost();
+            Optional<User> actualUserOptional = userRepository.findByHighestOrderCost();
             assertThat(actualUserOptional.isEmpty()).isTrue();
         }
     }

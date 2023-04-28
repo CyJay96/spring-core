@@ -36,13 +36,13 @@ public class OrderTestBuilder implements TestBuilder<Order> {
 
     @Override
     public Order build() {
-        Order order = new Order();
-        order.setId(id);
-        order.setUser(user);
-        order.setGiftCertificate(giftCertificate);
-        order.setFinalPrice(finalPrice);
-        order.setCreateDate(createDate);
-        order.setLastUpdateDate(lastUpdateDate);
-        return order;
+        return Order.builder()
+                .id(id)
+                .user(user)
+                .giftCertificate(giftCertificate)
+                .finalPrice(finalPrice)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .build();
     }
 }

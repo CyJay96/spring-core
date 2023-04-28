@@ -31,7 +31,7 @@ import static ru.clevertec.ecl.util.TestConstants.PAGE_SIZE;
 
 @AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class TagControllerTest extends BaseIntegrationTest {
+class TagControllerTest extends BaseIntegrationTest {
 
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
@@ -40,8 +40,8 @@ public class TagControllerTest extends BaseIntegrationTest {
     private final TagDtoRequest tagDtoRequest = TagDtoRequestTestBuilder.aTagDtoRequest().build();
 
     @Test
-    @DisplayName("Create Tag")
-    void checkCreateTagShouldReturnTagDtoResponse() throws Exception {
+    @DisplayName("Save Tag")
+    void checkSaveShouldReturnTagDtoResponse() throws Exception {
         mockMvc.perform(post(TAG_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(tagDtoRequest)))
@@ -52,23 +52,23 @@ public class TagControllerTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("Find all Tags")
-    void checkFindAllTagsShouldReturnTagDtoResponsePage() throws Exception {
+    void checkFindAllShouldReturnTagDtoResponsePage() throws Exception {
         int expectedTagsSize = (int) tagRepository.count();
         mockMvc.perform(get(TAG_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", String.valueOf(PAGE))
-                        .param("pageSize", String.valueOf(PAGE_SIZE)))
+                        .param("size", String.valueOf(PAGE_SIZE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isNotEmpty())
                 .andExpect(jsonPath("$.data.content.size()").value(expectedTagsSize));
     }
 
     @Nested
-    public class FindTagByIdTest {
+    public class FindByIdTest {
         @DisplayName("Find Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkFindTagByIdShouldReturnTagDtoResponse(Long id) throws Exception {
+        void checkFindByIdShouldReturnTagDtoResponse(Long id) throws Exception {
             mockMvc.perform(get(TAG_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -78,7 +78,7 @@ public class TagControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Find Tag by ID; not found")
-        void checkFindTagByIdShouldThrowTagNotFoundException() throws Exception {
+        void checkFindByIdShouldThrowTagNotFoundException() throws Exception {
             long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(get(TAG_API_PATH + "/{id}", doesntExistTagId)
@@ -88,11 +88,11 @@ public class TagControllerTest extends BaseIntegrationTest {
     }
 
     @Nested
-    public class UpdateTagByIdTest {
+    public class UpdateByIdTest {
         @DisplayName("Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateTagByIdShouldReturnTagDtoResponse(Long id) throws Exception {
+        void checkUpdateShouldReturnTagDtoResponse(Long id) throws Exception {
             mockMvc.perform(put(TAG_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(tagDtoRequest)))
@@ -104,7 +104,7 @@ public class TagControllerTest extends BaseIntegrationTest {
         @DisplayName("Partial Update Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkUpdateTagByIdPartiallyShouldReturnTagDtoResponse(Long id) throws Exception {
+        void checkUpdatePartiallyShouldReturnTagDtoResponse(Long id) throws Exception {
             mockMvc.perform(patch(TAG_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(tagDtoRequest)))
@@ -115,7 +115,7 @@ public class TagControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Update Tag by ID; not found")
-        void checkUpdateTagByIdShouldThrowTagNotFoundException() throws Exception {
+        void checkUpdateShouldThrowTagNotFoundException() throws Exception {
             long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(put(TAG_API_PATH + "/{id}", doesntExistTagId)
@@ -126,7 +126,7 @@ public class TagControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Partial Update Tag by ID; not found")
-        void checkUpdateTagByIdPartiallyShouldThrowTagNotFoundException() throws Exception {
+        void checkUpdatePartiallyShouldThrowTagNotFoundException() throws Exception {
             long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(patch(TAG_API_PATH + "/{id}", doesntExistTagId)
@@ -137,11 +137,11 @@ public class TagControllerTest extends BaseIntegrationTest {
     }
 
     @Nested
-    public class DeleteTagByIdTest {
+    public class DeleteByIdTest {
         @DisplayName("Delete Tag by ID")
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
-        void checkDeleteTagByIdShouldReturnVoid(Long id) throws Exception {
+        void checkDeleteByIdShouldReturnVoid(Long id) throws Exception {
             mockMvc.perform(delete(TAG_API_PATH + "/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNoContent());
@@ -149,7 +149,7 @@ public class TagControllerTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Delete Tag by ID; not found")
-        void checkDeleteTagByIdShouldThrowTagNotFoundException() throws Exception {
+        void checkDeleteByIdShouldThrowTagNotFoundException() throws Exception {
             long doesntExistTagId = new Random()
                     .nextLong(tagRepository.findFirstByOrderByIdDesc().get().getId() + 1, Long.MAX_VALUE);
             mockMvc.perform(delete(TAG_API_PATH + "/{id}", doesntExistTagId)
