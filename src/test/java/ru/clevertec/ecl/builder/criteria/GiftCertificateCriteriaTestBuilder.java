@@ -1,4 +1,4 @@
-package ru.clevertec.ecl.builder.giftCertificate;
+package ru.clevertec.ecl.builder.criteria;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

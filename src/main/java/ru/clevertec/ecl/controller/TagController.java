@@ -6,7 +6,6 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -102,7 +101,7 @@ public class TagController {
      * @param tagDtoRequest Tag object to update (required)
      * @throws EntityNotFoundException if the Tag with ID doesn't exist
      */
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<TagDtoResponse>> update(
             @PathVariable @NotNull @PositiveOrZero Long id,
             @RequestBody @Valid TagDtoRequest tagDtoRequest) {
@@ -123,7 +122,7 @@ public class TagController {
      * @param tagDtoRequest Tag object to update (required)
      * @throws EntityNotFoundException if Tag with ID doesn't exist
      */
-    @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<TagDtoResponse>> updatePartially(
             @PathVariable @NotNull @PositiveOrZero Long id,
             @RequestBody TagDtoRequest tagDtoRequest) {

@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateCriteriaTestBuilder;
+import ru.clevertec.ecl.builder.criteria.GiftCertificateCriteriaTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.exception.EntityNotFoundException;
 import ru.clevertec.ecl.integration.BaseIntegrationTest;
