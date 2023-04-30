@@ -97,13 +97,13 @@ class GiftCertificateServiceTest {
             doReturn(expectedGiftCertificateDtoResponse)
                     .when(giftCertificateMapper).toGiftCertificateDtoResponse(expectedGiftCertificate);
 
-            GiftCertificateDtoResponse actualOrder = giftCertificateService.save(giftCertificateDtoRequest);
+            GiftCertificateDtoResponse actualGiftCertificate = giftCertificateService.save(giftCertificateDtoRequest);
 
             verify(giftCertificateRepository).save(any());
             verify(giftCertificateMapper).toGiftCertificate(any());
             verify(giftCertificateMapper).toGiftCertificateDtoResponse(any());
 
-            assertThat(actualOrder).isEqualTo(expectedGiftCertificateDtoResponse);
+            assertThat(actualGiftCertificate).isEqualTo(expectedGiftCertificateDtoResponse);
         }
 
         @Test

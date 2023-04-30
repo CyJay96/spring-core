@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateCriteriaTestBuilder;
+import ru.clevertec.ecl.builder.criteria.GiftCertificateCriteriaTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoResponseTestBuilder;
 import ru.clevertec.ecl.exception.EntityNotFoundException;

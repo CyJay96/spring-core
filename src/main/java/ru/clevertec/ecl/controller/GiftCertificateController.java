@@ -99,7 +99,7 @@ public class GiftCertificateController {
                         "; sort_direction_date: " + searchCriteria.getSortDirectionDate() +
                         "; page_number: " + pageable.getPageNumber() +
                         "; page_size: " + pageable.getPageSize(),
-                GIFT_CERTIFICATE_API_PATH,
+                GIFT_CERTIFICATE_API_PATH + "/criteria",
                 HttpStatus.OK,
                 giftCertificates
         );
