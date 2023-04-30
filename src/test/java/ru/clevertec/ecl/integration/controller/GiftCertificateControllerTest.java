@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateCriteriaTestBuilder;
+import ru.clevertec.ecl.builder.criteria.GiftCertificateCriteriaTestBuilder;
 import ru.clevertec.ecl.builder.giftCertificate.GiftCertificateDtoRequestTestBuilder;
 import ru.clevertec.ecl.integration.BaseIntegrationTest;
 import ru.clevertec.ecl.model.criteria.GiftCertificateCriteria;
